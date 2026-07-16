@@ -38,6 +38,11 @@ END_JUCE_MODULE_DECLARATION
 #include "source/Style.h"
 #include "source/ShadowTree.h"
 #include "source/Painter.h"
+#include "source/HitTest.h"
+#include "source/NativeRegistry.h"
+#include "source/TextInputHost.h"
+#include "source/ErrorOverlay.h"
+#include "source/RootView.h"
 
 namespace vsreact
 {

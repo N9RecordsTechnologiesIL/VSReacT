@@ -13,6 +13,8 @@
 #include "source/Style.cpp"
 #include "source/ShadowTree.cpp"
 #include "source/Painter.cpp"
+#include "source/HitTest.cpp"
+#include "source/RootView.cpp"
 
 #include <quickjs.h>
 

@@ -19,6 +19,28 @@ Style Node::effectiveStyle() const
     return result;
 }
 
+float Node::contentHeight() const
+{
+    float maxBottom = frame.getY();
+
+    for (const auto* child : children)
+        if (child->yoga != nullptr)
+            maxBottom = juce::jmax (maxBottom, child->frame.getBottom());
+
+    const auto paddingBottom = style.getFloat ("paddingBottom", style.getFloat ("padding", 0.0f));
+    return maxBottom - frame.getY() + paddingBottom;
+}
+
+float Node::accumulatedAncestorScroll() const
+{
+    float total = 0.0f;
+
+    for (const auto* ancestor = parent; ancestor != nullptr; ancestor = ancestor->parent)
+        total += ancestor->scrollY;
+
+    return total;
+}
+
 juce::String Node::textContent() const
 {
     if (type == "rawtext")
@@ -181,6 +203,10 @@ void ShadowTree::setProps (int id, const juce::var& props)
     if (const auto* listeners = props["listeners"].getArray())
         for (const auto& listener : *listeners)
             node->listeners.add (listener.toString());
+
+    if (const auto* object = props.getDynamicObject())
+        if (object->hasProperty ("scrollTop"))
+            node->scrollY = static_cast<float> (static_cast<double> (props["scrollTop"]));
 
     if (node->yoga != nullptr)
     {

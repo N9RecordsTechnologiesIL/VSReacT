@@ -24,13 +24,26 @@ struct Node
     std::vector<Node*> children;
 
     bool hovered = false, active = false, focused = false;
-    juce::Rectangle<float> frame;   // absolute within the root, set by computeLayout
+    juce::Rectangle<float> frame;   // absolute (unscrolled) within the root, set by computeLayout
+    float scrollY = 0.0f;           // scroll offset for overflow:"scroll" nodes
 
     /** style + the state variants that currently apply. */
     Style effectiveStyle() const;
 
     /** Concatenated rawtext of all children (for text nodes). */
     juce::String textContent() const;
+
+    bool isScrollable() const { return style.getString ("overflow") == "scroll"; }
+
+    /** Height of the content inside this node (children extent + bottom padding). */
+    float contentHeight() const;
+
+    /** How far this node can scroll (content beyond its frame). */
+    float maxScroll() const { return juce::jmax (0.0f, contentHeight() - frame.getHeight()); }
+
+    /** Sum of every ancestor's scrollY — the visual offset applied to this
+        node's absolute frame by scrolled containers above it. */
+    float accumulatedAncestorScroll() const;
 };
 
 /** The retained C++ mirror of the React tree. Applies mutation batches from

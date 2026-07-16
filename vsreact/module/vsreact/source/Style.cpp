@@ -312,6 +312,7 @@ void Style::applyLayout (YGNodeRef node) const
                                                                          : YGPositionTypeRelative);
         else if (name == "overflow")
             YGNodeStyleSetOverflow (node, v.toString() == "hidden" ? YGOverflowHidden
+                                    : v.toString() == "scroll"     ? YGOverflowScroll
                                                                    : YGOverflowVisible);
         else if (name == "gap" && isNumber (v))
             YGNodeStyleSetGap (node, YGGutterAll, toFloat (v));

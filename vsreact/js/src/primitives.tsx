@@ -1,15 +1,29 @@
 import { createElement, type ReactNode } from "react";
 import type { Style } from "./tw";
 
+export interface DragEventPayload {
+  /** Delta from the drag start, in root coordinates. */
+  dx: number;
+  dy: number;
+  /** Current pointer position in root coordinates. */
+  x: number;
+  y: number;
+}
+
 export interface CommonProps {
   className?: string;
   style?: Style;
   children?: ReactNode;
+  /** Resets the scroll offset of an overflow-y-scroll container. */
+  scrollTop?: number;
   onClick?: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   onMouseDown?: () => void;
   onMouseUp?: () => void;
+  onDragStart?: (e: DragEventPayload) => void;
+  onDrag?: (e: DragEventPayload) => void;
+  onDragEnd?: (e: DragEventPayload) => void;
 }
 
 export function View(props: CommonProps) {

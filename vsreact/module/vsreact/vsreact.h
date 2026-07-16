@@ -20,7 +20,7 @@ BEGIN_JUCE_MODULE_DECLARATION
   license:          MIT
   minimumCppStandard: 17
 
-  dependencies:     juce_gui_extra
+  dependencies:     juce_gui_extra juce_audio_processors
 
 END_JUCE_MODULE_DECLARATION
 
@@ -41,6 +41,7 @@ END_JUCE_MODULE_DECLARATION
 #include "source/HitTest.h"
 #include "source/NativeRegistry.h"
 #include "source/TextInputHost.h"
+#include "source/ParameterBridge.h"
 #include "source/ErrorOverlay.h"
 #include "source/RootView.h"
 

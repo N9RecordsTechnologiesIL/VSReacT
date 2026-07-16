@@ -153,7 +153,9 @@ void RootView::syncHostedComponents()
 {
     for (auto& [nodeId, component] : hostedComponents)
         if (const auto* node = tree.find (nodeId))
-            component->setBounds (node->frame.toNearestInt());
+            component->setBounds (node->frame
+                                      .translated (0.0f, -node->accumulatedAncestorScroll())
+                                      .toNearestInt());
 }
 
 void RootView::hostComponentFor (Node& node)
@@ -353,9 +355,44 @@ void RootView::mouseExit (const juce::MouseEvent&)
     updateHoverState ({ -1.0f, -1.0f });
 }
 
+namespace
+{
+    juce::var dragPayload (juce::Point<float> position, juce::Point<float> start)
+    {
+        auto* payload = new juce::DynamicObject();
+        payload->setProperty ("dx", position.x - start.x);
+        payload->setProperty ("dy", position.y - start.y);
+        payload->setProperty ("x", position.x);
+        payload->setProperty ("y", position.y);
+        return juce::var (payload);
+    }
+
+    bool listensForDrag (const Node& node)
+    {
+        return node.listeners.contains ("drag")
+            || node.listeners.contains ("dragstart")
+            || node.listeners.contains ("dragend");
+    }
+}
+
 void RootView::mouseDown (const juce::MouseEvent& e)
 {
-    auto* target = nearestPressTarget (vsreact::hitTest (*tree.root(), e.position));
+    auto* hit = vsreact::hitTest (*tree.root(), e.position);
+
+    dragNodeId = 0;
+    dragging = false;
+    dragStartPosition = e.position;
+
+    for (auto* node = hit; node != nullptr; node = node->parent)
+    {
+        if (listensForDrag (*node))
+        {
+            dragNodeId = node->id;
+            break;
+        }
+    }
+
+    auto* target = nearestPressTarget (hit);
 
     if (target == nullptr)
         return;
@@ -369,9 +406,42 @@ void RootView::mouseDown (const juce::MouseEvent& e)
     repaint();
 }
 
+void RootView::mouseDrag (const juce::MouseEvent& e)
+{
+    auto* node = tree.find (dragNodeId);
+
+    if (node == nullptr || dragNodeId == 0)
+        return;
+
+    if (! dragging)
+    {
+        if (e.position.getDistanceFrom (dragStartPosition) < 3.0f)
+            return;
+
+        dragging = true;
+
+        if (node->listeners.contains ("dragstart"))
+            dispatchNodeEvent (dragNodeId, "dragstart", dragPayload (e.position, dragStartPosition));
+    }
+
+    if (auto* current = tree.find (dragNodeId); current != nullptr && current->listeners.contains ("drag"))
+        dispatchNodeEvent (dragNodeId, "drag", dragPayload (e.position, dragStartPosition));
+}
+
 void RootView::mouseUp (const juce::MouseEvent& e)
 {
     const auto pressedId = activeNodeId;
+    const bool wasDragging = dragging;
+
+    if (wasDragging)
+    {
+        if (auto* node = tree.find (dragNodeId); node != nullptr && dragNodeId != 0
+            && node->listeners.contains ("dragend"))
+            dispatchNodeEvent (dragNodeId, "dragend", dragPayload (e.position, dragStartPosition));
+    }
+
+    dragNodeId = 0;
+    dragging = false;
 
     if (auto* pressed = tree.find (pressedId); pressed != nullptr && pressedId != 0)
     {
@@ -382,12 +452,33 @@ void RootView::mouseUp (const juce::MouseEvent& e)
 
         auto* released = nearestPressTarget (vsreact::hitTest (*tree.root(), e.position));
 
-        if (released != nullptr && released->id == pressedId
+        // A completed drag is not a click.
+        if (! wasDragging && released != nullptr && released->id == pressedId
             && released->listeners.contains ("click"))
             dispatchNodeEvent (pressedId, "click");
     }
 
     activeNodeId = 0;
+    repaint();
+}
+
+void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel)
+{
+    auto* scrollable = hitTestScrollable (*tree.root(), e.position);
+
+    if (scrollable == nullptr)
+        return;
+
+    const auto extent = scrollable->maxScroll();
+
+    if (extent <= 0.0f)
+        return;
+
+    scrollable->scrollY = juce::jlimit (0.0f, extent,
+                                        scrollable->scrollY - wheel.deltaY * 400.0f);
+
+    syncHostedComponents();
+    updateHoverState (e.position);
     repaint();
 }
 

@@ -8,7 +8,8 @@ target_sources(VSReacTTests
         ShadowTreeTests.cpp
         PainterTests.cpp
         HitTestTests.cpp
-        HostedComponentTests.cpp)
+        HostedComponentTests.cpp
+        Phase2Tests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE
@@ -19,6 +20,7 @@ target_link_libraries(VSReacTTests
     PRIVATE
         vsreact
         juce::juce_gui_extra
+        juce::juce_audio_processors
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)

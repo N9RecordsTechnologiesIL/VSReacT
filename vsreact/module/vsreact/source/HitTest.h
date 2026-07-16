@@ -11,8 +11,12 @@ namespace vsreact
 bool isInteractive (const Node& node);
 
 /** Topmost interactive node under the point, respecting paint order (later
-    siblings on top) and overflow clipping. Returns nullptr when nothing
-    interactive is hit. */
+    siblings on top), overflow clipping, and scroll offsets. Returns nullptr
+    when nothing interactive is hit. */
 Node* hitTest (Node& root, juce::Point<float> position);
+
+/** Deepest overflow:"scroll" node under the point (the wheel-scroll target),
+    or nullptr. */
+Node* hitTestScrollable (Node& root, juce::Point<float> position);
 
 } // namespace vsreact

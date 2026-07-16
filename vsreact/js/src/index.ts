@@ -17,3 +17,8 @@ export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
 export { useTween, lerp, Easing } from "./animation";
 export type { TweenOptions, EasingFn } from "./animation";
+export { useParameter } from "./parameters";
+export type { ParameterState, ParameterHandle } from "./parameters";
+export { Knob, Slider, ParamKnob, ParamSlider, dragToValue } from "./controls";
+export type { KnobProps, SliderProps, ParamKnobProps, ParamSliderProps } from "./controls";
+export type { DragEventPayload } from "./primitives";

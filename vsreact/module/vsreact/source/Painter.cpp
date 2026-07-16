@@ -110,16 +110,79 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
         }
     }
 
+    // Arc ring (knob track + value) centred in the node.
+    if (style.has ("arcTrackColor") || style.has ("arcColor"))
+    {
+        const auto thickness = style.getFloat ("arcThickness", 4.0f);
+        const auto radius = juce::jmin (node.frame.getWidth(), node.frame.getHeight()) * 0.5f
+                          - thickness * 0.5f;
+
+        const auto drawArc = [&] (juce::Colour colour, float fromDeg, float toDeg)
+        {
+            if (toDeg <= fromDeg + 0.01f || radius <= 0.0f)
+                return;
+
+            juce::Path arc;
+            arc.addCentredArc (node.frame.getCentreX(), node.frame.getCentreY(),
+                               radius, radius, 0.0f,
+                               juce::degreesToRadians (fromDeg),
+                               juce::degreesToRadians (toDeg),
+                               true);
+            g.setColour (colour);
+            g.strokePath (arc, juce::PathStrokeType (thickness,
+                                                     juce::PathStrokeType::curved,
+                                                     juce::PathStrokeType::rounded));
+        };
+
+        const auto arcStart = style.getFloat ("arcStart", -135.0f);
+
+        if (const auto track = style.getColour ("arcTrackColor"))
+            drawArc (*track, arcStart, style.getFloat ("arcEnd", 135.0f));
+
+        if (const auto value = style.getColour ("arcColor"))
+            drawArc (*value, arcStart, style.getFloat ("arcValueEnd", arcStart));
+    }
+
     if (node.type == "text")
         paintText (g, node, style);
     else if (node.type == "image")
         paintImage (g, node);
 
-    if (style.overflowHidden())
+    const bool scrollable = node.isScrollable();
+
+    if (style.overflowHidden() || scrollable)
         g.reduceClipRegion (path);
 
-    for (const auto* child : node.children)
-        paintNode (g, *child);
+    if (scrollable && node.scrollY != 0.0f)
+    {
+        juce::Graphics::ScopedSaveState scrollState (g);
+        g.addTransform (juce::AffineTransform::translation (0.0f, -node.scrollY));
+
+        for (const auto* child : node.children)
+            paintNode (g, *child);
+    }
+    else
+    {
+        for (const auto* child : node.children)
+            paintNode (g, *child);
+    }
+
+    // Scrollbar thumb.
+    if (scrollable)
+    {
+        const auto extent = node.maxScroll();
+
+        if (extent > 0.0f)
+        {
+            const auto frameH = node.frame.getHeight();
+            const auto thumbH = juce::jmax (24.0f, frameH * frameH / node.contentHeight());
+            const auto thumbY = node.frame.getY()
+                              + (node.scrollY / extent) * (frameH - thumbH);
+
+            g.setColour (juce::Colour (0x30ffffff));
+            g.fillRoundedRectangle (node.frame.getRight() - 5.0f, thumbY, 3.0f, thumbH, 1.5f);
+        }
+    }
 
     if (needsLayer)
         g.endTransparencyLayer();

@@ -15,6 +15,7 @@
 #include "source/Painter.cpp"
 #include "source/HitTest.cpp"
 #include "source/RootView.cpp"
+#include "source/ParameterBridge.cpp"
 
 #include <quickjs.h>
 

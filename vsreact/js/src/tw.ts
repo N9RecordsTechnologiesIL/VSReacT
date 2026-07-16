@@ -50,6 +50,8 @@ const staticClasses: Record<string, Style> = {
   relative: { position: "relative" },
   "overflow-hidden": { overflow: "hidden" },
   "overflow-visible": { overflow: "visible" },
+  "overflow-y-scroll": { overflow: "scroll" },
+  "overflow-scroll": { overflow: "scroll" },
   "w-full": { width: "100%" },
   "h-full": { height: "100%" },
   "text-left": { textAlign: "left" },

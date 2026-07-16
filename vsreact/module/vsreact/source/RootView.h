@@ -49,7 +49,9 @@ public:
     void mouseEnter (const juce::MouseEvent& e) override;
     void mouseExit (const juce::MouseEvent& e) override;
     void mouseDown (const juce::MouseEvent& e) override;
+    void mouseDrag (const juce::MouseEvent& e) override;
     void mouseUp (const juce::MouseEvent& e) override;
+    void mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
 
 private:
     void initialiseRuntime();
@@ -73,6 +75,9 @@ private:
     std::map<int, std::unique_ptr<juce::Component>> hostedComponents;
 
     int hoveredNodeId = 0, activeNodeId = 0;
+    int dragNodeId = 0;
+    juce::Point<float> dragStartPosition;
+    bool dragging = false;
     bool bundleLoaded = false;
     juce::Time bundleModificationTime;
 

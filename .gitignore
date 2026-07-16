@@ -1,6 +1,11 @@
 # StashTrack is its own git repository (first VSReacT consumer)
 StashTrack/
 
+# Local agent/tooling state — not part of the framework
+.claude/
+.agents/
+*.log
+
 node_modules/
 build*/
 dist/

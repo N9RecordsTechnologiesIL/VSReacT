@@ -1,0 +1,491 @@
+/* VSReacT breakthrough experience — see DESIGN.md. Engineering-cinema:
+   the op-stream hums behind monumental type and build-log micro copy. */
+
+.page {
+  position: relative;
+  z-index: 10;
+}
+
+.skipLink {
+  position: absolute;
+  top: -48px;
+  left: 16px;
+  z-index: 200;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  border-radius: 999px;
+}
+
+.skipLink:focus {
+  top: 12px;
+}
+
+.microLabel {
+  font-family: var(--font-micro);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.microAccent {
+  composes: microLabel;
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------- nav */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 4vw;
+  padding: 18px 5vw;
+  background: linear-gradient(rgba(5, 7, 5, 0.88), rgba(5, 7, 5, 0));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.brand img {
+  border-radius: 7px;
+  display: block;
+}
+
+.navLinks {
+  display: flex;
+  gap: 28px;
+  margin-left: auto;
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.navLinks a:hover {
+  color: var(--accent);
+}
+
+.navCta {
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  border: 1px solid rgba(198, 241, 53, 0.4);
+  padding: 10px 18px;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------- hero */
+
+.hero {
+  min-height: 100vh;
+  padding: 24vh 5vw 16vh;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.title {
+  font-size: clamp(58px, 10vw, 168px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  display: flex;
+  flex-direction: column;
+}
+
+.titleLine {
+  display: block;
+  will-change: transform;
+}
+
+.title em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.lede {
+  max-width: 620px;
+  font-size: 17px;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--font-micro);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  padding: 17px 30px;
+  border-radius: 999px;
+  will-change: transform;
+}
+
+.ghostButton {
+  display: inline-block;
+  color: var(--text);
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  padding: 16px 26px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  transition: border-color 0.35s var(--ease-cinematic), color 0.35s var(--ease-cinematic);
+}
+
+.ghostButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.heroHint {
+  margin-top: auto;
+  font-family: var(--font-micro);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- pipeline */
+
+.pipeline {
+  min-height: 100vh;
+  padding: 14vh 0;
+  overflow: hidden;
+}
+
+.pipelineHead {
+  padding: 0 5vw 8vh;
+}
+
+.sectionStatement {
+  font-size: clamp(46px, 7vw, 118px);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+
+.sectionTitle {
+  font-size: clamp(34px, 4.5vw, 72px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.rail {
+  display: flex;
+  gap: 4vw;
+  padding: 0 5vw;
+  width: max-content;
+  will-change: transform;
+}
+
+.station {
+  width: min(480px, 78vw);
+  background: rgba(12, 17, 11, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.stationIndex {
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.station h3 {
+  font-size: clamp(30px, 3.2vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.station p {
+  font-size: 16px;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------- code */
+
+.code {
+  padding: 22vh 5vw;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 6vw;
+  align-items: center;
+}
+
+.codeCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.codeCopy p {
+  font-size: 17px;
+  line-height: 1.55;
+  opacity: 0.85;
+  max-width: 460px;
+}
+
+.codePanel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+}
+
+.codeBar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.codeBar span:not(.codeTitle) {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.codeTitle {
+  margin-left: auto;
+  font-family: var(--font-micro);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.codePanel pre {
+  padding: 26px;
+  overflow-x: auto;
+}
+
+.codePanel code {
+  font-family: var(--font-micro);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- features */
+
+.features {
+  padding: 10vh 5vw 22vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10vh;
+}
+
+.featureFlow {
+  display: flex;
+  flex-direction: column;
+  gap: 7vh;
+}
+
+.feature {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 1.5px solid var(--line);
+  padding-left: 26px;
+}
+
+.feature p {
+  font-size: 17px;
+  line-height: 1.55;
+  opacity: 0.88;
+}
+
+/* ---------------------------------------------------------------- built */
+
+.built {
+  padding: 0 5vw 22vh;
+  display: flex;
+  flex-direction: column;
+  gap: 7vh;
+}
+
+.builtGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.builtCard {
+  background: rgba(12, 17, 11, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 34px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: border-color 0.35s var(--ease-cinematic), transform 0.35s var(--ease-cinematic);
+}
+
+.builtCard:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+}
+
+.builtCard h3 {
+  font-size: clamp(24px, 2.6vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.builtCard p {
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.82;
+  flex: 1;
+}
+
+.builtLink {
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------- cta + footer */
+
+.finalCta {
+  padding: 20vh 5vw 18vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6vh;
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: clamp(56px, 10vw, 160px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.footer {
+  padding: 8vh 5vw 6vh;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-micro);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  background: rgba(5, 7, 5, 0.92);
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+
+.footerBrand img {
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------- mobile */
+
+@media (max-width: 767px) {
+  .nav {
+    gap: 14px;
+    padding: 14px 20px;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .hero {
+    padding: 18vh 20px 10vh;
+  }
+
+  .pipeline {
+    min-height: auto;
+    padding: 8vh 0;
+  }
+
+  .rail {
+    flex-direction: column;
+    width: auto;
+    padding: 0 20px;
+    gap: 18px;
+  }
+
+  .station {
+    width: 100%;
+  }
+
+  .code {
+    grid-template-columns: 1fr;
+    padding: 12vh 20px;
+    gap: 5vh;
+  }
+
+  .features {
+    padding: 6vh 20px 12vh;
+  }
+
+  .feature {
+    margin-left: 0 !important;
+  }
+
+  .built {
+    padding: 0 20px 12vh;
+  }
+
+  .builtGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .finalCta {
+    padding: 12vh 20px 10vh;
+  }
+}

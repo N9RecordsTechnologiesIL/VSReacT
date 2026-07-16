@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  js:
+    name: TS package (bun)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bunx tsc --noEmit
+        working-directory: vsreact/js
+      - run: bun test
+        working-directory: vsreact/js
+
+  native:
+    name: C++ module (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            experimental: false
+          - os: macos-latest
+            # macOS is compile+test coverage we don't develop on — informative,
+            # not gating, until it has burned in.
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: juce-framework/JUCE
+          ref: "8.0.4"
+          path: JUCE
+      - name: Configure
+        run: cmake -S ci -B ci/build -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE" -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build ci/build --config Release --parallel 4
+      - name: Test
+        run: ctest --test-dir ci/build -C Release --output-on-failure

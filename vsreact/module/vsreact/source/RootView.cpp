@@ -260,37 +260,83 @@ void RootView::resized()
 }
 
 //==============================================================================
+namespace
+{
+    /** Nearest node (self or ancestor) listening for the event — DOM-style
+        bubbling for hits that land on decorative children. */
+    Node* nearestListener (Node* from, const juce::String& type)
+    {
+        for (auto* node = from; node != nullptr; node = node->parent)
+            if (node->listeners.contains (type))
+                return node;
+
+        return nullptr;
+    }
+
+    /** Nearest node (self or ancestor) that reacts to presses. */
+    Node* nearestPressTarget (Node* from)
+    {
+        for (auto* node = from; node != nullptr; node = node->parent)
+            if (node->listeners.contains ("click")
+                || node->listeners.contains ("mousedown")
+                || ! node->activeStyle.isEmpty())
+                return node;
+
+        return nullptr;
+    }
+}
+
 void RootView::updateHoverState (juce::Point<float> position)
 {
-    auto* hit = vsreact::hitTest (*tree.root(),position);
+    auto* hit = vsreact::hitTest (*tree.root(), position);
     const auto newId = hit != nullptr ? hit->id : 0;
 
     if (newId == hoveredNodeId)
         return;
 
-    if (auto* previous = tree.find (hoveredNodeId); previous != nullptr && hoveredNodeId != 0)
-    {
-        previous->hovered = false;
+    // CSS-style :hover — the whole ancestor chain under the pointer is hovered.
+    std::vector<int> oldChain, newChain;
 
-        if (previous->listeners.contains ("mouseleave"))
-            dispatchNodeEvent (previous->id, "mouseleave");
-    }
+    for (auto* node = tree.find (hoveredNodeId); node != nullptr && node->id != 0; node = node->parent)
+        oldChain.push_back (node->id);
 
+    for (auto* node = hit; node != nullptr && node->id != 0; node = node->parent)
+        newChain.push_back (node->id);
+
+    const auto inChain = [] (const std::vector<int>& chain, int id)
+    { return std::find (chain.begin(), chain.end(), id) != chain.end(); };
+
+    for (const auto id : oldChain)
+        if (! inChain (newChain, id))
+            if (auto* node = tree.find (id))
+                node->hovered = false;
+
+    for (const auto id : newChain)
+        if (! inChain (oldChain, id))
+            if (auto* node = tree.find (id))
+                node->hovered = true;
+
+    // enter/leave bubble to the nearest listener that changed chains.
+    auto* oldListener = nearestListener (tree.find (hoveredNodeId), "mouseleave");
     hoveredNodeId = newId;
+    auto* newListener = nearestListener (hit, "mouseenter");
 
-    if (hit != nullptr)
-    {
-        hit->hovered = true;
+    if (oldListener != nullptr && ! inChain (newChain, oldListener->id))
+        dispatchNodeEvent (oldListener->id, "mouseleave");
 
-        if (hit->listeners.contains ("mouseenter"))
-            dispatchNodeEvent (hit->id, "mouseenter");
-    }
+    if (newListener != nullptr && ! inChain (oldChain, newListener->id))
+        dispatchNodeEvent (newListener->id, "mouseenter");
 
     // Dispatching may have mutated the tree — re-find before dereferencing.
-    auto* hovered = tree.find (hoveredNodeId);
-    const auto cursor = (hovered != nullptr && hoveredNodeId != 0)
-                          ? hovered->effectiveStyle().getString ("cursor")
-                          : juce::String();
+    juce::String cursor;
+
+    for (auto* node = tree.find (hoveredNodeId); node != nullptr && node->id != 0; node = node->parent)
+    {
+        cursor = node->effectiveStyle().getString ("cursor");
+
+        if (cursor.isNotEmpty())
+            break;
+    }
 
     setMouseCursor (cursor == "pointer" ? juce::MouseCursor::PointingHandCursor
                     : cursor == "text"  ? juce::MouseCursor::IBeamCursor
@@ -309,16 +355,16 @@ void RootView::mouseExit (const juce::MouseEvent&)
 
 void RootView::mouseDown (const juce::MouseEvent& e)
 {
-    auto* hit = vsreact::hitTest (*tree.root(),e.position);
+    auto* target = nearestPressTarget (vsreact::hitTest (*tree.root(), e.position));
 
-    if (hit == nullptr)
+    if (target == nullptr)
         return;
 
-    activeNodeId = hit->id;
-    hit->active = true;
+    activeNodeId = target->id;
+    target->active = true;
 
-    if (hit->listeners.contains ("mousedown"))
-        dispatchNodeEvent (hit->id, "mousedown");
+    if (target->listeners.contains ("mousedown"))
+        dispatchNodeEvent (target->id, "mousedown");
 
     repaint();
 }
@@ -334,9 +380,10 @@ void RootView::mouseUp (const juce::MouseEvent& e)
         if (pressed->listeners.contains ("mouseup"))
             dispatchNodeEvent (pressedId, "mouseup");
 
-        auto* hit = vsreact::hitTest (*tree.root(),e.position);
+        auto* released = nearestPressTarget (vsreact::hitTest (*tree.root(), e.position));
 
-        if (hit != nullptr && hit->id == pressedId && hit->listeners.contains ("click"))
+        if (released != nullptr && released->id == pressedId
+            && released->listeners.contains ("click"))
             dispatchNodeEvent (pressedId, "click");
     }
 

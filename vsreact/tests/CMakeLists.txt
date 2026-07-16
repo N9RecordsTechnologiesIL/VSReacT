@@ -7,7 +7,8 @@ target_sources(VSReacTTests
         JsRuntimeTests.cpp
         ShadowTreeTests.cpp
         PainterTests.cpp
-        HitTestTests.cpp)
+        HitTestTests.cpp
+        HostedComponentTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

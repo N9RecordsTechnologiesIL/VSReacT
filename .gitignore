@@ -4,6 +4,7 @@ StashTrack/
 # Local agent/tooling state — not part of the framework
 .claude/
 .agents/
+docs/superpowers/
 *.log
 
 node_modules/

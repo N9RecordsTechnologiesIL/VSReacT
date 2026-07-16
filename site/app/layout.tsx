@@ -15,6 +15,7 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://vsreact.n9records.com'),
   title: 'VSReacT — Write React. Ship native VST.',
   description:
     'VSReacT is a React renderer for JUCE audio plugins: your TSX runs in an embedded QuickJS engine, a custom reconciler streams the tree to C++, Yoga lays it out, and juce::Graphics paints every pixel. No webview.',

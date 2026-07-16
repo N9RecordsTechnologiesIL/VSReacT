@@ -15,3 +15,5 @@ export { render, unmount } from "./render";
 export { native } from "./native";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
+export { useTween, lerp, Easing } from "./animation";
+export type { TweenOptions, EasingFn } from "./animation";

@@ -151,7 +151,7 @@ cmake --build ci/build --config Release && ctest --test-dir ci/build -C Release
 
 - Website: [vsreact.n9records.com](https://vsreact.n9records.com)
 - Issues: [github.com/N9RecordsTechnologiesIL/VSReacT/issues](https://github.com/N9RecordsTechnologiesIL/VSReacT/issues)
-- Contact: [VSReacT-Support@n9records.com](mailto:VSReacT-Support@n9records.com)
+- Contact: [vsreact-support@n9records.com](mailto:vsreact-support@n9records.com)
 
 ## License
 

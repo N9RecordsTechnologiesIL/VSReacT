@@ -1,0 +1,7 @@
+# StashTrack is its own git repository (first VSReacT consumer)
+StashTrack/
+
+node_modules/
+build*/
+dist/
+*.tsbuildinfo

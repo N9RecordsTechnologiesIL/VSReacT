@@ -12,6 +12,7 @@
 #include "source/Scheduler.cpp"
 #include "source/Style.cpp"
 #include "source/ShadowTree.cpp"
+#include "source/Painter.cpp"
 
 #include <quickjs.h>
 

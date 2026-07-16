@@ -37,6 +37,7 @@ END_JUCE_MODULE_DECLARATION
 #include "source/Scheduler.h"
 #include "source/Style.h"
 #include "source/ShadowTree.h"
+#include "source/Painter.h"
 
 namespace vsreact
 {

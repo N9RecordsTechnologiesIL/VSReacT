@@ -1,5 +1,8 @@
 #include "HitTest.h"
 
+#include <algorithm>
+#include <vector>
+
 namespace vsreact
 {
 

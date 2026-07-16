@@ -2,7 +2,7 @@
 # Publishes the StashTrack v0.8 GitHub release with both installer assets.
 set -eu
 
-REPO="davad00/StashTrack"
+REPO="carmanagercompany/StashTrack"
 TAG="v0.8"
 INSTALLER="/h/code/11Tools/VSReacT/StashTrack/dist/StashTrackv0.8Setup.exe"
 API="https://api.github.com/repos/$REPO"

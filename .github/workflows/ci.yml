@@ -8,7 +8,7 @@ on:
 jobs:
   js:
     name: TS package (bun)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -25,9 +25,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          - os: blacksmith-8vcpu-windows-2025
             experimental: false
-          - os: macos-latest
+          - os: blacksmith-6vcpu-macos-latest
             # macOS is compile+test coverage we don't develop on — informative,
             # not gating, until it has burned in.
             experimental: true

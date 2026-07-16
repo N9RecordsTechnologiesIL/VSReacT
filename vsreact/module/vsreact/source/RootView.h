@@ -7,6 +7,8 @@
 #include "NativeRegistry.h"
 #include "ErrorOverlay.h"
 
+#include <map>
+
 namespace vsreact
 {
 

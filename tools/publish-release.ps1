@@ -1,7 +1,7 @@
 # Publishes the StashTrack v0.7 GitHub release with both installer assets.
 $ErrorActionPreference = "Stop"
 
-$repo = "davad00/StashTrack"
+$repo = "carmanagercompany/StashTrack"
 $tag = "v0.7"
 $installer = "H:\code\11Tools\VSReacT\StashTrack\dist\StashTrackv0.7Setup.exe"
 

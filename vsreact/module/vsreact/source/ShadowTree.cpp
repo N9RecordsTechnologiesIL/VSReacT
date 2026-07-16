@@ -1,5 +1,8 @@
 #include "ShadowTree.h"
 
+#include <algorithm>
+#include <cmath>
+
 namespace vsreact
 {
 

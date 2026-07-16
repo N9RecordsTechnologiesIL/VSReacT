@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://vsreact.n9records.com"><strong>vsreact.n9records.com</strong></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/N9RecordsTechnologiesIL/VSReacT/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/N9RecordsTechnologiesIL/VSReacT/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="React 18" src="https://img.shields.io/badge/React-18-C6F135?style=flat-square&labelColor=050705">
   <img alt="JUCE 8" src="https://img.shields.io/badge/JUCE-8-C6F135?style=flat-square&labelColor=050705">
@@ -143,8 +147,15 @@ cmake -S ci -B ci/build -DJUCE_SOURCE_DIR=path/to/JUCE -DCMAKE_BUILD_TYPE=Releas
 cmake --build ci/build --config Release && ctest --test-dir ci/build -C Release
 ```
 
+## Links & support
+
+- Website: [vsreact.n9records.com](https://vsreact.n9records.com)
+- Issues: [github.com/N9RecordsTechnologiesIL/VSReacT/issues](https://github.com/N9RecordsTechnologiesIL/VSReacT/issues)
+- Contact: [VSReacT-Support@n9records.com](mailto:VSReacT-Support@n9records.com)
+
 ## License
 
-MIT for the VSReacT framework. Vendored third-party engines (QuickJS-ng,
-Yoga) and JUCE keep their own licenses — JUCE in particular has its own
-commercial/GPL terms you must satisfy for plugin distribution.
+[MIT](LICENSE) for the VSReacT framework. Vendored third-party engines
+(QuickJS-ng, Yoga) keep their own licenses under `vsreact/third_party/`, and
+JUCE has its own commercial/GPL terms you must satisfy for plugin
+distribution.

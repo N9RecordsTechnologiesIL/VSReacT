@@ -113,6 +113,11 @@ void ShadowTree::applyOp (const juce::var& op)
     else if (name == "insertBefore") insertBefore (intAt (1), intAt (2), intAt (3));
     else if (name == "removeChild")  removeChild (intAt (1), intAt (2));
     else if (name == "setText")      setText (intAt (1), parts->getUnchecked (2).toString());
+    else if (name == "clearContainer")
+    {
+        while (! rootNode.children.empty())
+            removeChild (0, rootNode.children.front()->id);
+    }
     else
     {
         jassertfalse;   // unknown mutation op — protocol mismatch

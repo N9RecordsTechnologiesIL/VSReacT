@@ -1,0 +1,17 @@
+// @vsreact/core public API. runtime must load first — it installs the
+// timer/console/microtask shims react depends on inside QuickJS.
+import "./runtime";
+import "./bridge";
+
+export { View, Text, Image, TextInput, NativeView } from "./primitives";
+export type {
+  CommonProps,
+  TextProps,
+  ImageProps,
+  TextInputProps,
+  NativeViewProps,
+} from "./primitives";
+export { render, unmount } from "./render";
+export { native } from "./native";
+export { configureTheme, tw } from "./tw";
+export type { Style, ResolvedClasses } from "./tw";

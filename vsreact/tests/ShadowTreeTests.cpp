@@ -202,6 +202,21 @@ public:
             expectEquals (tree.find (2)->frame.getX(), 70.0f);
         }
 
+        beginTest ("clearContainer removes all root children");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (opsFor ({
+                R"(["create", 1, "view"])",
+                R"(["appendChild", 0, 1])",
+                R"(["create", 2, "view"])",
+                R"(["appendChild", 0, 2])",
+                R"(["clearContainer"])",
+            }));
+
+            expectEquals (tree.nodeCount(), 0);
+            expect (tree.root()->children.empty());
+        }
+
         beginTest ("listeners and props are captured");
         {
             vsreact::ShadowTree tree;

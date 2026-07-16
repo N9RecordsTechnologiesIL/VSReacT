@@ -98,8 +98,17 @@ juce::Font Style::font() const
         weight = value->isString() ? (value->toString() == "bold" ? 700 : 400)
                                    : static_cast<int> (*value);
 
-    auto font = juce::Font (juce::FontOptions { size }
-                                .withStyle (weight >= 600 ? "Bold" : "Regular"));
+    auto fontName = getString ("fontFamily");
+
+    if (fontName == "monospace")
+        fontName = juce::Font::getDefaultMonospacedFontName();
+
+    auto options = juce::FontOptions { size }.withStyle (weight >= 600 ? "Bold" : "Regular");
+
+    if (fontName.isNotEmpty())
+        options = options.withName (fontName);
+
+    auto font = juce::Font (options);
 
     const auto letterSpacing = getFloat ("letterSpacing", 0.0f);
 

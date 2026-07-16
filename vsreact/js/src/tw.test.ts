@@ -68,6 +68,7 @@ describe("tw resolver", () => {
       lineHeight: 20,
       letterSpacing: 0.4,
     });
+    expect(tw("font-mono").style).toEqual({ fontFamily: "monospace" });
   });
 
   test("alignment, position, shadow, opacity, overflow, cursor", () => {

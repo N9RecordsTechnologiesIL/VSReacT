@@ -60,17 +60,18 @@ $hwnd = (Get-Process StashTrack).MainWindowHandle
 [UiDrive]::SetForegroundWindow($hwnd) | Out-Null
 Start-Sleep -Milliseconds 500
 
-# Title bar ~29px; client origin offset ~(1, 29). Layout: root p-14, body p-18.
+# Title bar ~29px; client origin offset ~(1, 29). Redesigned layout: root p-4,
+# header h-38, cards p-4.
 $oy = 29
 
 Capture $hwnd "1-initial"
 
 # Hover the Download button (right side of URL row)
-HoverAt $hwnd 626 (135 + $oy)
+HoverAt $hwnd 622 (130 + $oy)
 Capture $hwnd "2-hover-download"
 
 # Click Download with empty URL -> expect error status + alert
-ClickAt $hwnd 626 (135 + $oy)
+ClickAt $hwnd 622 (130 + $oy)
 Start-Sleep -Milliseconds 800
 $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
 $bmp = New-Object System.Drawing.Bitmap($bounds.Width, $bounds.Height)
@@ -84,13 +85,13 @@ $g.Dispose(); $bmp.Dispose()
 Start-Sleep -Milliseconds 500
 
 # Click the URL field and type
-ClickAt $hwnd 300 (135 + $oy)
+ClickAt $hwnd 300 (130 + $oy)
 [System.Windows.Forms.SendKeys]::SendWait("https://example.com/watch")
 Start-Sleep -Milliseconds 400
 Capture $hwnd "4-typed-url"
 
-# Toggle the Clip checkbox
-ClickAt $hwnd 48 (189 + $oy)
+# Toggle the clip switch
+ClickAt $hwnd 52 (194 + $oy)
 Capture $hwnd "5-clip-on"
 
 Stop-Process -Id $proc.Id -Force

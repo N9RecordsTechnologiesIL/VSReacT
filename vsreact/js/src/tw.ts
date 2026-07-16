@@ -55,6 +55,7 @@ const staticClasses: Record<string, Style> = {
   "text-left": { textAlign: "left" },
   "text-center": { textAlign: "center" },
   "text-right": { textAlign: "right" },
+  "font-mono": { fontFamily: "monospace" },
   "font-normal": { fontWeight: 400 },
   "font-medium": { fontWeight: 500 },
   "font-semibold": { fontWeight: 600 },

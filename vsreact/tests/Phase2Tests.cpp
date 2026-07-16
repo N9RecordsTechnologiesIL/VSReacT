@@ -148,6 +148,76 @@ public:
 static ScrollTests scrollTests;
 
 //==============================================================================
+class DragDispatchTests final : public juce::UnitTest
+{
+public:
+    DragDispatchTests() : juce::UnitTest ("vsreact drag dispatch") {}
+
+    void runTest() override
+    {
+        beginTest ("mouse down/drag/up dispatches dragstart, drag, dragend with deltas");
+
+        juce::StringArray seen;
+
+        vsreact::RootOptions options;
+        options.bundleSource = R"js(
+            __vsreact_flush(JSON.stringify([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"},
+                                  "listeners": ["dragstart", "drag", "dragend", "click"]}],
+                ["appendChild", 0, 1]
+            ]));
+            globalThis.__vsreact_dispatch = function (json) {
+                var msg = JSON.parse(json);
+                if (msg.kind === "event")
+                    __vsreact_nativeCall("seen", JSON.stringify({ type: msg.type, dy: msg.payload && msg.payload.dy }));
+            };
+        )js";
+
+        options.onNativeCall = [&seen] (const juce::String& name, const juce::var& args) -> juce::var
+        {
+            if (name == "seen")
+                seen.add (args["type"].toString() + ":" + args["dy"].toString());
+
+            return {};
+        };
+
+        vsreact::RootView root (std::move (options), {});
+        root.setSize (200, 200);
+
+        auto& source = juce::Desktop::getInstance().getMainMouseSource();
+        const auto now = juce::Time::getCurrentTime();
+        const auto mods = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier);
+
+        const auto makeEvent = [&] (juce::Point<float> position, juce::Point<float> downPosition)
+        {
+            return juce::MouseEvent (source, position, mods,
+                                     juce::MouseInputSource::defaultPressure,
+                                     juce::MouseInputSource::defaultOrientation,
+                                     juce::MouseInputSource::defaultRotation,
+                                     juce::MouseInputSource::defaultTiltX,
+                                     juce::MouseInputSource::defaultTiltY,
+                                     &root, &root, now, downPosition, now, 1, false);
+        };
+
+        root.mouseDown (makeEvent ({ 100.0f, 100.0f }, { 100.0f, 100.0f }));
+        root.mouseDrag (makeEvent ({ 100.0f, 60.0f }, { 100.0f, 100.0f }));
+        root.mouseDrag (makeEvent ({ 100.0f, 40.0f }, { 100.0f, 100.0f }));
+        root.mouseUp (makeEvent ({ 100.0f, 40.0f }, { 100.0f, 100.0f }));
+
+        expect (seen.contains ("dragstart:-40"));
+        expect (seen.contains ("drag:-40"));
+        expect (seen.contains ("drag:-60"));
+        expect (seen.contains ("dragend:-60"));
+
+        // A completed drag must not produce a click.
+        expect (! seen.joinIntoString (",").contains ("click"));
+    }
+};
+
+static DragDispatchTests dragDispatchTests;
+
+//==============================================================================
 namespace
 {
     struct BridgeTestProcessor final : juce::AudioProcessor

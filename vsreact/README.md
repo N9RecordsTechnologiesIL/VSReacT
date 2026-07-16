@@ -50,6 +50,18 @@ bubbling, hover/active/focus restyling, and cursors.
   paints the box and focus ring.
 - **Native escape hatch** — `<NativeView nativeId="waveform">` mounts any
   registered `juce::Component` inside the React layout.
+- **Audio parameter binding** — `useParameter(id)` + `<ParamKnob>`/
+  `<ParamSlider>` bind two-way to a `juce::AudioProcessorValueTreeState`
+  through `vsreact::ParameterBridge`, with automation-safe begin/end gestures.
+  See `examples/gain` for a complete two-knob plugin.
+- **Knobs, sliders, drag gestures** — `onDragStart/onDrag/onDragEnd` events
+  with pixel deltas; the painter draws knob arc rings natively (`arcColor`,
+  `arcTrackColor`, `arcStart/End/ValueEnd`, `arcThickness`).
+- **Scroll containers** — `overflow-y-scroll` gives wheel scrolling with
+  clamping, a painted thumb, scroll-aware hit-testing, and translated
+  children. (Hosted components inside scroll containers move too; use
+  `opacity-0` to hide hosted TextInputs under overlays — real JUCE children
+  always draw above painted content.)
 - **Native messaging** — `native.call("startDownload", {...})` invokes C++
   handlers synchronously; C++ pushes events with
   `root.sendNativeEvent("status", ...)` to `native.on(...)` listeners.
@@ -97,6 +109,9 @@ IIFE (`js/build.ts` shows how), production builds embed the bundle via
 - `js/` — `@vsreact/core`: reconciler host config, primitives, tailwind
   resolver, runtime shims, native messaging.
 - `third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
+- `examples/gain/` — a real gain/pan plugin: APVTS-bound React knobs.
+  Builds standalone: `cmake -S examples/gain -B examples/gain/build-vs
+  -G "Visual Studio 17 2022" -A x64 -DJUCE_SOURCE_DIR=path/to/JUCE`.
 - `tests/` — C++ unit tests (`VSReacTTests`); JS tests run with `bun test`.
 
 First consumer: [StashTrack](../StashTrack), whose entire plugin UI is a

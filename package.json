@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "vsreact/js",
+    "vsreact/examples/gain/ui",
     "StashTrack/jsui-vsreact"
   ]
 }

@@ -152,10 +152,18 @@ void RootView::relayout()
 void RootView::syncHostedComponents()
 {
     for (auto& [nodeId, component] : hostedComponents)
+    {
         if (const auto* node = tree.find (nodeId))
+        {
             component->setBounds (node->frame
                                       .translated (0.0f, -node->accumulatedAncestorScroll())
                                       .toNearestInt());
+
+            // Hosted JUCE components always draw above painted content, so
+            // opacity-0 is the app's way to hide them under overlays.
+            component->setVisible (node->effectiveStyle().opacity() > 0.01f);
+        }
+    }
 }
 
 void RootView::hostComponentFor (Node& node)

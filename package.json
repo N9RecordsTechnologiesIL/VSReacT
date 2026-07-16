@@ -1,0 +1,8 @@
+{
+  "name": "vsreact-workspace",
+  "private": true,
+  "workspaces": [
+    "vsreact/js",
+    "StashTrack/jsui-vsreact"
+  ]
+}

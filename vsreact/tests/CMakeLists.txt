@@ -4,7 +4,8 @@ target_sources(VSReacTTests
     PRIVATE
         TestMain.cpp
         SanityTests.cpp
-        JsRuntimeTests.cpp)
+        JsRuntimeTests.cpp
+        ShadowTreeTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

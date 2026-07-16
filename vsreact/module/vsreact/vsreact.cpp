@@ -10,6 +10,8 @@
 
 #include "source/JsRuntime.cpp"
 #include "source/Scheduler.cpp"
+#include "source/Style.cpp"
+#include "source/ShadowTree.cpp"
 
 #include <quickjs.h>
 

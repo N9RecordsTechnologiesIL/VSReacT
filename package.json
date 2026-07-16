@@ -4,6 +4,6 @@
   "workspaces": [
     "vsreact/js",
     "vsreact/examples/gain/ui",
-    "StashTrack/jsui-vsreact"
+    "StashTrack/jsui-*"
   ]
 }

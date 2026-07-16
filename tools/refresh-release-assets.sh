@@ -2,7 +2,7 @@
 # Replaces the v0.7 release's installer assets with the freshly built one.
 set -eu
 
-REPO="carmanagercompany/StashTrack"
+REPO="N9RecordsTechnologiesIL/StashTrack"
 TAG="v0.7"
 INSTALLER="/h/code/11Tools/VSReacT/StashTrack/dist/StashTrackv0.7Setup.exe"
 API="https://api.github.com/repos/$REPO"

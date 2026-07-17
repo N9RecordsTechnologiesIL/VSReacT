@@ -38,17 +38,35 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
 
       <h2 id="controls">Ready-made controls</h2>
       <p>
-        <code>&lt;ParamKnob paramId label? size? trackColor? valueColor? /&gt;</code> and{' '}
-        <code>&lt;ParamSlider /&gt;</code> wrap <code>useParameter</code> with the natively
-        painted <code>Knob</code>/<code>Slider</code>: arc or bar, host text in the middle,
-        drag with correct begin/set/end gestures, label from the parameter name.
+        Every built-in control has a <code>Param*</code> twin that wraps{' '}
+        <code>useParameter</code> with correct begin/set/end gestures and takes its label
+        from the parameter name:
       </p>
-      <Code title="TSX">{`<ParamKnob paramId="gain" size={88} />
-<ParamKnob paramId="pan"  size={88} valueColor="#FF2E2E" />
-<ParamSlider paramId="mix" width={220} />`}</Code>
+      <Code title="TSX">{`<ParamKnob      paramId="gain" size={88} />
+<ParamSlider    paramId="mix" width={220} />
+<ParamSlider    paramId="level" vertical height={140} />   // fader
+<ParamToggle    paramId="bypass" />                        // on = value ≥ 0.5
+<ParamXYPad     paramX="cutoff" paramY="resonance" />      // two params, one drag
+<ParamSegmented paramId="shape" options={["SINE", "SAW", "SQR"]} />`}</Code>
+      <ul>
+        <li>
+          <strong>ParamToggle</strong> — bool-style parameters; a click writes a full
+          begin/set/end gesture so hosts record it cleanly.
+        </li>
+        <li>
+          <strong>ParamXYPad</strong> — drives two parameters at once; both gestures open on
+          drag-start and close on release.
+        </li>
+        <li>
+          <strong>ParamSegmented</strong> — choice-style parameters; the normalized value
+          maps to an option index (<code>index / (count − 1)</code>), matching{' '}
+          <code>AudioParameterChoice</code>.
+        </li>
+      </ul>
       <p>
-        The unbound <code>&lt;Knob value onChange /&gt;</code> and <code>&lt;Slider /&gt;</code>{' '}
-        are exported too, for values that are not host parameters (UI zoom, list filters…).
+        The unbound versions (<code>Knob</code>, <code>Slider</code>, <code>Toggle</code>,{' '}
+        <code>XYPad</code>, <code>Segmented</code>) are exported too, for values that are not
+        host parameters — UI zoom, tab selection, list filters.
       </p>
 
       <h2 id="wiring">C++ wiring</h2>

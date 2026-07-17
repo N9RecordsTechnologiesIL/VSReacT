@@ -19,17 +19,18 @@ export default function Page() {
       </p>
 
       <h2 id="js">The JS side</h2>
-      <Code title="TSX">{`import { native } from "@vsreact/core";
+      <Code title="TSX">{`import { native, useNativeEvent } from "@vsreact/core";
 
 // synchronous request → C++ handler → JSON result
 const version = native.call("app:version");
 const ok = native.call("download:start", { url });
 
-// subscribe to events pushed from C++; returns an unsubscribe fn
-useEffect(
-  () => native.on("download:progress", (p) => setProgress(p.ratio)),
-  [],
-);`}</Code>
+// subscribe for the component's lifetime — the handler stays fresh
+// without resubscribing (no stale closures)
+useNativeEvent("download:progress", (p) => setProgress(p.ratio));
+
+// or manually: native.on returns an unsubscribe fn
+useEffect(() => native.on("download:done", onDone), []);`}</Code>
 
       <h2 id="cpp">The C++ side</h2>
       <Code title="C++">{`// handle calls (RootOptions::onNativeCall)

@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.0.3 — 2026-07-17
+
+SDK expansion — new controls, springs, and the full color palette.
+
+### New controls (each with a `Param*` twin bound to the APVTS)
+
+- **`<Toggle>` / `<ParamToggle>`** — a switch with a spring-animated thumb;
+  the param variant treats value ≥ 0.5 as on and writes clean
+  begin/set/end gestures.
+- **`<XYPad>` / `<ParamXYPad>`** — a 2D drag pad with crosshair driving two
+  values (or two parameters) at once; `y = 1` is the top.
+- **`<Segmented>` / `<ParamSegmented>`** — a row of exclusive options;
+  the param variant maps the normalized value to an option index,
+  matching `AudioParameterChoice`.
+- **`<Slider vertical>`** — sliders can now be faders: drag up for more,
+  fill rises from the bottom (`height` sets the track length).
+
+### New APIs
+
+- **`useSpring(target, {stiffness, damping, mass, restDelta})`** —
+  physics-based motion that retargets mid-flight without losing velocity.
+  The pure integrator `springStep` is exported too.
+- **`useNativeEvent(name, handler)`** — lifetime-scoped subscription to
+  C++ events with an always-fresh handler (no stale closures).
+- **`cx(...)`** — a tiny clsx for conditional classNames (strings,
+  arrays, object maps).
+
+### Styling
+
+- The **full Tailwind v3 color palette** — all 22 families, 50–950
+  (previously a 7-family subset).
+- `size-*` (width + height together), `inset-x-*` / `inset-y-*`,
+  `text-5xl` / `text-6xl`.
+
+No native-module changes — the C++ API is identical to 0.0.2.
+
 ## 0.0.2 — 2026-07-17
 
 Proper package build — `@vsreact/core` now works with every bundler, not

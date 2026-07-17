@@ -111,3 +111,29 @@ describe("tw resolver", () => {
     expect(r.style.backgroundColor).toBe("#27272a");
   });
 });
+
+describe("tw 0.0.3 additions", () => {
+  test("full Tailwind palette resolves", () => {
+    expect(tw("bg-blue-500").style.backgroundColor).toBe("#3b82f6");
+    expect(tw("text-rose-400").style.color).toBe("#fb7185");
+    expect(tw("border-slate-700").style.borderColor).toBe("#334155");
+    expect(tw("bg-violet-950").style.backgroundColor).toBe("#2e1065");
+    expect(tw("bg-teal-500/50").style.backgroundColor).toBe("#14b8a680");
+  });
+
+  test("size-* sets width and height together", () => {
+    expect(tw("size-10").style).toEqual({ width: 40, height: 40 });
+    expect(tw("size-[13]").style).toEqual({ width: 13, height: 13 });
+    expect(tw("size-full").style).toEqual({ width: "100%", height: "100%" });
+  });
+
+  test("inset-x / inset-y", () => {
+    expect(tw("inset-x-2").style).toEqual({ left: 8, right: 8 });
+    expect(tw("inset-y-0").style).toEqual({ top: 0, bottom: 0 });
+  });
+
+  test("larger text sizes", () => {
+    expect(tw("text-5xl").style.fontSize).toBe(48);
+    expect(tw("text-6xl").style.fontSize).toBe(60);
+  });
+});

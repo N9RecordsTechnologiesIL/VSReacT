@@ -113,6 +113,70 @@ export default function Page() {
   onSubmit={(url) => native.call("download:start", { url })}
 />`}</Code>
 
+      <h2 id="controls">Built-in controls</h2>
+      <p>
+        Beyond the primitives, the SDK ships the classic VST controls, natively painted and
+        drag-driven. Each takes a normalized 0..1 value (or an index) plus color/size props,
+        and each has a <code>Param*</code> twin bound to a host parameter — see{' '}
+        <Link href="/docs/parameters">Audio parameters</Link>.
+      </p>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>CONTROL</th>
+            <th>FOR</th>
+            <th>NOTES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <code>&lt;Knob&gt;</code>
+            </td>
+            <td>Continuous values</td>
+            <td>Natively painted arc, vertical drag, host text in the middle.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Slider&gt;</code>
+            </td>
+            <td>Continuous values</td>
+            <td>
+              Horizontal by default; <code>vertical</code> makes it a fader (drag up for
+              more, fill rises from the bottom).
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Toggle&gt;</code>
+            </td>
+            <td>Bypass, on/off, A/B</td>
+            <td>Spring-animated thumb; click to flip.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;XYPad&gt;</code>
+            </td>
+            <td>Two values at once</td>
+            <td>
+              2D drag pad with crosshair — cutoff/resonance, pan/depth. <code>y = 1</code> is
+              the top.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Segmented&gt;</code>
+            </td>
+            <td>Exclusive choices</td>
+            <td>A row of options — oscillator shapes, filter modes.</td>
+          </tr>
+        </tbody>
+      </table>
+      <Code title="TSX">{`<Toggle on={bypassed} label="BYPASS" onChange={setBypassed} />
+<Slider vertical height={140} value={mix} onChange={setMix} />
+<XYPad x={cutoff} y={resonance} onChange={(x, y) => { setCutoff(x); setResonance(y); }} />
+<Segmented options={["SINE", "SAW", "SQR"]} index={shape} onChange={setShape} />`}</Code>
+
       <h2 id="nativeview">&lt;NativeView nativeId&gt;</h2>
       <p>
         The escape hatch: mounts any <code>juce::Component</code> you registered in the{' '}

@@ -83,6 +83,7 @@ const staticClasses: Record<string, Style> = {
 
 const textSizes: Record<string, number> = {
   xs: 12, sm: 14, base: 16, lg: 18, xl: 20, "2xl": 24, "3xl": 30, "4xl": 36,
+  "5xl": 48, "6xl": 60,
 };
 
 const radiusSizes: Record<string, number> = {
@@ -105,6 +106,7 @@ const radiusCorners: Record<string, string[]> = {
 const lengthKeys: Record<string, string[]> = {
   w: ["width"],
   h: ["height"],
+  size: ["width", "height"],
   "min-w": ["minWidth"],
   "min-h": ["minHeight"],
   "max-w": ["maxWidth"],
@@ -131,6 +133,8 @@ const lengthKeys: Record<string, string[]> = {
   bottom: ["bottom"],
   left: ["left"],
   inset: ["left", "right", "top", "bottom"],
+  "inset-x": ["left", "right"],
+  "inset-y": ["top", "bottom"],
   basis: ["flexBasis"],
 };
 

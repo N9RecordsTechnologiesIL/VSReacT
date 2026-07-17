@@ -68,3 +68,74 @@ export function useTween({ duration, delay = 0, easing = Easing.outCubic, onComp
 export function lerp(from: number, to: number, t: number): number {
   return from + (to - from) * t;
 }
+
+// ── springs ────────────────────────────────────────────────────────────
+
+export interface SpringOptions {
+  /** Spring constant — higher snaps faster. Default 170. */
+  stiffness?: number;
+  /** Velocity drag — higher settles with less bounce. Default 24. */
+  damping?: number;
+  mass?: number;
+  /** Distance from target below which the spring snaps and stops. */
+  restDelta?: number;
+}
+
+/** One semi-implicit Euler integration step; exported for tests and for
+    driving springs from your own loops. Returns [position, velocity]. */
+export function springStep(
+  position: number,
+  velocity: number,
+  target: number,
+  { stiffness = 170, damping = 24, mass = 1 }: SpringOptions,
+  dtMs: number,
+): [number, number] {
+  const dt = dtMs / 1000;
+  const acceleration = (-stiffness * (position - target) - damping * velocity) / mass;
+  const v = velocity + acceleration * dt;
+  return [position + v * dt, v];
+}
+
+/**
+ * A value that springs toward `target` whenever it changes — for
+ * interactive motion where a fixed-duration tween feels wrong (toggle
+ * thumbs, drawers, meters chasing levels). Runs on the host timer like
+ * useTween; starts at rest on the initial target.
+ */
+export function useSpring(target: number, options: SpringOptions = {}): number {
+  const [value, setValue] = useState(target);
+  const state = useRef({ position: target, velocity: 0 });
+  const targetRef = useRef(target);
+  targetRef.current = target;
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
+  useEffect(() => {
+    const restDelta = optionsRef.current.restDelta ?? 0.001;
+    if (
+      Math.abs(state.current.position - targetRef.current) <= restDelta &&
+      Math.abs(state.current.velocity) <= restDelta
+    ) {
+      return;
+    }
+
+    const id = setInterval(() => {
+      const s = state.current;
+      const [p, v] = springStep(s.position, s.velocity, targetRef.current, optionsRef.current, FRAME_MS);
+      s.position = p;
+      s.velocity = v;
+
+      if (Math.abs(p - targetRef.current) <= restDelta && Math.abs(v) <= restDelta) {
+        s.position = targetRef.current;
+        s.velocity = 0;
+        clearInterval(id);
+      }
+
+      setValue(s.position);
+    }, FRAME_MS);
+
+    return () => clearInterval(id);
+  }, [target]);
+
+  return value;
+}

@@ -49,6 +49,35 @@ function Splash() {
         </li>
       </ul>
 
+      <h2 id="usespring">useSpring</h2>
+      <p>
+        For interactive motion where a fixed-duration tween feels wrong — toggle thumbs,
+        drawers, meters chasing levels — <code>useSpring</code> gives you a value that
+        physically springs toward its target whenever the target changes:
+      </p>
+      <Code title="TSX">{`import { useSpring } from "@vsreact/core";
+
+function Drawer({ open }: { open: boolean }) {
+  const x = useSpring(open ? 0 : -240, { stiffness: 220, damping: 26 });
+
+  return <View className="absolute inset-y-0 w-[240]" style={{ left: x }} />;
+}`}</Code>
+      <ul>
+        <li>
+          <code>useSpring(target, {'{stiffness?, damping?, mass?, restDelta?}'})</code> —
+          defaults 170 / 24 / 1. Lower damping bounces; higher snaps.
+        </li>
+        <li>
+          Retargeting mid-flight keeps the current velocity — motion stays continuous when
+          the user toggles quickly. The built-in <code>Toggle</code> animates its thumb this
+          way.
+        </li>
+        <li>
+          <code>springStep(position, velocity, target, options, dtMs)</code> — the pure
+          integrator, exported for driving springs from your own loops.
+        </li>
+      </ul>
+
       <h2 id="stagger">Staggered sequences</h2>
       <p>
         Compose entrances by giving each element its own <code>delay</code> — the StashTrack

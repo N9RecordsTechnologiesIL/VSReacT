@@ -23,7 +23,7 @@ export const FEATURES: Array<[string, string]> = [
   ['~100ms hot reload', 'Save, rebuild, the plugin remounts inside the DAW. FL Studio never closes.'],
   ['Real text input', 'A chrome-stripped juce::TextEditor — caret, selection, IME.'],
   ['Native escape hatch', '<NativeView/> mounts any juce::Component inside the React layout.'],
-  ['Motion built in', 'Drag gestures with pixel deltas, scroll containers, a useTween API.'],
+  ['Motion built in', 'Drag gestures with pixel deltas, scroll containers, tweens and springs.'],
 ]
 
 export const CODE = `import { render, View, ParamKnob } from "@vsreact/core";

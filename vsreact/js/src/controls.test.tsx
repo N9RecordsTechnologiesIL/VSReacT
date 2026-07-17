@@ -542,3 +542,125 @@ describe("0.0.7 — Button, visualizers, hooks", () => {
     expect(values.at(-1)).toBe("1->2");
   });
 });
+
+describe("0.0.10 — fields & feedback", () => {
+  test("snapToStep lands on the grid without float dust", () => {
+    const { snapToStep } = require("./index");
+    expect(snapToStep(0.3000000004, 0.1, 0)).toBe(0.3);
+    expect(snapToStep(7.4, 5, 0)).toBe(5);
+    expect(snapToStep(7.6, 5, 0)).toBe(10);
+    expect(snapToStep(3.2, 0.5, 1)).toBe(3);
+  });
+
+  test("NumberBox: drag steps, wheel steps, double-click resets, clamps", () => {
+    const { NumberBox } = require("./index");
+    const seen: number[] = [];
+    render(
+      <NumberBox value={120} min={40} max={240} step={1} defaultValue={120} onChange={(v: number) => seen.push(v)} />,
+    );
+
+    const id = nodeWithListener("drag");
+    dispatch({ kind: "event", nodeId: id, type: "dragstart", payload: { dx: 0, dy: 0, x: 0, y: 0 } });
+    dispatch({ kind: "event", nodeId: id, type: "drag", payload: { dx: 0, dy: -40, x: 0, y: 0 } });
+    expect(seen.at(-1)).toBe(130); // 40px up = +10 steps
+
+    dispatch({ kind: "event", nodeId: id, type: "wheel", payload: { dy: 0.1 } });
+    expect(seen.at(-1)).toBe(121); // wheel = one step from the controlled 120
+
+    dispatch({ kind: "event", nodeId: id, type: "drag", payload: { dx: 0, dy: 9999, x: 0, y: 0 } });
+    expect(seen.at(-1)).toBe(40); // clamped at min
+
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+    expect(seen.at(-1)).toBe(120);
+  });
+
+  test("ParamNumberBox shows host text and writes gestures", () => {
+    paramGetResult = { value: 0.5, text: "440 Hz", name: "Freq", label: "Hz", defaultValue: 0.5 };
+    const { ParamNumberBox } = require("./index");
+    render(<ParamNumberBox paramId="freq" />);
+
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "440 Hz")).toBe(true);
+
+    const id = nodeWithListener("wheel");
+    dispatch({ kind: "event", nodeId: id, type: "wheel", payload: { dy: 0.1 } });
+    const set = nativeCalls.find((c) => c.name === "param:set");
+    expect(set?.args.value).toBeCloseTo(0.51);
+    expect(nativeCalls.some((c) => c.name === "param:begin")).toBe(true);
+    expect(nativeCalls.some((c) => c.name === "param:end")).toBe(true);
+  });
+
+  test("Checkbox toggles; RadioGroup selects; Param twins write gestures", () => {
+    const { Checkbox, RadioGroup } = require("./index");
+    const checks: boolean[] = [];
+    render(<Checkbox checked={false} label="Oversample" onChange={(v: boolean) => checks.push(v)} />);
+    dispatch({ kind: "event", nodeId: nodeWithListener("click"), type: "click" });
+    expect(checks).toEqual([true]);
+
+    unmount();
+    batches.length = 0;
+    const picks: number[] = [];
+    render(<RadioGroup options={["OFF", "2X", "4X"]} index={0} onChange={(i: number) => picks.push(i)} />);
+    const rows = opsNamed("setProps").filter((op: any) => op[2]?.listeners?.includes("click"));
+    expect(rows.length).toBe(3);
+    dispatch({ kind: "event", nodeId: (rows[2] as any)[1], type: "click" });
+    expect(picks).toEqual([2]);
+
+    unmount();
+    batches.length = 0;
+    nativeCalls.length = 0;
+    paramGetResult = { value: 0, text: "Off", name: "OS", label: "", defaultValue: 0 };
+    const { ParamRadioGroup } = require("./index");
+    render(<ParamRadioGroup paramId="os" options={["OFF", "2X", "4X"]} />);
+    const prows = opsNamed("setProps").filter((op: any) => op[2]?.listeners?.includes("click"));
+    dispatch({ kind: "event", nodeId: (prows[1] as any)[1], type: "click" });
+    const set = nativeCalls.find((c) => c.name === "param:set");
+    expect(set?.args.value).toBeCloseTo(0.5);
+  });
+
+  test("ProgressBar fill scales; Spinner animates its arc", async () => {
+    const { ProgressBar, Spinner } = require("./index");
+    render(<ProgressBar value={0.42} width={200} height={8} />);
+    const fill = opsNamed("setProps").find((op: any) => op[2]?.style?.width === 84);
+    expect(fill).toBeDefined();
+
+    unmount();
+    batches.length = 0;
+    render(<Spinner size={28} />);
+    const first: any = opsNamed("setProps").find((op: any) => op[2]?.style?.arcValueStart !== undefined);
+    expect(first).toBeDefined();
+    await new Promise((r) => setTimeout(r, 60));
+    const all = opsNamed("setProps").filter((op: any) => op[2]?.style?.arcValueStart !== undefined);
+    const angles = all.map((op: any) => op[2].style.arcValueStart);
+    expect(Math.max(...angles)).toBeGreaterThan(angles[0]); // it spins
+  });
+
+  test("GenericEditor renders a live value label under each knob", () => {
+    (globalThis as Record<string, any>).__vsreact_nativeCall = (name: string, argsJson: string) => {
+      const args = JSON.parse(argsJson);
+      nativeCalls.push({ name, args });
+      if (name === "param:list")
+        return JSON.stringify([
+          { id: "gain", name: "Gain", label: "dB", value: 0.5, text: "0.0 dB", defaultValue: 0.5 },
+          { id: "mix", name: "Mix", label: "%", value: 1, text: "100%", defaultValue: 0.5 },
+        ]);
+      if (name === "param:get") {
+        const id = args.id;
+        return JSON.stringify(
+          id === "gain"
+            ? { value: 0.5, text: "0.0 dB", name: "Gain", label: "dB", defaultValue: 0.5 }
+            : { value: 1, text: "100%", name: "Mix", label: "%", defaultValue: 0.5 },
+        );
+      }
+      return "null";
+    };
+
+    const { GenericEditor } = require("./index");
+    render(<GenericEditor columns={2} />);
+
+    // value labels present as text nodes
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "0.0 dB")).toBe(true);
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "100%")).toBe(true);
+    // names too
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "GAIN")).toBe(true);
+  });
+});

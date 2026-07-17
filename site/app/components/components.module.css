@@ -581,6 +581,163 @@
   color: var(--red);
 }
 
+/* ── numberbox / checkbox / radio / progress / spinner twins ───────── */
+
+.numBox {
+  padding: 9px 16px;
+  border: 1px solid #00000088;
+  border-radius: 8px;
+  background: #2c2c29;
+  font-family: var(--font-jb), monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--porcelain);
+  font-variant-numeric: tabular-nums;
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.numBox:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+.checkStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 13px;
+  color: var(--dim);
+  transition: color 0.15s ease;
+}
+
+.checkRow:hover {
+  color: var(--porcelain);
+}
+
+.checkRow i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #00000088;
+  background: #2c2c29;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0b0b0a;
+  transition: background 0.15s ease;
+}
+
+.checkRow i.checkOn {
+  background: var(--red);
+}
+
+.checkRow u {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #00000088;
+  background: #2c2c29;
+}
+
+.checkRow u.radioOn::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.progressDemo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressTrack {
+  width: 190px;
+  height: 8px;
+  border-radius: 999px;
+  background: #2c2c29;
+  overflow: hidden;
+}
+
+.progressTrack i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--red);
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3.5px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--red);
+  animation: spinnerTurn 0.7s linear infinite;
+}
+
+@keyframes spinnerTurn {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.btnSm {
+  font-size: 9.5px;
+  padding: 6px 11px;
+}
+
+.btnLg {
+  font-size: 12px;
+  padding: 12px 22px;
+}
+
+.btnDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.kv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.kv b {
+  font-family: var(--font-jb), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--porcelain);
+  font-variant-numeric: tabular-nums;
+}
+
+.kv span {
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--dim);
+}
+
 /* ── meter / bars / waveform twins ─────────────────────────────────── */
 
 .meterDemo {

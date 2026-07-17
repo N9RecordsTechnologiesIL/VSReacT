@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.0.10 — 2026-07-17
+
+Fields & feedback — the settings-panel tier, and value labels on the
+one-line editor. JS-only; native module unchanged from 0.0.9.
+
+### New components
+
+- **`<NumberBox>` / `<ParamNumberBox>`** — the draggable number (BPM,
+  ms, semitones): drag vertically, wheel to step, double-click to
+  reset, snap-to-step without float dust (`snapToStep` exported). The
+  Param twin shows the host's formatted text.
+- **`<Checkbox>` / `<ParamCheckbox>`** — settings-panel rows; checked =
+  value ≥ 0.5, gestures automation-safe.
+- **`<RadioGroup>` / `<ParamRadioGroup>`** — vertical exclusive options
+  with dots; value ↔ index mapping like Segmented.
+- **`<ProgressBar>`** — determinate progress with optional percent.
+- **`<Spinner>`** — indeterminate loading, a 100° arc chasing its tail
+  on the native arc keys.
+
+### GenericEditor
+
+- Every knob now shows a **live value label** (the host's formatted
+  text) plus the parameter name beneath it.
+
+### Site
+
+- /components gallery: six new cards (NumberBox, Checkbox, RadioGroup,
+  ProgressBar, Spinner, Button sizes & states) and live value labels on
+  the GenericEditor card.
+
 ## 0.0.9 — 2026-07-17
 
 PostHog analytics inside your plugin.

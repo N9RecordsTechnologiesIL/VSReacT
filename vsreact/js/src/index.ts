@@ -71,4 +71,23 @@ export type {
 } from "./controls";
 export { Meter, usePeakHold, peakHoldStep } from "./meter";
 export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
+export {
+  NumberBox,
+  Checkbox,
+  RadioGroup,
+  ParamNumberBox,
+  ParamCheckbox,
+  ParamRadioGroup,
+  snapToStep,
+} from "./fields";
+export type {
+  NumberBoxProps,
+  CheckboxProps,
+  RadioGroupProps,
+  ParamNumberBoxProps,
+  ParamCheckboxProps,
+  ParamRadioGroupProps,
+} from "./fields";
+export { ProgressBar, Spinner } from "./feedback";
+export type { ProgressBarProps, SpinnerProps } from "./feedback";
 export type { DragEventPayload, LayoutRect, WheelEventPayload } from "./primitives";

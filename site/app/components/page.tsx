@@ -190,6 +190,10 @@ export default function ComponentsPage() {
   const [clicks, setClicks] = useState(0)
   const [text, setText] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [bpm, setBpm] = useState(120)
+  const [oversample, setOversample] = useState(true)
+  const [dither, setDither] = useState(false)
+  const [osMode, setOsMode] = useState(1)
 
   // animated feeds for meter/bars/waveform
   const [tick, setTick] = useState(0)
@@ -226,6 +230,10 @@ export default function ComponentsPage() {
 
   const dropdownOptions = ['CLEAN', 'TAPE', 'TUBE', 'FUZZ', 'BITCRUSH']
   const dbText = (v: number) => `${(-60 + v * 66) >= 0 ? '+' : ''}${(-60 + v * 66).toFixed(1)} dB`
+  const pct = (v: number) => `${Math.round(v * 100)}%`
+  const panText = (v: number) =>
+    Math.abs(v - 0.5) < 0.01 ? 'C' : v < 0.5 ? `L ${Math.round((0.5 - v) * 200)}` : `R ${Math.round((v - 0.5) * 200)}`
+  const progress = (tick % 300) / 300
 
   return (
     <main className={styles.page}>
@@ -409,6 +417,94 @@ export default function ComponentsPage() {
         </Card>
 
         <Card
+          name="NumberBox"
+          blurb="The draggable number — BPM, milliseconds, semitones. Drag vertically, wheel to step, double-click to reset."
+          imports={`<NumberBox value={bpm} min={40} max={240} />`}
+          docs="/docs/components#controls"
+        >
+          <NumberBoxDemo value={bpm} onChange={setBpm} />
+        </Card>
+
+        <Card
+          name="Checkbox"
+          blurb="Settings-panel rows. ParamCheckbox binds a bool parameter, checked = value ≥ 0.5."
+          imports={`<ParamCheckbox paramId="oversample" />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.checkStack}>
+            <button type="button" className={styles.checkRow} onClick={() => setOversample(!oversample)}>
+              <i className={oversample ? styles.checkOn : ''}>{oversample ? '✓' : ''}</i>
+              <span>Oversample</span>
+            </button>
+            <button type="button" className={styles.checkRow} onClick={() => setDither(!dither)}>
+              <i className={dither ? styles.checkOn : ''}>{dither ? '✓' : ''}</i>
+              <span>Dither output</span>
+            </button>
+          </div>
+        </Card>
+
+        <Card
+          name="RadioGroup"
+          blurb="Vertical exclusive options with dots — the settings-panel sibling of Segmented. Maps onto choice parameters."
+          imports={`<ParamRadioGroup paramId="os" options={…} />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.checkStack}>
+            {['OFF', '2X', '4X'].map((option, i) => (
+              <button type="button" key={option} className={styles.checkRow} onClick={() => setOsMode(i)}>
+                <u className={i === osMode ? styles.radioOn : ''} />
+                <span>{option}</span>
+              </button>
+            ))}
+          </div>
+        </Card>
+
+        <Card
+          name="ProgressBar"
+          blurb="Determinate progress — downloads, renders, analysis passes. Optional percent readout."
+          imports={`<ProgressBar value={ratio} showPercent />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.progressDemo}>
+            <div className={styles.progressTrack}>
+              <i style={{ width: `${progress * 100}%` }} />
+            </div>
+            <span className={styles.miniLabel}>{Math.round(progress * 100)}%</span>
+          </div>
+        </Card>
+
+        <Card
+          name="Spinner"
+          blurb="Indeterminate loading — a 100° arc chasing its own tail, painted with the same native arc keys as the knobs."
+          imports={`<Spinner size={28} />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.spinner} aria-label="Loading" />
+        </Card>
+
+        <Card
+          name="Button · sizes &amp; states"
+          blurb="Three sizes and a disabled state — same Button, one prop each."
+          imports={`<Button label="GO" size="lg" disabled={busy} />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.rowGap}>
+            <button type="button" className={`${styles.btnSolid} ${styles.btnSm}`} onClick={() => {}}>
+              SM
+            </button>
+            <button type="button" className={styles.btnSolid} onClick={() => {}}>
+              MD
+            </button>
+            <button type="button" className={`${styles.btnSolid} ${styles.btnLg}`} onClick={() => {}}>
+              LG
+            </button>
+            <button type="button" className={`${styles.btnSolid} ${styles.btnDisabled}`} disabled>
+              DISABLED
+            </button>
+          </div>
+        </Card>
+
+        <Card
           name="Meter"
           blurb="Hot zone above the threshold, peak-hold line that holds then falls. Feed it levels from a native event."
           imports={`<Meter value={level} label="OUT" />`}
@@ -500,15 +596,31 @@ export default function ComponentsPage() {
         <Card
           name="GenericEditor"
           wide
-          blurb="One knob per APVTS parameter — render(<GenericEditor/>) is a complete plugin UI, before you've written a single component."
+          blurb="One knob per APVTS parameter with a live value label and name under each — render(<GenericEditor/>) is a complete plugin UI, before you've written a single component."
           imports={`render(<GenericEditor />)   // that's the whole editor`}
           docs="/docs/parameters#generic"
         >
           <div className={styles.rowGap}>
-            <DemoKnob value={gain} onChange={setGain} size={64} label="GAIN" />
-            <DemoKnob value={pan} bipolar defaultValue={0.5} onChange={setPan} size={64} label="PAN" />
-            <DemoKnob value={mix} onChange={setMix} size={64} label="MIX" />
-            <DemoKnob value={level} onChange={setLevel} size={64} label="LEVEL" />
+            {(
+              [
+                ['GAIN', gain, setGain, dbText(gain), false],
+                ['PAN', pan, setPan, panText(pan), true],
+                ['MIX', mix, setMix, pct(mix), false],
+                ['LEVEL', level, setLevel, pct(level), false],
+              ] as Array<[string, number, (v: number) => void, string, boolean]>
+            ).map(([name, value, set, valueText, bipolar]) => (
+              <div key={name} className={styles.kv}>
+                <DemoKnob
+                  value={value}
+                  bipolar={bipolar}
+                  defaultValue={bipolar ? 0.5 : 0.7}
+                  onChange={set}
+                  size={62}
+                />
+                <b>{valueText}</b>
+                <span>{name}</span>
+              </div>
+            ))}
           </div>
         </Card>
       </section>
@@ -538,6 +650,30 @@ export default function ComponentsPage() {
         </div>
       ) : null}
     </main>
+  )
+}
+
+function NumberBoxDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const clampBpm = (v: number) => Math.min(240, Math.max(40, Math.round(v)))
+  const drag = useDrag((_dx, dy) => onChange(clampBpm(value - dy / 4)))
+
+  return (
+    <div className={styles.knobGroup}>
+      <div
+        className={styles.numBox}
+        {...drag}
+        onDoubleClick={() => onChange(120)}
+        onWheel={(e) => onChange(clampBpm(value - Math.sign(e.deltaY)))}
+        role="spinbutton"
+        aria-valuenow={value}
+        aria-valuemin={40}
+        aria-valuemax={240}
+        tabIndex={0}
+      >
+        {value} BPM
+      </div>
+      <span className={styles.miniLabel}>TEMPO</span>
+    </div>
   )
 }
 

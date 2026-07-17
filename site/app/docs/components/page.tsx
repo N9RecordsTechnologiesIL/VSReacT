@@ -204,6 +204,36 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;NumberBox&gt;</code>
+            </td>
+            <td>Fine values</td>
+            <td>
+              The draggable number — BPM, ms, semitones. Drag, wheel-step, double-click
+              reset; <code>ParamNumberBox</code> shows the host’s formatted text.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Checkbox&gt;</code> / <code>&lt;RadioGroup&gt;</code>
+            </td>
+            <td>Settings panels</td>
+            <td>
+              Checkbox rows and vertical exclusive options; <code>Param</code> twins map
+              bool and choice parameters.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;ProgressBar&gt;</code> / <code>&lt;Spinner&gt;</code>
+            </td>
+            <td>Feedback</td>
+            <td>
+              Determinate progress with optional percent; indeterminate spinner painted with
+              the native arc keys.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Button&gt;</code>
             </td>
             <td>Actions</td>

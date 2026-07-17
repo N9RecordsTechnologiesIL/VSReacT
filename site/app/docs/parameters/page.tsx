@@ -49,7 +49,10 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
 <ParamToggle    paramId="bypass" />                        // on = value ≥ 0.5
 <ParamXYPad     paramX="cutoff" paramY="resonance" />      // two params, one drag
 <ParamSegmented paramId="shape" options={["SINE", "SAW", "SQR"]} />
-<ParamSelect    paramId="mode" options={MODES} />          // dropdown for long lists`}</Code>
+<ParamSelect    paramId="mode" options={MODES} />          // dropdown for long lists
+<ParamNumberBox paramId="freq" />                          // host text, drag/wheel/reset
+<ParamCheckbox  paramId="oversample" />                    // bool, settings-panel style
+<ParamRadioGroup paramId="os" options={["OFF","2X","4X"]} />`}</Code>
       <ul>
         <li>
           <strong>ParamToggle</strong> — bool-style parameters; a click writes a full

@@ -592,8 +592,43 @@ export interface GenericEditorProps {
   valueColor?: string;
 }
 
-/** The zero-effort editor: one knob per APVTS parameter, laid out in
-    rows. `render(<GenericEditor />)` is a complete, working plugin UI. */
+/** One GenericEditor cell: knob + live value label + name. */
+function GenericEditorKnob({
+  paramId,
+  size,
+  trackColor,
+  valueColor,
+}: {
+  paramId: string;
+  size?: number;
+  trackColor?: string;
+  valueColor?: string;
+}) {
+  const param = useParameter(paramId);
+
+  return (
+    <View className="items-center gap-1">
+      <Knob
+        value={param.value}
+        size={size}
+        defaultValue={param.defaultValue}
+        trackColor={trackColor}
+        valueColor={valueColor}
+        onChange={param.set}
+        onBegin={param.begin}
+        onEnd={param.end}
+      />
+      <Text className="text-text text-[11] font-bold">{param.text}</Text>
+      <Text className="text-faint text-[9] font-bold tracking-widest">
+        {param.name.toUpperCase()}
+      </Text>
+    </View>
+  );
+}
+
+/** The zero-effort editor: one knob per APVTS parameter with a live
+    value label and name under each, laid out in rows.
+    `render(<GenericEditor />)` is a complete, working plugin UI. */
 export function GenericEditor({ columns = 4, size = 72, trackColor, valueColor }: GenericEditorProps) {
   const params = useParameterList();
 
@@ -606,7 +641,7 @@ export function GenericEditor({ columns = 4, size = 72, trackColor, valueColor }
       {rows.map((row, index) => (
         <View key={index} className="flex-row gap-7">
           {row.map((param) => (
-            <ParamKnob
+            <GenericEditorKnob
               key={param.id}
               paramId={param.id}
               size={size}

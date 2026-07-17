@@ -80,11 +80,13 @@ function arcPath(value: number): string {
 /* ── theme-agnostic twins (skins come from the tile's CSS vars) ─────── */
 
 function KnobTwin({
+  theme = 'inst',
   value,
   onChange,
   size = 74,
   defaultValue = 0.7,
 }: {
+  theme?: string
   value: number
   onChange: (v: number) => void
   size?: number
@@ -92,18 +94,98 @@ function KnobTwin({
 }) {
   const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
   const angle = -135 + 270 * clamp01(value)
+  const wheel = (e: { deltaY: number }) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))
+  const h = {
+    ...drag,
+    onDoubleClick: () => onChange(defaultValue),
+    onWheel: wheel,
+    role: 'slider' as const,
+    'aria-valuenow': Math.round(value * 100),
+    tabIndex: 0,
+  }
 
+  // STANDARD — flat gauge ring with a big numeric readout, no cap at all
+  if (theme === 'std') {
+    return (
+      <div className={styles.knobStd} style={{ width: size, height: size }} {...h}>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d={arcPath(1)} className={styles.gaugeTrack} />
+          <path d={arcPath(value)} className={styles.gaugeVal} />
+        </svg>
+        <b>{Math.round(value * 100)}</b>
+      </div>
+    )
+  }
+
+  // METAL — machined knurled cap, engraved pointer line, center screw
+  if (theme === 'metal') {
+    return (
+      <div className={styles.knobMetal} style={{ width: size, height: size }} {...h}>
+        <i aria-hidden="true" />
+        <u style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+        <em aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // PLASTIC — glossy dome on a wide skirt, wedge pointer
+  if (theme === 'plast') {
+    return (
+      <div className={styles.knobPlast} style={{ width: size, height: size }} {...h}>
+        <s aria-hidden="true" />
+        <i aria-hidden="true" />
+        <u style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // VINTAGE — chicken-head pointer knob over a printed tick scale
+  if (theme === 'vint') {
+    return (
+      <div className={styles.knobVint} style={{ width: size + 16, height: size + 16 }} {...h}>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          {Array.from({ length: 11 }, (_, i) => {
+            const a = ((-135 + 27 * i) * Math.PI) / 180
+            return (
+              <line
+                key={i}
+                x1={50 + 41 * Math.sin(a)}
+                y1={50 - 41 * Math.cos(a)}
+                x2={50 + 47 * Math.sin(a)}
+                y2={50 - 47 * Math.cos(a)}
+              />
+            )
+          })}
+        </svg>
+        <i style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // NEON — discrete LED segment ring with a glowing readout, no moving parts
+  if (theme === 'neon') {
+    const SEG = 20
+    return (
+      <div className={styles.knobNeon} style={{ width: size, height: size }} {...h}>
+        {Array.from({ length: SEG }, (_, i) => {
+          const a = -135 + (270 * i) / (SEG - 1)
+          return (
+            <i
+              key={i}
+              className={i / (SEG - 1) <= clamp01(value) ? styles.segLit : ''}
+              style={{ transform: `rotate(${a}deg) translateY(-${size / 2 - 4}px)` }}
+              aria-hidden="true"
+            />
+          )
+        })}
+        <b>{Math.round(value * 100)}</b>
+      </div>
+    )
+  }
+
+  // INSTRUMENT — the arc knob with the pointer cap
   return (
-    <div
-      className={styles.knob}
-      style={{ width: size, height: size }}
-      {...drag}
-      onDoubleClick={() => onChange(defaultValue)}
-      onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
-      role="slider"
-      aria-valuenow={Math.round(value * 100)}
-      tabIndex={0}
-    >
+    <div className={styles.knob} style={{ width: size, height: size }} {...h}>
       <svg viewBox="0 0 100 100" aria-hidden="true">
         <path d={arcPath(1)} className={styles.arcTrack} />
         <path d={arcPath(value)} className={styles.arcValue} />
@@ -113,49 +195,181 @@ function KnobTwin({
   )
 }
 
-function HWKnobTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function HWKnobTwin({
+  theme = 'inst',
+  value,
+  onChange,
+}: {
+  theme?: string
+  value: number
+  onChange: (v: number) => void
+}) {
   const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
   const angle = -135 + 270 * clamp01(value)
+  const h = {
+    ...drag,
+    onDoubleClick: () => onChange(0.66),
+    onWheel: (e: { deltaY: number }) =>
+      onChange(clamp01(value - Math.sign(e.deltaY) * 0.04)),
+    role: 'slider' as const,
+    'aria-valuenow': Math.round(value * 100),
+    tabIndex: 0,
+  }
 
+  // Structural spread: bezel ring (metal), dot indicator (std), ribbed cap +
+  // wedge (plast), fluted cap (vint), glow slit + halo (neon).
   return (
-    <div
-      className={styles.hwKnob}
-      {...drag}
-      onDoubleClick={() => onChange(0.66)}
-      onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
-      role="slider"
-      aria-valuenow={Math.round(value * 100)}
-      tabIndex={0}
-    >
+    <div className={`${styles.hwKnob} ${styles[`hw_${theme}`] ?? ''}`} {...h}>
+      {theme === 'metal' ? <s aria-hidden="true" /> : null}
       <svg viewBox="0 0 100 100" aria-hidden="true">
         <path d={arcPath(1)} className={styles.hwTicks} />
       </svg>
       <i />
-      <u style={{ transform: `rotate(${angle}deg)` }} />
+      {theme === 'std' ? (
+        <span className={styles.hwDotArm} style={{ transform: `rotate(${angle}deg)` }}>
+          <b />
+        </span>
+      ) : (
+        <u style={{ transform: `rotate(${angle}deg)` }} />
+      )}
     </div>
   )
 }
 
 function SliderTwin({
+  theme = 'inst',
   value,
   onChange,
   vertical,
   length = 130,
 }: {
+  theme?: string
   value: number
   onChange: (v: number) => void
   vertical?: boolean
   length?: number
 }) {
   const drag = useDrag((dx, dy) => onChange(clamp01(value + (vertical ? -dy : dx) / length)))
+  const h = {
+    ...drag,
+    onDoubleClick: () => onChange(0.5),
+    onWheel: (e: { deltaY: number }) =>
+      onChange(clamp01(value - Math.sign(e.deltaY) * 0.04)),
+  }
 
+  // NEON — a discrete LED ladder; no thumb, no track line, just lit cells
+  if (theme === 'neon') {
+    const CELLS = 14
+    return (
+      <div
+        className={`${styles.ladder} ${vertical ? styles.ladderV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        {Array.from({ length: CELLS }, (_, i) => (
+          <i key={i} className={(i + 0.5) / CELLS <= clamp01(value) ? styles.cellLit : ''} />
+        ))}
+      </div>
+    )
+  }
+
+  // VINTAGE — console fader: slot + printed tick scale + cream cap handle
+  if (theme === 'vint') {
+    return (
+      <div
+        className={`${styles.fadeVint} ${vertical ? styles.fadeVintV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <i aria-hidden="true" />
+        <b
+          style={
+            vertical
+              ? { bottom: `calc(${value * 100}% - 11px)` }
+              : { left: `calc(${value * 100}% - 11px)` }
+          }
+        >
+          <u />
+        </b>
+      </div>
+    )
+  }
+
+  // METAL — machined slot with a ridged studio fader handle
+  if (theme === 'metal') {
+    return (
+      <div
+        className={`${styles.fadeMetal} ${vertical ? styles.fadeMetalV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <b
+          style={
+            vertical
+              ? { bottom: `calc(${value * 100}% - 13px)` }
+              : { left: `calc(${value * 100}% - 13px)` }
+          }
+        >
+          <i />
+          <i />
+          <i />
+        </b>
+      </div>
+    )
+  }
+
+  // PLASTIC — chunky inset channel with a glossy rectangular thumb
+  if (theme === 'plast') {
+    return (
+      <div
+        className={`${styles.fadePlast} ${vertical ? styles.fadePlastV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <i
+          className={styles.fadePlastFill}
+          style={vertical ? { height: `${value * 100}%` } : { width: `${value * 100}%` }}
+        />
+        <b
+          style={
+            vertical
+              ? { bottom: `calc(${value * 100}% - 9px)` }
+              : { left: `calc(${value * 100}% - 9px)` }
+          }
+        />
+      </div>
+    )
+  }
+
+  // STANDARD — the web slider: thick rounded track, bordered round thumb
+  if (theme === 'std') {
+    return (
+      <div
+        className={`${styles.fadeStd} ${vertical ? styles.fadeStdV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <i
+          className={styles.fadeStdFill}
+          style={vertical ? { height: `${value * 100}%` } : { width: `${value * 100}%` }}
+        />
+        <b
+          style={
+            vertical
+              ? { bottom: `calc(${value * 100}% - 9px)` }
+              : { left: `calc(${value * 100}% - 9px)` }
+          }
+        />
+      </div>
+    )
+  }
+
+  // INSTRUMENT — hairline track + glowing dot
   return (
     <div
       className={vertical ? styles.sliderV : styles.sliderH}
       style={vertical ? { height: length } : { width: length }}
-      {...drag}
-      onDoubleClick={() => onChange(0.5)}
-      onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
+      {...h}
     >
       <i
         className={styles.sliderFill}
@@ -173,12 +387,80 @@ function SliderTwin({
   )
 }
 
-function CrossfaderTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function CrossfaderTwin({
+  theme = 'inst',
+  value,
+  onChange,
+}: {
+  theme?: string
+  value: number
+  onChange: (v: number) => void
+}) {
   const TRAVEL = 170 - 24 - 6
   const drag = useDrag((dx) => onChange(clamp01(value + dx / TRAVEL)))
+  const h = { ...drag, onDoubleClick: () => onChange(0.5) }
 
+  // NEON — center meridian, glow handle, LED end dots that dim/brighten
+  if (theme === 'neon') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfNeon}`} {...h}>
+        <em style={{ opacity: 0.25 + (1 - value) * 0.75 }} />
+        <i aria-hidden="true" />
+        <b style={{ left: 3 + value * TRAVEL }} />
+        <em className={styles.xfNeonR} style={{ opacity: 0.25 + value * 0.75 }} />
+      </div>
+    )
+  }
+
+  // VINTAGE — screened panel labels + tick ruler + bakelite handle
+  if (theme === 'vint') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfVint}`} {...h}>
+        <span>DRY</span>
+        <u aria-hidden="true" />
+        <b style={{ left: 3 + value * TRAVEL }} />
+        <span className={styles.xfadeEnd}>WET</span>
+      </div>
+    )
+  }
+
+  // METAL — engraved ruler ticks + machined handle with a center scribe
+  if (theme === 'metal') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfMetal}`} {...h}>
+        <u aria-hidden="true" />
+        <b style={{ left: 3 + value * TRAVEL }}>
+          <s />
+        </b>
+      </div>
+    )
+  }
+
+  // PLASTIC — A/B rocker-look: two halves fill toward the handle
+  if (theme === 'plast') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfPlast}`} {...h}>
+        <i className={styles.xfPlastA} style={{ width: `${value * 100}%` }} />
+        <b style={{ left: 3 + value * TRAVEL }} />
+        <span>A</span>
+        <span className={styles.xfadeEnd}>B</span>
+      </div>
+    )
+  }
+
+  // STANDARD — minimal strip with a thin center notch + round thumb
+  if (theme === 'std') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfStd}`} {...h}>
+        <i aria-hidden="true" />
+        <b style={{ left: 6 + value * (TRAVEL - 6) }} />
+      </div>
+    )
+  }
+
+  // INSTRUMENT — the grippy handle strip
   return (
-    <div className={styles.xfade} {...drag} onDoubleClick={() => onChange(0.5)}>
+    <div className={styles.xfade} {...h}>
       <span>DRY</span>
       <b style={{ left: 3 + value * TRAVEL }}>
         <i />
@@ -189,7 +471,98 @@ function CrossfaderTwin({ value, onChange }: { value: number; onChange: (v: numb
   )
 }
 
-function ToggleTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function ToggleTwin({
+  theme = 'inst',
+  on,
+  onChange,
+}: {
+  theme?: string
+  on: boolean
+  onChange: (v: boolean) => void
+}) {
+  // METAL — a real bat-lever toggle on a hex-nut collar; the lever tilts
+  if (theme === 'metal') {
+    return (
+      <button
+        type="button"
+        className={styles.batToggle}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <s aria-hidden="true" />
+        <i style={{ transform: `rotate(${on ? 24 : -24}deg)` }}>
+          <b />
+        </i>
+      </button>
+    )
+  }
+
+  // PLASTIC — a rocker switch: the pressed half sinks, I/O printed on it
+  if (theme === 'plast') {
+    return (
+      <button
+        type="button"
+        className={styles.rocker}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <b className={!on ? styles.rockerDown : ''}>O</b>
+        <b className={on ? styles.rockerDown : ''}>I</b>
+      </button>
+    )
+  }
+
+  // VINTAGE — a slide lever on a screwed panel plate, UP/DOWN
+  if (theme === 'vint') {
+    return (
+      <button
+        type="button"
+        className={styles.plateToggle}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <em className={styles.screwTL} />
+        <em className={styles.screwBR} />
+        <i style={{ top: on ? '10%' : '55%' }} />
+        <span>{on ? 'ON' : 'OFF'}</span>
+      </button>
+    )
+  }
+
+  // STANDARD — labels INSIDE the track, thumb reveals the active word
+  if (theme === 'std') {
+    return (
+      <button
+        type="button"
+        className={`${styles.wordToggle} ${on ? styles.wordToggleOn : ''}`}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <span>ON</span>
+        <span>OFF</span>
+        <i />
+      </button>
+    )
+  }
+
+  // NEON — pill + status LED that ignites above it
+  if (theme === 'neon') {
+    return (
+      <div className={styles.ledToggleWrap}>
+        <u className={on ? styles.ledLit : ''} aria-hidden="true" />
+        <button
+          type="button"
+          className={`${styles.toggle} ${on ? styles.toggleOn : ''}`}
+          onClick={() => onChange(!on)}
+          aria-pressed={on}
+        >
+          <i />
+        </button>
+      </div>
+    )
+  }
+
+  // INSTRUMENT — pill with hardware side captions
   return (
     <div className={styles.toggleWrap}>
       <em className={on ? '' : styles.sideOn}>OFF</em>
@@ -206,7 +579,78 @@ function ToggleTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) => v
   )
 }
 
-function CheckboxTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function CheckboxTwin({
+  theme = 'inst',
+  on,
+  onChange,
+}: {
+  theme?: string
+  on: boolean
+  onChange: (v: boolean) => void
+}) {
+  // VINTAGE — illuminated jewel lamps instead of boxes
+  if (theme === 'vint') {
+    return (
+      <div className={styles.checkStack}>
+        {(
+          [
+            ['Oversample', on],
+            ['Dither', !on],
+          ] as Array<[string, boolean]>
+        ).map(([label, lit]) => (
+          <button key={label} type="button" className={styles.jewelRow} onClick={() => onChange(!on)}>
+            <i className={lit ? styles.jewelLit : ''} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // NEON — terminal brackets: [ x ] / [   ]
+  if (theme === 'neon') {
+    return (
+      <div className={styles.checkStack}>
+        {(
+          [
+            ['OVERSAMPLE', on],
+            ['DITHER', !on],
+          ] as Array<[string, boolean]>
+        ).map(([label, lit]) => (
+          <button key={label} type="button" className={styles.brkRow} onClick={() => onChange(!on)}>
+            <i>[{lit ? 'x' : ' '}]</i>
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // METAL — latching push-buttons with an inset LED window
+  if (theme === 'metal') {
+    return (
+      <div className={styles.checkStack}>
+        {(
+          [
+            ['OVERSAMPLE', on],
+            ['DITHER', !on],
+          ] as Array<[string, boolean]>
+        ).map(([label, lit]) => (
+          <button
+            key={label}
+            type="button"
+            className={`${styles.latchBtn} ${lit ? styles.latchDown : ''}`}
+            onClick={() => onChange(!on)}
+          >
+            <i className={lit ? styles.latchLedOn : ''} />
+            {label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // PLASTIC / STANDARD / INSTRUMENT — box rows (beveled vs flat vs ink)
   return (
     <div className={styles.checkStack}>
       <button type="button" className={styles.checkRow} onClick={() => onChange(!on)}>
@@ -221,10 +665,75 @@ function CheckboxTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) =>
   )
 }
 
-function RadioTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+function RadioTwin({
+  theme = 'inst',
+  index,
+  onChange,
+}: {
+  theme?: string
+  index: number
+  onChange: (i: number) => void
+}) {
+  const options = ['OFF', '2X', '4X']
+
+  // VINTAGE — a latching piano-key pushbutton bank (the pressed key stays down)
+  if (theme === 'vint') {
+    return (
+      <div className={styles.pianoBank}>
+        {options.map((option, i) => (
+          <button
+            key={option}
+            type="button"
+            className={`${styles.pianoKey} ${i === index ? styles.pianoDown : ''}`}
+            onClick={() => onChange(i)}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // NEON — LED strip selector: dots + connecting rail, active glows
+  if (theme === 'neon') {
+    return (
+      <div className={styles.ledRail}>
+        <i aria-hidden="true" />
+        {options.map((option, i) => (
+          <button key={option} type="button" onClick={() => onChange(i)}>
+            <u className={i === index ? styles.railLit : ''} />
+            <span>{option}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // METAL — a rotary selector: small knob whose pointer clicks between
+  // engraved positions
+  if (theme === 'metal') {
+    const angle = -50 + (100 * index) / (options.length - 1)
+    return (
+      <button
+        type="button"
+        className={styles.rotarySel}
+        onClick={() => onChange((index + 1) % options.length)}
+        aria-label={`Mode: ${options[index]}`}
+      >
+        <span className={styles.rotL}>{options[0]}</span>
+        <i>
+          <u style={{ transform: `rotate(${angle}deg)` }} />
+        </i>
+        <span className={styles.rotR}>{options[2]}</span>
+        <em>{options[index]}</em>
+      </button>
+    )
+  }
+
+  // PLASTIC / STANDARD / INSTRUMENT — dot rows (beveled vs flat vs ink)
   return (
     <div className={styles.checkStack}>
-      {['OFF', '2X', '4X'].map((option, i) => (
+      {options.map((option, i) => (
         <button type="button" key={option} className={styles.checkRow} onClick={() => onChange(i)}>
           <u className={i === index ? styles.radioOn : ''} />
           <span>{option}</span>
@@ -234,10 +743,95 @@ function RadioTwin({ index, onChange }: { index: number; onChange: (i: number) =
   )
 }
 
-function SegmentedTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+function SegmentedTwin({
+  theme = 'inst',
+  index,
+  onChange,
+}: {
+  theme?: string
+  index: number
+  onChange: (i: number) => void
+}) {
+  const options = ['SIN', 'SAW', 'SQR']
+
+  // STANDARD — text tabs with a sliding underline indicator
+  if (theme === 'std') {
+    return (
+      <div className={styles.tabs}>
+        {options.map((option, i) => (
+          <button
+            key={option}
+            type="button"
+            className={i === index ? styles.tabOn : ''}
+            onClick={() => onChange(i)}
+          >
+            {option}
+          </button>
+        ))}
+        <i style={{ left: `${(100 / options.length) * index}%` }} aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // NEON — bare glowing glyph row, active one ignites with an underglow bar
+  if (theme === 'neon') {
+    return (
+      <div className={styles.glowSeg}>
+        {options.map((option, i) => (
+          <button
+            key={option}
+            type="button"
+            className={i === index ? styles.glowSegOn : ''}
+            onClick={() => onChange(i)}
+          >
+            {option}
+            <i aria-hidden="true" />
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // VINTAGE — round typewriter keys, the active key sits pressed
+  if (theme === 'vint') {
+    return (
+      <div className={styles.typeKeys}>
+        {options.map((option, i) => (
+          <button
+            key={option}
+            type="button"
+            className={i === index ? styles.typeKeyDown : ''}
+            onClick={() => onChange(i)}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // METAL — one machined block, engraved separators, active window lights
+  if (theme === 'metal') {
+    return (
+      <div className={styles.machSeg}>
+        {options.map((option, i) => (
+          <button
+            key={option}
+            type="button"
+            className={i === index ? styles.machSegOn : ''}
+            onClick={() => onChange(i)}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  // PLASTIC / INSTRUMENT — the pill strip (beveled vs flat via theme vars)
   return (
     <div className={styles.segmented}>
-      {['SIN', 'SAW', 'SQR'].map((option, i) => (
+      {options.map((option, i) => (
         <button
           type="button"
           key={option}
@@ -251,12 +845,57 @@ function SegmentedTwin({ index, onChange }: { index: number; onChange: (i: numbe
   )
 }
 
-function SelectTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+function SelectTwin({
+  theme = 'inst',
+  index,
+  onChange,
+}: {
+  theme?: string
+  index: number
+  onChange: (i: number) => void
+}) {
   const [open, setOpen] = useState(false)
   const options = ['CLEAN', 'TAPE', 'TUBE', 'FUZZ']
 
+  // VINTAGE — no dropdown at all: a program wheel you click to advance,
+  // value shown in a punched window
+  if (theme === 'vint') {
+    return (
+      <button
+        type="button"
+        className={styles.progWheel}
+        onClick={() => onChange((index + 1) % options.length)}
+        aria-label={`Program: ${options[index]}`}
+      >
+        <i aria-hidden="true" />
+        <b>{options[index]}</b>
+        <span>PROGRAM ▸</span>
+      </button>
+    )
+  }
+
+  // METAL — stepper window: machined [−]/[+] arrows flank an inset window
+  if (theme === 'metal') {
+    return (
+      <div className={styles.stepSel}>
+        <button
+          type="button"
+          onClick={() => onChange((index + options.length - 1) % options.length)}
+          aria-label="Previous"
+        >
+          ◂
+        </button>
+        <b>{options[index]}</b>
+        <button type="button" onClick={() => onChange((index + 1) % options.length)} aria-label="Next">
+          ▸
+        </button>
+      </div>
+    )
+  }
+
+  // NEON / STANDARD / PLASTIC / INSTRUMENT — dropdown with themed chrome
   return (
-    <div className={styles.selectWrap}>
+    <div className={`${styles.selectWrap} ${styles[`sel_${theme}`] ?? ''}`}>
       <button type="button" className={styles.select} onClick={() => setOpen(!open)}>
         <span>{options[index]}</span>
         <em>{open ? '▲' : '▼'}</em>
@@ -283,26 +922,137 @@ function SelectTwin({ index, onChange }: { index: number; onChange: (i: number) 
 }
 
 function XYTwin({
+  theme = 'inst',
   xy,
   onChange,
 }: {
+  theme?: string
   xy: { x: number; y: number }
   onChange: (v: { x: number; y: number }) => void
 }) {
   const drag = useDrag((dx, dy) =>
     onChange({ x: clamp01(xy.x + dx / 110), y: clamp01(xy.y - dy / 84) }),
   )
+  const h = { ...drag, onDoubleClick: () => onChange({ x: 0.5, y: 0.5 }) }
+  const left = `calc(${xy.x * 100}% - 6px)`
+  const top = `calc(${(1 - xy.y) * 100}% - 6px)`
 
+  // METAL — engineering grid + live coordinate readout, square reticle
+  if (theme === 'metal') {
+    return (
+      <div className={`${styles.xy} ${styles.xyMetal}`} {...h}>
+        <b style={{ left, top }} />
+        <em>{`${Math.round(xy.x * 100)},${Math.round(xy.y * 100)}`}</em>
+      </div>
+    )
+  }
+
+  // VINTAGE — chart-recorder paper: ruled grid, two pen needles, no dot
+  if (theme === 'vint') {
+    return (
+      <div className={`${styles.xy} ${styles.xyVint}`} {...h}>
+        <i style={{ top: `calc(${(1 - xy.y) * 100}% - 1px)` }} />
+        <u style={{ left: `calc(${xy.x * 100}% - 1px)` }} />
+      </div>
+    )
+  }
+
+  // NEON — dark glass with a comet cursor (glow trail), no crosshair
+  if (theme === 'neon') {
+    return (
+      <div className={`${styles.xy} ${styles.xyNeon}`} {...h}>
+        <b style={{ left, top }} />
+      </div>
+    )
+  }
+
+  // PLASTIC — glossy trackpad with a big dome cursor
+  if (theme === 'plast') {
+    return (
+      <div className={`${styles.xy} ${styles.xyPlast}`} {...h}>
+        <b style={{ left: `calc(${xy.x * 100}% - 10px)`, top: `calc(${(1 - xy.y) * 100}% - 10px)` }} />
+      </div>
+    )
+  }
+
+  // STANDARD — clean axes + dot
+  if (theme === 'std') {
+    return (
+      <div className={`${styles.xy} ${styles.xyStd}`} {...h}>
+        <i style={{ top: '50%' }} />
+        <u style={{ left: '50%' }} />
+        <b style={{ left, top }} />
+      </div>
+    )
+  }
+
+  // INSTRUMENT — crosshair follows the cursor
   return (
-    <div className={styles.xy} {...drag} onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}>
+    <div className={styles.xy} {...h}>
       <i style={{ top: `calc(${(1 - xy.y) * 100}% - 0.5px)` }} />
       <u style={{ left: `calc(${xy.x * 100}% - 0.5px)` }} />
-      <b style={{ left: `calc(${xy.x * 100}% - 6px)`, top: `calc(${(1 - xy.y) * 100}% - 6px)` }} />
+      <b style={{ left, top }} />
     </div>
   )
 }
 
-function ButtonTwin({ onClick }: { onClick: () => void }) {
+function ButtonTwin({ theme = 'inst', onClick }: { theme?: string; onClick: () => void }) {
+  // METAL — a momentary machined button with a status LED window
+  if (theme === 'metal') {
+    return (
+      <div className={styles.btnStack}>
+        <button type="button" className={styles.machBtn} onClick={onClick}>
+          <i />
+          APPLY
+        </button>
+        <button type="button" className={styles.machBtnRound} onClick={onClick} aria-label="Reset" />
+      </div>
+    )
+  }
+
+  // VINTAGE — round typewriter action keys
+  if (theme === 'vint') {
+    return (
+      <div className={styles.btnRowGap}>
+        <button type="button" className={styles.typeAction} onClick={onClick}>
+          GO
+        </button>
+        <button type="button" className={`${styles.typeAction} ${styles.typeActionAlt}`} onClick={onClick}>
+          RST
+        </button>
+      </div>
+    )
+  }
+
+  // NEON — bracket buttons: [ APPLY ] with corner ticks that ignite
+  if (theme === 'neon') {
+    return (
+      <div className={styles.btnStack}>
+        <button type="button" className={styles.brkBtn} onClick={onClick}>
+          APPLY
+        </button>
+        <button type="button" className={`${styles.brkBtn} ${styles.brkBtnDim}`} onClick={onClick}>
+          RESET
+        </button>
+      </div>
+    )
+  }
+
+  // PLASTIC — 2000s raised buttons that physically depress
+  if (theme === 'plast') {
+    return (
+      <div className={styles.btnStack}>
+        <button type="button" className={styles.xpBtn} onClick={onClick}>
+          APPLY
+        </button>
+        <button type="button" className={`${styles.xpBtn} ${styles.xpBtnGrey}`} onClick={onClick}>
+          RESET
+        </button>
+      </div>
+    )
+  }
+
+  // STANDARD / INSTRUMENT — solid + outline pair
   return (
     <div className={styles.btnStack}>
       <button type="button" className={styles.btnSolid} onClick={onClick}>
@@ -315,30 +1065,123 @@ function ButtonTwin({ onClick }: { onClick: () => void }) {
   )
 }
 
-function NumberBoxTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function NumberBoxTwin({
+  theme = 'inst',
+  value,
+  onChange,
+}: {
+  theme?: string
+  value: number
+  onChange: (v: number) => void
+}) {
   const clampBpm = (v: number) => Math.min(240, Math.max(40, Math.round(v)))
   const drag = useDrag((_dx, dy) => onChange(clampBpm(value - dy / 4)))
+  const h = {
+    ...drag,
+    onDoubleClick: () => onChange(120),
+    onWheel: (e: { deltaY: number }) => onChange(clampBpm(value - Math.sign(e.deltaY))),
+    role: 'spinbutton' as const,
+    'aria-valuenow': value,
+    tabIndex: 0,
+  }
 
+  // STANDARD — a stepper field with real −/+ buttons
+  if (theme === 'std') {
+    return (
+      <div className={styles.stepperBox}>
+        <button type="button" onClick={() => onChange(clampBpm(value - 1))} aria-label="Decrease">
+          −
+        </button>
+        <b {...h}>{value}</b>
+        <button type="button" onClick={() => onChange(clampBpm(value + 1))} aria-label="Increase">
+          +
+        </button>
+      </div>
+    )
+  }
+
+  // VINTAGE — a mechanical flip counter: each digit in its own drum cell
+  if (theme === 'vint') {
+    return (
+      <div className={styles.flipCounter} {...h}>
+        {String(value).padStart(3, '0').split('').map((digit, i) => (
+          <b key={i}>{digit}</b>
+        ))}
+        <span>BPM</span>
+      </div>
+    )
+  }
+
+  // NEON — seven-seg style glowing readout with a ghost "888" behind
+  if (theme === 'neon') {
+    return (
+      <div className={styles.sevenSeg} {...h}>
+        <s aria-hidden="true">888</s>
+        <b>{value}</b>
+        <span>BPM</span>
+      </div>
+    )
+  }
+
+  // PLASTIC — an LCD pocket-gear window
+  if (theme === 'plast') {
+    return (
+      <div className={styles.lcdBox} {...h}>
+        {value} <span>BPM</span>
+      </div>
+    )
+  }
+
+  // METAL / INSTRUMENT — inset machined vs ink chip
   return (
-    <div
-      className={styles.numBox}
-      {...drag}
-      onDoubleClick={() => onChange(120)}
-      onWheel={(e) => onChange(clampBpm(value - Math.sign(e.deltaY)))}
-      role="spinbutton"
-      aria-valuenow={value}
-      tabIndex={0}
-    >
+    <div className={`${styles.numBox} ${theme === 'metal' ? styles.numMetal : ''}`} {...h}>
       {value} BPM
     </div>
   )
 }
 
-function InputTwin() {
+function InputTwin({ theme = 'inst' }: { theme?: string }) {
   const [text, setText] = useState('')
+
+  // NEON — terminal prompt with a block caret hint
+  if (theme === 'neon') {
+    return (
+      <div className={styles.termInput}>
+        <b>&gt;</b>
+        <input
+          placeholder="preset_name"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <i aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // VINTAGE — a typewriter underline field on paper
+  if (theme === 'vint') {
+    return (
+      <div className={styles.typedInput}>
+        <label>NAME:</label>
+        <input value={text} onChange={(e) => setText(e.target.value)} />
+      </div>
+    )
+  }
+
+  // STANDARD — floating-label material field
+  if (theme === 'std') {
+    return (
+      <div className={`${styles.matInput} ${text ? styles.matFilled : ''}`}>
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder=" " />
+        <label>Preset name</label>
+      </div>
+    )
+  }
+
+  // METAL / PLASTIC / INSTRUMENT — themed chrome box
   return (
     <input
-      className={styles.input}
+      className={`${styles.input} ${styles[`in_${theme}`] ?? ''}`}
       placeholder="Preset name…"
       value={text}
       onChange={(e) => setText(e.target.value)}
@@ -346,12 +1189,90 @@ function InputTwin() {
   )
 }
 
-function MeterTwin({ level, tick }: { level: number; tick: number }) {
+function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: number; tick: number }) {
   const peak = useRef({ value: 0, held: 0 })
   if (level >= peak.current.value) peak.current = { value: level, held: tick }
   else if (tick - peak.current.held > 30)
     peak.current.value = Math.max(level, peak.current.value - 0.012)
 
+  // VINTAGE — an analog VU: cream dial, printed scale arc, swinging needle
+  if (theme === 'vint') {
+    const needle = -46 + clamp01(level) * 92
+    return (
+      <div className={styles.vu}>
+        <svg viewBox="0 0 100 60" aria-hidden="true">
+          <path d="M 14 50 A 42 42 0 0 1 86 50" className={styles.vuArc} />
+          <path d="M 71 24 A 42 42 0 0 1 86 50" className={styles.vuArcHot} />
+          {Array.from({ length: 7 }, (_, i) => {
+            const a = ((-46 + (92 * i) / 6) * Math.PI) / 180
+            return (
+              <line
+                key={i}
+                x1={50 + 36 * Math.sin(a)}
+                y1={52 - 36 * Math.cos(a)}
+                x2={50 + 42 * Math.sin(a)}
+                y2={52 - 42 * Math.cos(a)}
+              />
+            )
+          })}
+        </svg>
+        <i style={{ transform: `rotate(${needle}deg)` }} />
+        <span>VU</span>
+      </div>
+    )
+  }
+
+  // NEON — a discrete LED stack, top cells run hot
+  if (theme === 'neon') {
+    const CELLS = 12
+    return (
+      <div className={styles.ledStack}>
+        {Array.from({ length: CELLS }, (_, i) => {
+          const lit = (i + 0.5) / CELLS <= clamp01(level)
+          const hot = i >= CELLS - 3
+          return <i key={i} className={lit ? (hot ? styles.stackHot : styles.stackLit) : ''} />
+        })}
+      </div>
+    )
+  }
+
+  // PLASTIC — chunky block segments in an inset well
+  if (theme === 'plast') {
+    const CELLS = 8
+    return (
+      <div className={styles.blockMeter}>
+        {Array.from({ length: CELLS }, (_, i) => (
+          <i key={i} className={(i + 0.5) / CELLS <= clamp01(level) ? styles.blockLit : ''} />
+        ))}
+      </div>
+    )
+  }
+
+  // METAL — machined slot with a ruler scale beside it
+  if (theme === 'metal') {
+    return (
+      <div className={styles.slotMeter}>
+        <u aria-hidden="true" />
+        <div>
+          <i style={{ height: `${clamp01(level) * 100}%` }} />
+        </div>
+      </div>
+    )
+  }
+
+  // STANDARD — thin bar with side ticks
+  if (theme === 'std') {
+    return (
+      <div className={styles.stdMeter}>
+        <div>
+          <i style={{ height: `${clamp01(level) * 100}%` }} />
+        </div>
+        <u aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // INSTRUMENT — bar + hot zone + peak-hold line
   return (
     <div className={styles.meterTrack}>
       <i style={{ height: `${Math.min(level, 0.85) * 100}%` }} />
@@ -361,9 +1282,42 @@ function MeterTwin({ level, tick }: { level: number; tick: number }) {
   )
 }
 
-function BarsTwin({ values }: { values: number[] }) {
+function BarsTwin({ theme = 'inst', values }: { theme?: string; values: number[] }) {
+  // VINTAGE — a pen-plotter line chart on ruled paper
+  if (theme === 'vint') {
+    const points = values
+      .map((v, i) => `${(i / (values.length - 1)) * 100},${60 - clamp01(v) * 52}`)
+      .join(' ')
+    return (
+      <div className={styles.plotter}>
+        <svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points={points} />
+        </svg>
+      </div>
+    )
+  }
+
+  // NEON — bars + a mirrored reflection fading below the baseline
+  if (theme === 'neon') {
+    return (
+      <div className={styles.mirrorBars}>
+        <div>
+          {values.map((v, i) => (
+            <i key={i} style={{ height: `${v * 100}%` }} />
+          ))}
+        </div>
+        <div className={styles.mirror}>
+          {values.map((v, i) => (
+            <i key={i} style={{ height: `${v * 100}%` }} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // METAL / STANDARD / PLASTIC / INSTRUMENT — bar field, themed cells
   return (
-    <div className={styles.barsDemo}>
+    <div className={`${styles.barsDemo} ${styles[`bars_${theme}`] ?? ''}`}>
       {values.map((v, i) => (
         <i key={i} className={v >= 0.85 ? styles.hot : ''} style={{ height: `${v * 100}%` }} />
       ))}
@@ -371,9 +1325,25 @@ function BarsTwin({ values }: { values: number[] }) {
   )
 }
 
-function WaveTwin({ values }: { values: number[] }) {
+function WaveTwin({ theme = 'inst', values }: { theme?: string; values: number[] }) {
+  // NEON / VINTAGE — a real oscilloscope trace (continuous path), phosphor
+  // glow vs pen-on-paper
+  if (theme === 'neon' || theme === 'vint') {
+    const path = values
+      .map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i / (values.length - 1)) * 100} ${30 - v * 24}`)
+      .join(' ')
+    return (
+      <div className={theme === 'neon' ? styles.scopeNeon : styles.scopeVint}>
+        <svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+          <path d={path} />
+        </svg>
+      </div>
+    )
+  }
+
+  // others — centre-mirrored bars, themed cells
   return (
-    <div className={styles.waveDemo}>
+    <div className={`${styles.waveDemo} ${styles[`wave_${theme}`] ?? ''}`}>
       <span />
       {values.map((v, i) => (
         <i key={i} style={{ height: `${Math.max(2, Math.abs(v) * 100)}%` }} />
@@ -382,10 +1352,49 @@ function WaveTwin({ values }: { values: number[] }) {
   )
 }
 
-function ProgressTwin({ value }: { value: number }) {
+function ProgressTwin({ theme = 'inst', value }: { theme?: string; value: number }) {
+  // PLASTIC — the XP block bar: discrete green chunks marching across
+  if (theme === 'plast') {
+    const CELLS = 10
+    return (
+      <div className={styles.xpProgress}>
+        {Array.from({ length: CELLS }, (_, i) => (
+          <i key={i} className={(i + 0.5) / CELLS <= value ? styles.xpChunk : ''} />
+        ))}
+      </div>
+    )
+  }
+
+  // VINTAGE — a rotating tape-reel with a percent counter card
+  if (theme === 'vint') {
+    return (
+      <div className={styles.reelProgress}>
+        <i style={{ transform: `rotate(${value * 720}deg)` }}>
+          <b />
+          <b />
+          <b />
+        </i>
+        <span>{Math.round(value * 100)}%</span>
+      </div>
+    )
+  }
+
+  // NEON — a thin scanline bar with a glow head + readout above it
+  if (theme === 'neon') {
+    return (
+      <div className={styles.scanProgress}>
+        <em>{`LOADING ${String(Math.round(value * 100)).padStart(3, '0')}%`}</em>
+        <div>
+          <i style={{ width: `${value * 100}%` }} />
+        </div>
+      </div>
+    )
+  }
+
+  // METAL / STANDARD / INSTRUMENT — track bar, themed chrome
   return (
     <div className={styles.progressDemo}>
-      <div className={styles.progressTrack}>
+      <div className={`${styles.progressTrack} ${styles[`prog_${theme}`] ?? ''}`}>
         <i style={{ width: `${value * 100}%` }} />
       </div>
       <span>{Math.round(value * 100)}%</span>
@@ -393,7 +1402,47 @@ function ProgressTwin({ value }: { value: number }) {
   )
 }
 
-function OrbTwin({ level }: { level: number }) {
+function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: number; tick: number }) {
+  // METAL — a radar scope: machined bezel, rotating sweep, fixed blips
+  if (theme === 'metal') {
+    return (
+      <div className={styles.radar}>
+        <i style={{ transform: `rotate(${(tick * 3) % 360}deg)` }} />
+        <b style={{ left: '30%', top: '38%' }} />
+        <b style={{ left: '64%', top: '58%', opacity: 0.6 }} />
+      </div>
+    )
+  }
+
+  // VINTAGE — a jewel pilot lamp that breathes with the level
+  if (theme === 'vint') {
+    return (
+      <div className={styles.pilotLamp}>
+        <i style={{ opacity: 0.35 + clamp01(level) * 0.65 }} />
+        <span>SIGNAL</span>
+      </div>
+    )
+  }
+
+  // STANDARD — a minimal pulsing status dot
+  if (theme === 'std') {
+    return (
+      <div className={styles.statusDot}>
+        <i style={{ transform: `scale(${1 + clamp01(level) * 0.5})` }} />
+      </div>
+    )
+  }
+
+  // PLASTIC — a glossy bubble that inflates with the level
+  if (theme === 'plast') {
+    return (
+      <div className={styles.bubbleOrb}>
+        <i style={{ transform: `scale(${0.7 + clamp01(level) * 0.45})` }} />
+      </div>
+    )
+  }
+
+  // NEON / INSTRUMENT — echo rings
   return (
     <div className={styles.orb} style={{ ['--orbLevel' as never]: level }}>
       <span />
@@ -403,22 +1452,98 @@ function OrbTwin({ level }: { level: number }) {
   )
 }
 
-function MacroPadDemo({
+function MacroPadTwin({
+  theme = 'inst',
   value,
   onChange,
   tick,
 }: {
+  theme?: string
   value: { x: number; y: number }
   onChange: (v: { x: number; y: number }) => void
   tick: number
 }) {
-  const SIZE = 240
+  const SIZE = 150
   const drag = useDrag((dx, dy) =>
     onChange({ x: clamp01(value.x + dx / SIZE), y: clamp01(value.y - dy / SIZE) }),
   )
+  const h = {
+    ...drag,
+    onDoubleClick: () => onChange({ x: 0.5, y: 0.5 }),
+    role: 'slider' as const,
+    'aria-label': 'Macro pad',
+    'aria-valuenow': Math.round(value.x * 100),
+    tabIndex: 0,
+  }
+  const cursor = {
+    left: `calc(${value.x * 100}% - 6px)`,
+    top: `calc(${(1 - value.y) * 100}% - 6px)`,
+  }
 
-  const rings = Array.from({ length: 9 }, (_, i) => {
-    const t = (i + 1) / 9
+  // METAL — a radar scope: rotating sweep, range rings, target reticle
+  if (theme === 'metal') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpRadar}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <i style={{ transform: `rotate(${(tick * 3) % 360}deg)` }} aria-hidden="true" />
+        <b style={cursor} />
+        <em>{`${Math.round(value.x * 100)}·${Math.round(value.y * 100)}`}</em>
+      </div>
+    )
+  }
+
+  // VINTAGE — a chart recorder: ruled paper disc, two pen arms crossing
+  if (theme === 'vint') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpChart}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <i style={{ top: `calc(${(1 - value.y) * 100}% - 1px)` }} aria-hidden="true" />
+        <u style={{ left: `calc(${value.x * 100}% - 1px)` }} aria-hidden="true" />
+        <s aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // NEON — a starfield: fixed pseudo-random stars whose glow follows y,
+  // comet cursor
+  if (theme === 'neon') {
+    const stars = Array.from({ length: 26 }, (_, i) => {
+      const gx = ((i * 37) % 89) / 89
+      const gy = ((i * 53) % 97) / 97
+      return { left: `${8 + gx * 84}%`, top: `${8 + gy * 84}%`, o: 0.15 + ((i * 29) % 10) / 14 }
+    })
+    return (
+      <div className={`${styles.macroPad} ${styles.mpStars}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        {stars.map((star, i) => (
+          <i key={i} style={{ left: star.left, top: star.top, opacity: star.o * (0.4 + value.y) }} />
+        ))}
+        <b style={cursor} />
+      </div>
+    )
+  }
+
+  // PLASTIC — a glossy trackpad bubble with a dome cursor
+  if (theme === 'plast') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpBubble}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <b style={{ left: `calc(${value.x * 100}% - 11px)`, top: `calc(${(1 - value.y) * 100}% - 11px)` }} />
+      </div>
+    )
+  }
+
+  // STANDARD — a clean instrument dial: quadrant lines + dot + twin readouts
+  if (theme === 'std') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpClean}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <i aria-hidden="true" />
+        <u aria-hidden="true" />
+        <b style={cursor} />
+        <em>{`${Math.round(value.x * 100)}% · ${Math.round(value.y * 100)}%`}</em>
+      </div>
+    )
+  }
+
+  // INSTRUMENT — the breathing concentric rings
+  const rings = Array.from({ length: 8 }, (_, i) => {
+    const t = (i + 1) / 8
     const spread = 0.3 + 0.7 * Math.pow(t, 1.6 - value.x * 1.2)
     const breathe = 1 + 0.02 * Math.sin(tick / 18 + i * 0.9)
     const size = Math.min(SIZE - 2, SIZE * spread * breathe)
@@ -429,16 +1554,7 @@ function MacroPadDemo({
   })
 
   return (
-    <div
-      className={styles.macro}
-      style={{ width: SIZE, height: SIZE }}
-      {...drag}
-      onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}
-      role="slider"
-      aria-label="Macro pad"
-      aria-valuenow={Math.round(value.x * 100)}
-      tabIndex={0}
-    >
+    <div className={styles.macro} style={{ width: SIZE, height: SIZE }} {...h}>
       {rings.map((ring, i) => (
         <i
           key={i}
@@ -451,9 +1567,121 @@ function MacroPadDemo({
           }}
         />
       ))}
-      <b style={{ left: `calc(${value.x * 100}% - 6px)`, top: `calc(${(1 - value.y) * 100}% - 6px)` }} />
-      <span className={styles.macroLabelY}>DEEP FX</span>
-      <span className={styles.macroLabelX}>GRANULATION</span>
+      <b style={cursor} />
+    </div>
+  )
+}
+
+function TooltipTwin({ theme = 'inst' }: { theme?: string }) {
+  const tips: Record<string, string> = {
+    inst: 'Resets to 0 dB',
+    metal: 'CAL: −6 dB PAD',
+    std: 'Resets to default',
+    plast: 'Double-click me!',
+    vint: 'SEE MANUAL P.12',
+    neon: 'reset://0.0dB',
+  }
+
+  return (
+    <span className={`${styles.tipAnchor} ${styles[`tip_${theme}`] ?? ''}`} tabIndex={0}>
+      HOVER ME
+      <span className={styles.tip}>{tips[theme] ?? tips.inst}</span>
+    </span>
+  )
+}
+
+function GenericEditorTwin({
+  theme = 'inst',
+  params,
+}: {
+  theme?: string
+  params: Array<[string, number, (v: number) => void]>
+}) {
+  // STANDARD — a settings form: label · slider · value rows
+  if (theme === 'std') {
+    return (
+      <div className={styles.geForm}>
+        {params.map(([name, value, set]) => (
+          <div key={name}>
+            <label>{name}</label>
+            <SliderTwin theme="std" value={value} onChange={set} length={86} />
+            <b>{Math.round(value * 100)}%</b>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // METAL — a rack strip: corner screws, engraved labels, machined knobs
+  if (theme === 'metal') {
+    return (
+      <div className={styles.geRack}>
+        <em className={styles.rackScrewTL} />
+        <em className={styles.rackScrewTR} />
+        <em className={styles.rackScrewBL} />
+        <em className={styles.rackScrewBR} />
+        {params.map(([name, value, set]) => (
+          <div key={name} className={styles.geCell}>
+            <KnobTwin theme="metal" value={value} onChange={set} size={44} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // VINTAGE — a cream radio panel with chicken-head knobs
+  if (theme === 'vint') {
+    return (
+      <div className={styles.gePanel}>
+        {params.map(([name, value, set]) => (
+          <div key={name} className={styles.geCell}>
+            <KnobTwin theme="vint" value={value} onChange={set} size={40} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // NEON — a console row of segment rings with glowing readouts
+  if (theme === 'neon') {
+    return (
+      <div className={styles.geConsole}>
+        {params.map(([name, value, set]) => (
+          <div key={name} className={styles.geCell}>
+            <KnobTwin theme="neon" value={value} onChange={set} size={48} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // PLASTIC — chunky beveled tray of dome knobs
+  if (theme === 'plast') {
+    return (
+      <div className={styles.geTray}>
+        {params.map(([name, value, set]) => (
+          <div key={name} className={styles.geCell}>
+            <KnobTwin theme="plast" value={value} onChange={set} size={42} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // INSTRUMENT — arc knobs with live value labels
+  return (
+    <div className={styles.geRowTight}>
+      {params.map(([name, value, set]) => (
+        <div key={name} className={styles.kv}>
+          <KnobTwin theme="inst" value={value} onChange={set} size={44} />
+          <b>{Math.round(value * 100)}%</b>
+          <span>{name}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -532,7 +1760,7 @@ export default function ComponentsPage() {
   const [bpm, setBpm] = useState(120)
   const [clicks, setClicks] = useState(0)
   const [macro, setMacro] = useState({ x: 0.62, y: 0.55 })
-  const [modalOpen, setModalOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState<string | null>(null)
 
   const [tick, setTick] = useState(0)
   useEffect(() => {
@@ -614,13 +1842,11 @@ export default function ComponentsPage() {
 
             <Family
               title="MacroPad"
-              blurb="The centerpiece — a circular 2D pad whose rings breathe with the values. One drag, two parameters."
+              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a glossy trackpad, a chart recorder, a starfield — one drag drives them all."
               imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
               docs="/docs/components#controls"
             >
-              <div className={styles.showcase}>
-                <MacroPadDemo value={macro} onChange={setMacro} tick={tick} />
-              </div>
+              <AllThemes render={(t) => <MacroPadTwin theme={t} value={macro} onChange={setMacro} tick={tick} />} />
             </Family>
 
             <Family
@@ -629,7 +1855,7 @@ export default function ComponentsPage() {
               imports={`<ParamXYPad paramX="cutoff" paramY="res" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <XYTwin xy={xy} onChange={setXy} />} />
+              <AllThemes render={(t) => <XYTwin theme={t} xy={xy} onChange={setXy} />} />
             </Family>
           </section>
 
@@ -639,11 +1865,11 @@ export default function ComponentsPage() {
 
             <Family
               title="Knob"
-              blurb="The arc knob — drag, wheel, double-click reset; bipolar mode for pan-style params."
+              blurb="Six shapes of the same control: arc dial, machined cap, flat gauge, glossy dome, chicken-head on a scale, LED segment ring — one shared value."
               imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
               docs="/docs/parameters#controls"
             >
-              <AllThemes render={() => <KnobTwin value={gain} onChange={setGain} />} />
+              <AllThemes render={(t) => <KnobTwin theme={t} value={gain} onChange={setGain} />} />
             </Family>
 
             <Family
@@ -652,7 +1878,7 @@ export default function ComponentsPage() {
               imports={`<ParamHardwareKnob paramId="drive" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <HWKnobTwin value={hw} onChange={setHw} />} />
+              <AllThemes render={(t) => <HWKnobTwin theme={t} value={hw} onChange={setHw} />} />
             </Family>
           </section>
 
@@ -666,7 +1892,7 @@ export default function ComponentsPage() {
               imports={`<ParamSlider paramId="mix" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <SliderTwin value={mix} onChange={setMix} />} />
+              <AllThemes render={(t) => <SliderTwin theme={t} value={mix} onChange={setMix} />} />
             </Family>
 
             <Family
@@ -676,7 +1902,9 @@ export default function ComponentsPage() {
               docs="/docs/components#controls"
             >
               <AllThemes
-                render={() => <SliderTwin value={level} onChange={setLevel} vertical length={96} />}
+                render={(t) => (
+                  <SliderTwin theme={t} value={level} onChange={setLevel} vertical length={96} />
+                )}
               />
             </Family>
 
@@ -686,7 +1914,7 @@ export default function ComponentsPage() {
               imports={`<ParamCrossfader paramId="mix" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <CrossfaderTwin value={xfade} onChange={setXfade} />} />
+              <AllThemes render={(t) => <CrossfaderTwin theme={t} value={xfade} onChange={setXfade} />} />
             </Family>
           </section>
 
@@ -700,7 +1928,7 @@ export default function ComponentsPage() {
               imports={`<ParamToggle paramId="bypass" offLabel="OFF" onLabel="ON" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <ToggleTwin on={bypass} onChange={setBypass} />} />
+              <AllThemes render={(t) => <ToggleTwin theme={t} on={bypass} onChange={setBypass} />} />
             </Family>
 
             <Family
@@ -709,7 +1937,7 @@ export default function ComponentsPage() {
               imports={`<ParamCheckbox paramId="oversample" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <CheckboxTwin on={oversample} onChange={setOversample} />} />
+              <AllThemes render={(t) => <CheckboxTwin theme={t} on={oversample} onChange={setOversample} />} />
             </Family>
 
             <Family
@@ -718,7 +1946,7 @@ export default function ComponentsPage() {
               imports={`<ParamRadioGroup paramId="os" options={…} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <RadioTwin index={osMode} onChange={setOsMode} />} />
+              <AllThemes render={(t) => <RadioTwin theme={t} index={osMode} onChange={setOsMode} />} />
             </Family>
           </section>
 
@@ -732,7 +1960,7 @@ export default function ComponentsPage() {
               imports={`<ParamSegmented paramId="shape" options={…} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <SegmentedTwin index={shape} onChange={setShape} />} />
+              <AllThemes render={(t) => <SegmentedTwin theme={t} index={shape} onChange={setShape} />} />
             </Family>
 
             <Family
@@ -741,7 +1969,7 @@ export default function ComponentsPage() {
               imports={`<ParamSelect paramId="mode" options={…} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <SelectTwin index={mode} onChange={setMode} />} />
+              <AllThemes render={(t) => <SelectTwin theme={t} index={mode} onChange={setMode} />} />
             </Family>
           </section>
 
@@ -755,7 +1983,7 @@ export default function ComponentsPage() {
               imports={`<NumberBox value={bpm} min={40} max={240} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <NumberBoxTwin value={bpm} onChange={setBpm} />} />
+              <AllThemes render={(t) => <NumberBoxTwin theme={t} value={bpm} onChange={setBpm} />} />
             </Family>
 
             <Family
@@ -764,7 +1992,7 @@ export default function ComponentsPage() {
               imports={`<TextInput placeholder="Preset name…" />`}
               docs="/docs/components#textinput"
             >
-              <AllThemes render={() => <InputTwin />} />
+              <AllThemes render={(t) => <InputTwin theme={t} />} />
             </Family>
           </section>
 
@@ -778,7 +2006,7 @@ export default function ComponentsPage() {
               imports={`<Button label="APPLY" variant="solid|outline|ghost" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <ButtonTwin onClick={() => setClicks((c) => c + 1)} />} />
+              <AllThemes render={(t) => <ButtonTwin theme={t} onClick={() => setClicks((c) => c + 1)} />} />
             </Family>
           </section>
 
@@ -792,7 +2020,7 @@ export default function ComponentsPage() {
               imports={`<Meter value={level} label="OUT" />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <MeterTwin level={meterLevel} tick={tick} />} />
+              <AllThemes render={(t) => <MeterTwin theme={t} level={meterLevel} tick={tick} />} />
             </Family>
 
             <Family
@@ -801,7 +2029,7 @@ export default function ComponentsPage() {
               imports={`<Bars values={spectrum} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <BarsTwin values={bars} />} />
+              <AllThemes render={(t) => <BarsTwin theme={t} values={bars} />} />
             </Family>
 
             <Family
@@ -810,7 +2038,7 @@ export default function ComponentsPage() {
               imports={`<Waveform values={useRollingBuffer(level)} />`}
               docs="/docs/hooks#audio"
             >
-              <AllThemes render={() => <WaveTwin values={wave} />} />
+              <AllThemes render={(t) => <WaveTwin theme={t} values={wave} />} />
             </Family>
 
             <Family
@@ -819,7 +2047,7 @@ export default function ComponentsPage() {
               imports={`<PulseOrb value={level} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <OrbTwin level={meterLevel} />} />
+              <AllThemes render={(t) => <OrbTwin theme={t} level={meterLevel} tick={tick} />} />
             </Family>
           </section>
 
@@ -833,7 +2061,7 @@ export default function ComponentsPage() {
               imports={`<ProgressBar value={ratio} showPercent />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <ProgressTwin value={progress} />} />
+              <AllThemes render={(t) => <ProgressTwin theme={t} value={progress} />} />
             </Family>
 
             <Family
@@ -842,7 +2070,13 @@ export default function ComponentsPage() {
               imports={`<Spinner size={28} />`}
               docs="/docs/components#controls"
             >
-              <AllThemes render={() => <div className={styles.spinner} aria-label="Loading" />} />
+              <AllThemes
+                render={(t) => (
+                  <div className={`${styles.spinner} ${styles[`sp_${t}`] ?? ''}`} aria-label="Loading">
+                    {t === 'vint' ? <i /> : null}
+                  </div>
+                )}
+              />
             </Family>
           </section>
 
@@ -852,54 +2086,48 @@ export default function ComponentsPage() {
 
             <Family
               title="Tooltip"
-              blurb="Wrap any child; the tip shows below after a hover dwell, via the overlay layer."
+              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, comic balloon, manila tag on a string, terminal readout."
               imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
               docs="/docs/components#controls"
             >
-              <div className={styles.showcase}>
-                <span className={styles.tipAnchor} tabIndex={0}>
-                  HOVER ME
-                  <span className={styles.tip}>Resets to 0 dB</span>
-                </span>
-              </div>
+              <AllThemes render={(t) => <TooltipTwin theme={t} />} />
             </Family>
 
             <Family
               title="Modal"
-              blurb="Centered dialog over a click-away backdrop; panel clicks are swallowed."
+              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a 2000s titlebar with an ✕, a paper notice, a scanlined terminal."
               imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
               docs="/docs/components#controls"
             >
-              <div className={styles.showcase}>
-                <button type="button" className={styles.btnOutline} onClick={() => setModalOpen(true)}>
-                  OPEN MODAL
-                </button>
-              </div>
+              <AllThemes
+                render={(t) => (
+                  <button type="button" className={styles.openBtn} onClick={() => setModalOpen(t)}>
+                    OPEN MODAL
+                  </button>
+                )}
+              />
             </Family>
 
             <Family
               title="GenericEditor"
-              blurb="One knob per APVTS parameter with live value labels — render(<GenericEditor/>) is a complete plugin UI."
+              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, a beveled tray, a radio panel, a glowing console."
               imports={`render(<GenericEditor />)   // that's the whole editor`}
               docs="/docs/parameters#generic"
             >
-              <div className={styles.showcase}>
-                <div className={styles.geRow}>
-                  {(
-                    [
-                      ['GAIN', gain, setGain],
-                      ['MIX', mix, setMix],
-                      ['LEVEL', level, setLevel],
-                    ] as Array<[string, number, (v: number) => void]>
-                  ).map(([name, value, set]) => (
-                    <div key={name} className={styles.kv}>
-                      <KnobTwin value={value} onChange={set} size={58} />
-                      <b>{Math.round(value * 100)}%</b>
-                      <span>{name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <AllThemes
+                render={(t) => (
+                  <GenericEditorTwin
+                    theme={t}
+                    params={
+                      [
+                        ['GAIN', gain, setGain],
+                        ['MIX', mix, setMix],
+                        ['LEVEL', level, setLevel],
+                      ] as Array<[string, number, (v: number) => void]>
+                    }
+                  />
+                )}
+              />
             </Family>
           </section>
         </div>
@@ -914,17 +2142,92 @@ export default function ComponentsPage() {
       </section>
 
       {modalOpen ? (
-        <div className={styles.modalBackdrop} onClick={() => setModalOpen(false)} role="presentation">
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-            <h3>ABOUT</h3>
-            <p>
-              This dialog is the web twin of <code>&lt;Modal&gt;</code> — in a plugin it renders
-              through the overlay layer, painted natively.
-            </p>
-            <button type="button" className={styles.btnSolid} onClick={() => setModalOpen(false)}>
-              CLOSE
-            </button>
-          </div>
+        <div className={styles.modalBackdrop} onClick={() => setModalOpen(null)} role="presentation">
+          {modalOpen === 'metal' ? (
+            // METAL — riveted machine plate with an engraved title bar
+            <div className={`${styles.mBase} ${styles.mMetal}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <header>
+                <em />
+                <em />
+                ABOUT
+                <em />
+                <em />
+              </header>
+              <div>
+                <p>Machine plate dialog — brushed panel, riveted corners, inset body.</p>
+                <button type="button" className={styles.machBtn} onClick={() => setModalOpen(null)}>
+                  <i />
+                  CLOSE
+                </button>
+              </div>
+            </div>
+          ) : modalOpen === 'std' ? (
+            // STANDARD — clean card: header / body / footer with two actions
+            <div className={`${styles.mBase} ${styles.mStd}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <header>About</header>
+              <p>A clean product dialog — title, body, and a footer with paired actions.</p>
+              <footer>
+                <button type="button" onClick={() => setModalOpen(null)}>
+                  Cancel
+                </button>
+                <b>
+                  <button type="button" onClick={() => setModalOpen(null)}>
+                    OK
+                  </button>
+                </b>
+              </footer>
+            </div>
+          ) : modalOpen === 'plast' ? (
+            // PLASTIC — a 2000s OS dialog: gradient titlebar with an ✕ button
+            <div className={`${styles.mBase} ${styles.mPlast}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <header>
+                About.exe
+                <button type="button" onClick={() => setModalOpen(null)} aria-label="Close">
+                  ✕
+                </button>
+              </header>
+              <div>
+                <p>Glossy bevels, gradient chrome, and a button that physically clunks.</p>
+                <button type="button" className={styles.xpBtn} onClick={() => setModalOpen(null)}>
+                  OK
+                </button>
+              </div>
+            </div>
+          ) : modalOpen === 'vint' ? (
+            // VINTAGE — a paper service notice with a stamp corner
+            <div className={`${styles.mBase} ${styles.mVint}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <s>N9</s>
+              <h4>SERVICE NOTICE</h4>
+              <p>Double-bordered paper card, typewriter set, rubber-stamped corner.</p>
+              <button type="button" className={styles.typeAction} onClick={() => setModalOpen(null)}>
+                OK
+              </button>
+            </div>
+          ) : modalOpen === 'neon' ? (
+            // NEON — a scanlined terminal window with a prompt
+            <div className={`${styles.mBase} ${styles.mNeon}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <header>&gt;_ ABOUT</header>
+              <p>
+                sys.dialog(&quot;overlay&quot;) — scanlines, glow border, blinking cursor
+                <i />
+              </p>
+              <button type="button" className={styles.brkBtn} onClick={() => setModalOpen(null)}>
+                EXIT
+              </button>
+            </div>
+          ) : (
+            // INSTRUMENT — the red-bar panel
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <h3>ABOUT</h3>
+              <p>
+                This dialog is the web twin of <code>&lt;Modal&gt;</code> — in a plugin it renders
+                through the overlay layer, painted natively.
+              </p>
+              <button type="button" className={styles.btnSolid} onClick={() => setModalOpen(null)}>
+                CLOSE
+              </button>
+            </div>
+          )}
         </div>
       ) : null}
     </main>

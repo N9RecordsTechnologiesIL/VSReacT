@@ -17,6 +17,9 @@ jobs:
         working-directory: vsreact/js
       - run: bun test
         working-directory: vsreact/js
+      # js-posthog resolves @vsreact/core types through dist/ — build it first.
+      - run: bun run build:dist
+        working-directory: vsreact/js
       - run: bunx tsc --noEmit
         working-directory: vsreact/js-posthog
       - run: bun test

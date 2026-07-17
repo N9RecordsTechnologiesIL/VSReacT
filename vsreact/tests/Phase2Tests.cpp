@@ -185,7 +185,7 @@ public:
         vsreact::RootView root (std::move (options), {});
         root.setSize (200, 200);
 
-        auto& source = juce::Desktop::getInstance().getMainMouseSource();
+        auto source = juce::Desktop::getInstance().getMainMouseSource(); // by value: the getter returns a temporary handle
         const auto now = juce::Time::getCurrentTime();
         const auto mods = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier);
 
@@ -255,7 +255,7 @@ public:
         vsreact::RootView root (std::move (options), {});
         root.setSize (200, 200);
 
-        auto& source = juce::Desktop::getInstance().getMainMouseSource();
+        auto source = juce::Desktop::getInstance().getMainMouseSource(); // by value: the getter returns a temporary handle
         const auto now = juce::Time::getCurrentTime();
 
         const auto event = juce::MouseEvent (source, { 100.0f, 100.0f }, juce::ModifierKeys(),

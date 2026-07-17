@@ -51,8 +51,21 @@ jobs:
             VERSION=$(node -p "require('./$dir/package.json').version")
             if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
               echo "$NAME@$VERSION already on the registry — skipping."
-            else
-              (cd "$dir" && npm publish --access public)
+              continue
+            fi
+            # npm view can 404 while a fresh publish is still propagating, so
+            # a publish conflict here is a skip, not a failure.
+            set +e
+            OUTPUT=$(cd "$dir" && npm publish --access public 2>&1)
+            CODE=$?
+            set -e
+            echo "$OUTPUT"
+            if [ $CODE -ne 0 ]; then
+              if echo "$OUTPUT" | grep -qi "previously published"; then
+                echo "$NAME@$VERSION already published — continuing."
+              else
+                exit $CODE
+              fi
             fi
           done
 

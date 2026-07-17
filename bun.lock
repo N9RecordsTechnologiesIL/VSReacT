@@ -10,7 +10,7 @@
       "version": "0.8.2",
       "dependencies": {
         "react": "18.3.1",
-        "vsreact": "workspace:*",
+        "vsreact-core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^18.3.3",
@@ -23,7 +23,7 @@
       "version": "0.1.0",
       "dependencies": {
         "react": "18.3.1",
-        "vsreact": "workspace:*",
+        "vsreact-core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^18.3.3",
@@ -32,7 +32,7 @@
       },
     },
     "vsreact/js": {
-      "name": "vsreact",
+      "name": "vsreact-core",
       "version": "0.0.1",
       "dependencies": {
         "react": "18.3.1",
@@ -75,7 +75,7 @@
 
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
 
-    "vsreact": ["vsreact@workspace:vsreact/js"],
+    "vsreact-core": ["vsreact-core@workspace:vsreact/js"],
 
     "vsreact-gain-example-ui": ["vsreact-gain-example-ui@workspace:vsreact/examples/gain/ui"],
   }

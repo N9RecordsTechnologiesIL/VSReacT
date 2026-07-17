@@ -20,7 +20,7 @@ export default function Page() {
       </p>
 
       <h2 id="usetween">useTween</h2>
-      <Code title="a splash entrance">{`import { useTween, lerp, Easing } from "vsreact";
+      <Code title="a splash entrance">{`import { useTween, lerp, Easing } from "vsreact-core";
 
 function Splash() {
   const t = useTween({ duration: 600, delay: 150, easing: Easing.outExpo });

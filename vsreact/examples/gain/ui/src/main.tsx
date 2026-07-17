@@ -1,4 +1,4 @@
-import { render, configureTheme, View, Text, ParamKnob } from "vsreact";
+import { render, configureTheme, View, Text, ParamKnob } from "vsreact-core";
 
 configureTheme({
   colors: {

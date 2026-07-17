@@ -23,7 +23,7 @@
 ---
 
 ```tsx
-import { render, View, ParamKnob } from "vsreact";
+import { render, View, ParamKnob } from "vsreact-core";
 
 function App() {
   return (
@@ -86,7 +86,7 @@ Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framew
 **The UI package:**
 
 ```bash
-bun add vsreact    # or: npm install vsreact / yarn add vsreact / pnpm add vsreact
+bun add vsreact-core    # or: npm install vsreact-core / yarn add vsreact-core / pnpm add vsreact-core
 ```
 
 **The native module** — CMake fetches it, pinned to a tag (place after JUCE is added):
@@ -147,7 +147,7 @@ checkout nests inside this repository as `StashTrack/` (its own git repo).
 
 - `vsreact/module/` — the JUCE module: QuickJS runtime, bridge, shadow tree,
   Yoga adapter, painter, hit-testing, TextInput host, ParameterBridge, RootView.
-- `vsreact/js/` — `vsreact`: reconciler host config, primitives,
+- `vsreact/js/` — the `vsreact-core` npm package: reconciler host config, primitives,
   tailwind resolver, `useParameter`, `Knob`/`Slider`, `useTween`, runtime shims.
 - `vsreact/examples/gain/` — the two-knob example plugin.
 - `vsreact/third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).

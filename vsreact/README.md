@@ -4,7 +4,7 @@ Write native JUCE plugin UIs in modern React + TypeScript — no webview, no
 LookAndFeel fights, no janky workarounds.
 
 ```tsx
-import { render, View, Text, native } from "vsreact";
+import { render, View, Text, native } from "vsreact-core";
 
 function App() {
   const [count, setCount] = useState(0);

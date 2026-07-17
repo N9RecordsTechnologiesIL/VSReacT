@@ -23,7 +23,7 @@ export default function Page() {
         every DAW, on every OS. No webview.
       </p>
 
-      <Code title="the whole UI of examples/gain">{`import { render, View, ParamKnob } from "vsreact";
+      <Code title="the whole UI of examples/gain">{`import { render, View, ParamKnob } from "vsreact-core";
 
 function App() {
   return (
@@ -74,7 +74,7 @@ render(<App />);`}</Code>
         </li>
       </ol>
       <p>
-        Two halves make up the framework. The <code>vsreact</code> npm package is the
+        Two halves make up the framework. The <code>vsreact-core</code> npm package is the
         TypeScript side: primitives, the Tailwind-style class resolver, parameter hooks,
         controls, and animation. The <code>vsreact</code> JUCE module is the native side:
         the QuickJS runtime, shadow tree, painter, hit-testing, text-input host, and the{' '}

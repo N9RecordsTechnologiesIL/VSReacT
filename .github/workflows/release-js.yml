@@ -16,11 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pack vsreact
+      - name: Pack vsreact-core
         working-directory: vsreact/js
         run: |
           npm pack
-          cp vsreact-[0-9]*.tgz vsreact.tgz
+          cp vsreact-core-[0-9]*.tgz vsreact-core.tgz
 
       - name: Publish to npm
         working-directory: vsreact/js
@@ -45,7 +45,7 @@ jobs:
           Install the UI package:
 
           \`\`\`sh
-          bun add vsreact   # or npm install / yarn add / pnpm add
+          bun add vsreact-core   # or npm install / yarn add / pnpm add
           \`\`\`
 
           Fetch the native JUCE module with CMake:
@@ -60,5 +60,5 @@ jobs:
           \`\`\`
 
           Docs: https://vsreact.n9records.com/docs" \
-            vsreact/js/vsreact-[0-9]*.tgz \
-            "vsreact/js/vsreact.tgz#vsreact.tgz (stable name — latest)"
+            vsreact/js/vsreact-core-[0-9]*.tgz \
+            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)"

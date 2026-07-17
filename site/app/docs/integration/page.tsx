@@ -54,7 +54,7 @@ setSize (520, 340);`}</Code>
         <code>Image</code>, <code>TextInput</code>, and <code>NativeView</code>, laid out by
         Yoga and painted by C++.
       </p>
-      <Code title="ui/src/main.tsx">{`import { render, View, Text } from "vsreact";
+      <Code title="ui/src/main.tsx">{`import { render, View, Text } from "vsreact-core";
 
 function App() {
   return (

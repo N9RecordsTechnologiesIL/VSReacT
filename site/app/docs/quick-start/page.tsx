@@ -39,7 +39,7 @@ cmake --build build --target GainExample_Standalone --config Release`}</Code>
         Drag them, wheel them, automate them from the host: the UI and the DAW stay in sync
         both ways. This is the complete UI source:
       </p>
-      <Code title="ui/src/main.tsx">{`import { render, View, ParamKnob } from "vsreact";
+      <Code title="ui/src/main.tsx">{`import { render, View, ParamKnob } from "vsreact-core";
 
 function App() {
   return (

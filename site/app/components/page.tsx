@@ -1,8 +1,9 @@
 'use client'
 
-// THE COMPONENT LIBRARY — every SDK control as a live, interactive web
-// twin. In your DAW the same components are painted by juce::Graphics;
-// here they run in the browser so you can feel them before installing.
+// THE COMPONENT LIBRARY — every SDK control family, live, in six
+// aesthetics. Each variant strip is ONE component with one shared value:
+// drag any skin and they all move. In your DAW the same geometry is
+// painted by juce::Graphics; colors come from props and theme tokens.
 
 import {
   useCallback,
@@ -18,8 +19,29 @@ import { GitHubIcon } from '../GitHubIcon'
 import { REPO } from '../variants/content'
 import { VERSION } from '../version'
 
-const RED = '#ff2e2e'
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+
+const THEMES: Array<[key: string, label: string]> = [
+  ['inst', 'INSTRUMENT'],
+  ['metal', 'METAL'],
+  ['std', 'STANDARD'],
+  ['plast', 'PLASTIC'],
+  ['vint', 'VINTAGE'],
+  ['neon', 'NEON'],
+]
+
+const CATS: Array<[id: string, label: string]> = [
+  ['macro', 'Macro & pads'],
+  ['knobs', 'Knobs'],
+  ['sliders', 'Sliders & faders'],
+  ['switches', 'Switches'],
+  ['choices', 'Choices'],
+  ['fields', 'Fields & inputs'],
+  ['buttons', 'Buttons'],
+  ['visualizers', 'Meters & visualizers'],
+  ['feedback', 'Feedback'],
+  ['overlays', 'Overlays & editors'],
+]
 
 /* ── shared drag helper ─────────────────────────────────────────────── */
 
@@ -47,8 +69,6 @@ function useDrag(onDelta: (dx: number, dy: number) => void) {
   return { onPointerDown, onPointerMove, onPointerUp }
 }
 
-/* ── web twins ──────────────────────────────────────────────────────── */
-
 function arcPath(value: number): string {
   const start = (-135 * Math.PI) / 180
   const end = ((-135 + 270 * clamp01(value)) * Math.PI) / 180
@@ -57,71 +77,77 @@ function arcPath(value: number): string {
   return `M ${50 + r * Math.sin(start)} ${50 - r * Math.cos(start)} A ${r} ${r} 0 ${large} 1 ${50 + r * Math.sin(end)} ${50 - r * Math.cos(end)}`
 }
 
-function DemoKnob({
+/* ── theme-agnostic twins (skins come from the tile's CSS vars) ─────── */
+
+function KnobTwin({
   value,
-  defaultValue = 0.7,
-  bipolar,
   onChange,
-  size = 84,
-  label,
+  size = 74,
+  defaultValue = 0.7,
 }: {
   value: number
-  defaultValue?: number
-  bipolar?: boolean
   onChange: (v: number) => void
   size?: number
-  label?: string
+  defaultValue?: number
 }) {
   const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
   const angle = -135 + 270 * clamp01(value)
 
-  const valueArc = () => {
-    if (!bipolar) return arcPath(value)
-    const a0 = (Math.min(0, angle) * Math.PI) / 180
-    const a1 = (Math.max(0, angle) * Math.PI) / 180
-    const r = 40
-    return `M ${50 + r * Math.sin(a0)} ${50 - r * Math.cos(a0)} A ${r} ${r} 0 0 1 ${50 + r * Math.sin(a1)} ${50 - r * Math.cos(a1)}`
-  }
-
   return (
-    <div className={styles.knobGroup}>
-      <div
-        className={styles.knob}
-        style={{ width: size, height: size }}
-        {...drag}
-        onDoubleClick={() => onChange(defaultValue)}
-        onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
-        role="slider"
-        aria-valuenow={Math.round(value * 100)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        tabIndex={0}
-      >
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <path d={arcPath(1)} className={styles.arcTrack} />
-          <path d={valueArc()} className={styles.arcValue} />
-        </svg>
-        <i style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
-      </div>
-      {label ? <span className={styles.miniLabel}>{label}</span> : null}
+    <div
+      className={styles.knob}
+      style={{ width: size, height: size }}
+      {...drag}
+      onDoubleClick={() => onChange(defaultValue)}
+      onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
+      role="slider"
+      aria-valuenow={Math.round(value * 100)}
+      tabIndex={0}
+    >
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path d={arcPath(1)} className={styles.arcTrack} />
+        <path d={arcPath(value)} className={styles.arcValue} />
+      </svg>
+      <i style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
     </div>
   )
 }
 
-function DemoSlider({
+function HWKnobTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
+  const angle = -135 + 270 * clamp01(value)
+
+  return (
+    <div
+      className={styles.hwKnob}
+      {...drag}
+      onDoubleClick={() => onChange(0.66)}
+      onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
+      role="slider"
+      aria-valuenow={Math.round(value * 100)}
+      tabIndex={0}
+    >
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path d={arcPath(1)} className={styles.hwTicks} />
+      </svg>
+      <i />
+      <u style={{ transform: `rotate(${angle}deg)` }} />
+    </div>
+  )
+}
+
+function SliderTwin({
   value,
   onChange,
   vertical,
-  length = 150,
+  length = 130,
 }: {
   value: number
   onChange: (v: number) => void
   vertical?: boolean
   length?: number
 }) {
-  const drag = useDrag((dx, dy) =>
-    onChange(clamp01(value + (vertical ? -dy : dx) / length)),
-  )
+  const drag = useDrag((dx, dy) => onChange(clamp01(value + (vertical ? -dy : dx) / length)))
 
   return (
     <div
@@ -139,73 +165,382 @@ function DemoSlider({
         className={styles.sliderThumb}
         style={
           vertical
-            ? { bottom: `calc(${value * 100}% - 6px)` }
-            : { left: `calc(${value * 100}% - 6px)` }
+            ? { bottom: `calc(${value * 100}% - 7px)` }
+            : { left: `calc(${value * 100}% - 7px)` }
         }
       />
     </div>
   )
 }
 
-/* ── the cards ──────────────────────────────────────────────────────── */
+function CrossfaderTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const TRAVEL = 170 - 24 - 6
+  const drag = useDrag((dx) => onChange(clamp01(value + dx / TRAVEL)))
 
-function Card({
-  name,
+  return (
+    <div className={styles.xfade} {...drag} onDoubleClick={() => onChange(0.5)}>
+      <span>DRY</span>
+      <b style={{ left: 3 + value * TRAVEL }}>
+        <i />
+        <i />
+      </b>
+      <span className={styles.xfadeEnd}>WET</span>
+    </div>
+  )
+}
+
+function ToggleTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className={styles.toggleWrap}>
+      <em className={on ? '' : styles.sideOn}>OFF</em>
+      <button
+        type="button"
+        className={`${styles.toggle} ${on ? styles.toggleOn : ''}`}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <i />
+      </button>
+      <em className={on ? styles.sideOn : ''}>ON</em>
+    </div>
+  )
+}
+
+function CheckboxTwin({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className={styles.checkStack}>
+      <button type="button" className={styles.checkRow} onClick={() => onChange(!on)}>
+        <i className={on ? styles.checkOn : ''}>{on ? '✓' : ''}</i>
+        <span>Oversample</span>
+      </button>
+      <button type="button" className={styles.checkRow} onClick={() => onChange(!on)}>
+        <i className={on ? '' : styles.checkOn}>{on ? '' : '✓'}</i>
+        <span>Dither</span>
+      </button>
+    </div>
+  )
+}
+
+function RadioTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+  return (
+    <div className={styles.checkStack}>
+      {['OFF', '2X', '4X'].map((option, i) => (
+        <button type="button" key={option} className={styles.checkRow} onClick={() => onChange(i)}>
+          <u className={i === index ? styles.radioOn : ''} />
+          <span>{option}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function SegmentedTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+  return (
+    <div className={styles.segmented}>
+      {['SIN', 'SAW', 'SQR'].map((option, i) => (
+        <button
+          type="button"
+          key={option}
+          className={i === index ? styles.segOn : ''}
+          onClick={() => onChange(i)}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function SelectTwin({ index, onChange }: { index: number; onChange: (i: number) => void }) {
+  const [open, setOpen] = useState(false)
+  const options = ['CLEAN', 'TAPE', 'TUBE', 'FUZZ']
+
+  return (
+    <div className={styles.selectWrap}>
+      <button type="button" className={styles.select} onClick={() => setOpen(!open)}>
+        <span>{options[index]}</span>
+        <em>{open ? '▲' : '▼'}</em>
+      </button>
+      {open ? (
+        <div className={styles.selectMenu}>
+          {options.map((option, i) => (
+            <button
+              type="button"
+              key={option}
+              className={i === index ? styles.selOn : ''}
+              onClick={() => {
+                onChange(i)
+                setOpen(false)
+              }}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function XYTwin({
+  xy,
+  onChange,
+}: {
+  xy: { x: number; y: number }
+  onChange: (v: { x: number; y: number }) => void
+}) {
+  const drag = useDrag((dx, dy) =>
+    onChange({ x: clamp01(xy.x + dx / 110), y: clamp01(xy.y - dy / 84) }),
+  )
+
+  return (
+    <div className={styles.xy} {...drag} onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}>
+      <i style={{ top: `calc(${(1 - xy.y) * 100}% - 0.5px)` }} />
+      <u style={{ left: `calc(${xy.x * 100}% - 0.5px)` }} />
+      <b style={{ left: `calc(${xy.x * 100}% - 6px)`, top: `calc(${(1 - xy.y) * 100}% - 6px)` }} />
+    </div>
+  )
+}
+
+function ButtonTwin({ onClick }: { onClick: () => void }) {
+  return (
+    <div className={styles.btnStack}>
+      <button type="button" className={styles.btnSolid} onClick={onClick}>
+        APPLY
+      </button>
+      <button type="button" className={styles.btnOutline} onClick={onClick}>
+        RESET
+      </button>
+    </div>
+  )
+}
+
+function NumberBoxTwin({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const clampBpm = (v: number) => Math.min(240, Math.max(40, Math.round(v)))
+  const drag = useDrag((_dx, dy) => onChange(clampBpm(value - dy / 4)))
+
+  return (
+    <div
+      className={styles.numBox}
+      {...drag}
+      onDoubleClick={() => onChange(120)}
+      onWheel={(e) => onChange(clampBpm(value - Math.sign(e.deltaY)))}
+      role="spinbutton"
+      aria-valuenow={value}
+      tabIndex={0}
+    >
+      {value} BPM
+    </div>
+  )
+}
+
+function InputTwin() {
+  const [text, setText] = useState('')
+  return (
+    <input
+      className={styles.input}
+      placeholder="Preset name…"
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+    />
+  )
+}
+
+function MeterTwin({ level, tick }: { level: number; tick: number }) {
+  const peak = useRef({ value: 0, held: 0 })
+  if (level >= peak.current.value) peak.current = { value: level, held: tick }
+  else if (tick - peak.current.held > 30)
+    peak.current.value = Math.max(level, peak.current.value - 0.012)
+
+  return (
+    <div className={styles.meterTrack}>
+      <i style={{ height: `${Math.min(level, 0.85) * 100}%` }} />
+      {level > 0.85 ? <u style={{ bottom: '85%', height: `${(level - 0.85) * 100}%` }} /> : null}
+      <b style={{ bottom: `calc(${clamp01(peak.current.value) * 100}% - 1px)` }} />
+    </div>
+  )
+}
+
+function BarsTwin({ values }: { values: number[] }) {
+  return (
+    <div className={styles.barsDemo}>
+      {values.map((v, i) => (
+        <i key={i} className={v >= 0.85 ? styles.hot : ''} style={{ height: `${v * 100}%` }} />
+      ))}
+    </div>
+  )
+}
+
+function WaveTwin({ values }: { values: number[] }) {
+  return (
+    <div className={styles.waveDemo}>
+      <span />
+      {values.map((v, i) => (
+        <i key={i} style={{ height: `${Math.max(2, Math.abs(v) * 100)}%` }} />
+      ))}
+    </div>
+  )
+}
+
+function ProgressTwin({ value }: { value: number }) {
+  return (
+    <div className={styles.progressDemo}>
+      <div className={styles.progressTrack}>
+        <i style={{ width: `${value * 100}%` }} />
+      </div>
+      <span>{Math.round(value * 100)}%</span>
+    </div>
+  )
+}
+
+function OrbTwin({ level }: { level: number }) {
+  return (
+    <div className={styles.orb} style={{ ['--orbLevel' as never]: level }}>
+      <span />
+      <span />
+      <b />
+    </div>
+  )
+}
+
+function MacroPadDemo({
+  value,
+  onChange,
+  tick,
+}: {
+  value: { x: number; y: number }
+  onChange: (v: { x: number; y: number }) => void
+  tick: number
+}) {
+  const SIZE = 240
+  const drag = useDrag((dx, dy) =>
+    onChange({ x: clamp01(value.x + dx / SIZE), y: clamp01(value.y - dy / SIZE) }),
+  )
+
+  const rings = Array.from({ length: 9 }, (_, i) => {
+    const t = (i + 1) / 9
+    const spread = 0.3 + 0.7 * Math.pow(t, 1.6 - value.x * 1.2)
+    const breathe = 1 + 0.02 * Math.sin(tick / 18 + i * 0.9)
+    const size = Math.min(SIZE - 2, SIZE * spread * breathe)
+    const opacity = clamp01(
+      (0.12 + 0.5 * value.y) * (1.15 - t) * (0.8 + 0.2 * Math.sin(tick / 27 + i)),
+    )
+    return { size, opacity }
+  })
+
+  return (
+    <div
+      className={styles.macro}
+      style={{ width: SIZE, height: SIZE }}
+      {...drag}
+      onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}
+      role="slider"
+      aria-label="Macro pad"
+      aria-valuenow={Math.round(value.x * 100)}
+      tabIndex={0}
+    >
+      {rings.map((ring, i) => (
+        <i
+          key={i}
+          style={{
+            width: ring.size,
+            height: ring.size,
+            left: (SIZE - ring.size) / 2,
+            top: (SIZE - ring.size) / 2,
+            opacity: ring.opacity,
+          }}
+        />
+      ))}
+      <b style={{ left: `calc(${value.x * 100}% - 6px)`, top: `calc(${(1 - value.y) * 100}% - 6px)` }} />
+      <span className={styles.macroLabelY}>DEEP FX</span>
+      <span className={styles.macroLabelX}>GRANULATION</span>
+    </div>
+  )
+}
+
+/* ── layout scaffolding ─────────────────────────────────────────────── */
+
+function Variants({ children }: { children: ReactNode }) {
+  return <div className={styles.variantRow}>{children}</div>
+}
+
+function Tile({ theme, label, children }: { theme: string; label: string; children: ReactNode }) {
+  return (
+    <div className={`${styles.tile} ${styles[`t_${theme}`]}`}>
+      <span className={styles.tileLabel}>{label}</span>
+      <div className={styles.tilePreview}>{children}</div>
+    </div>
+  )
+}
+
+function AllThemes({ render }: { render: (theme: string) => ReactNode }) {
+  return (
+    <Variants>
+      {THEMES.map(([key, label]) => (
+        <Tile key={key} theme={key} label={label}>
+          {render(key)}
+        </Tile>
+      ))}
+    </Variants>
+  )
+}
+
+function Family({
+  id,
+  title,
   blurb,
   imports,
   docs,
   children,
-  wide,
 }: {
-  name: string
+  id?: string
+  title: string
   blurb: string
   imports: string
   docs: string
   children: ReactNode
-  wide?: boolean
 }) {
   return (
-    <article className={`${styles.card} ${wide ? styles.wide : ''}`}>
-      <div className={styles.preview}>{children}</div>
-      <div className={styles.cardBody}>
-        <h2>{name}</h2>
+    <article id={id} className={styles.family}>
+      <div className={styles.familyHead}>
+        <h2>{title}</h2>
         <p>{blurb}</p>
-        <code>{imports}</code>
-        <Link href={docs}>DOCS →</Link>
+        <div className={styles.familyMeta}>
+          <code>{imports}</code>
+          <Link href={docs}>DOCS →</Link>
+        </div>
       </div>
+      {children}
     </article>
   )
 }
 
+/* ── the page ───────────────────────────────────────────────────────── */
+
 export default function ComponentsPage() {
   const [gain, setGain] = useState(0.7)
-  const [pan, setPan] = useState(0.5)
+  const [hw, setHw] = useState(0.66)
   const [mix, setMix] = useState(0.6)
   const [level, setLevel] = useState(0.75)
-  const [bypass, setBypass] = useState(false)
-  const [shape, setShape] = useState(1)
-  const [mode, setMode] = useState(0)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [xy, setXy] = useState({ x: 0.6, y: 0.4 })
-  const [clicks, setClicks] = useState(0)
-  const [text, setText] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [bpm, setBpm] = useState(120)
-  const [oversample, setOversample] = useState(true)
-  const [dither, setDither] = useState(false)
-  const [osMode, setOsMode] = useState(1)
-  const [macro, setMacro] = useState({ x: 0.62, y: 0.55 })
-  const [hwVal, setHwVal] = useState(0.66)
   const [xfade, setXfade] = useState(0.5)
+  const [bypass, setBypass] = useState(false)
+  const [oversample, setOversample] = useState(true)
+  const [osMode, setOsMode] = useState(1)
+  const [shape, setShape] = useState(1)
+  const [mode, setMode] = useState(1)
+  const [xy, setXy] = useState({ x: 0.6, y: 0.4 })
+  const [bpm, setBpm] = useState(120)
+  const [clicks, setClicks] = useState(0)
+  const [macro, setMacro] = useState({ x: 0.62, y: 0.55 })
+  const [modalOpen, setModalOpen] = useState(false)
 
-  // animated feeds for meter/bars/waveform
   const [tick, setTick] = useState(0)
   useEffect(() => {
     let raf = 0
     let t = 0
     const loop = () => {
       t += 1
-      if (t % 3 === 0) setTick(t) // ~20fps is plenty
+      if (t % 3 === 0) setTick(t)
       raf = requestAnimationFrame(loop)
     }
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -213,29 +548,14 @@ export default function ComponentsPage() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  const meterLevel = 0.55 + 0.4 * Math.abs(Math.sin(tick / 40)) * (0.6 + 0.4 * Math.sin(tick / 9))
-  const peakRef = useRef({ peak: 0, held: 0 })
-  if (meterLevel >= peakRef.current.peak) peakRef.current = { peak: meterLevel, held: tick }
-  else if (tick - peakRef.current.held > 30)
-    peakRef.current.peak = Math.max(meterLevel, peakRef.current.peak - 0.01)
-
-  const bars = Array.from({ length: 20 }, (_, i) =>
-    clamp01(
-      0.25 +
-        0.7 *
-          Math.abs(Math.sin(tick / 25 + i * 0.55)) *
-          Math.abs(Math.sin(tick / 60 + i * 0.21)),
-    ),
+  const meterLevel =
+    0.55 + 0.4 * Math.abs(Math.sin(tick / 40)) * (0.6 + 0.4 * Math.sin(tick / 9))
+  const bars = Array.from({ length: 14 }, (_, i) =>
+    clamp01(0.25 + 0.7 * Math.abs(Math.sin(tick / 25 + i * 0.55)) * Math.abs(Math.sin(tick / 60 + i * 0.21))),
   )
-  const wave = Array.from({ length: 40 }, (_, i) =>
+  const wave = Array.from({ length: 26 }, (_, i) =>
     Math.sin((tick - i * 3) / 14) * Math.abs(Math.sin((tick - i * 3) / 47)),
   )
-
-  const dropdownOptions = ['CLEAN', 'TAPE', 'TUBE', 'FUZZ', 'BITCRUSH']
-  const dbText = (v: number) => `${(-60 + v * 66) >= 0 ? '+' : ''}${(-60 + v * 66).toFixed(1)} dB`
-  const pct = (v: number) => `${Math.round(v * 100)}%`
-  const panText = (v: number) =>
-    Math.abs(v - 0.5) < 0.01 ? 'C' : v < 0.5 ? `L ${Math.round((0.5 - v) * 200)}` : `R ${Math.round((v - 0.5) * 200)}`
   const progress = (tick % 300) / 300
 
   return (
@@ -267,413 +587,326 @@ export default function ComponentsPage() {
       <section className={styles.hero}>
         <span className={styles.kicker}>THE COMPONENT LIBRARY</span>
         <h1>
-          Every control. <span>Live.</span>
+          Every control. Six worlds. <span>Live.</span>
         </h1>
         <p>
-          These are web twins of the native components — drag them, wheel them, double-click
-          them. In your DAW, the same API is painted by <code>juce::Graphics</code>. Install
-          with <code>bun add @vsreact/core</code> and every card below is one import away.
+          Each strip below is <strong>one component</strong> with one shared value — drag any
+          skin and they all move. Instrument, metal, standard, plastic, vintage, neon: same
+          API, different props and theme tokens. In your DAW, <code>juce::Graphics</code>{' '}
+          paints the same geometry natively.
         </p>
       </section>
 
-      <section className={styles.grid}>
-        <Card
-          name="MacroPad"
-          wide
-          blurb="The centerpiece macro control — a circular 2D pad whose concentric rings breathe with the values: x spreads them, y drives their intensity. One drag, two parameters. ParamMacroPad opens both host gestures together."
-          imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
-          docs="/docs/components#controls"
-        >
-          <MacroPadDemo value={macro} onChange={setMacro} tick={tick} />
-        </Card>
+      <div className={styles.shell}>
+        <nav className={styles.side} aria-label="Component categories">
+          <span className={styles.sideHead}>CATEGORIES</span>
+          {CATS.map(([id, label]) => (
+            <a key={id} href={`#${id}`}>
+              {label}
+            </a>
+          ))}
+        </nav>
 
-        <Card
-          name="HardwareKnob"
-          blurb="The skeuomorphic cap with a glowing pointer notch riding the rim and a faint tick track — hardware feel, painted natively."
-          imports={`<ParamHardwareKnob paramId="drive" />`}
-          docs="/docs/components#controls"
-        >
-          <HardwareKnobDemo value={hwVal} onChange={setHwVal} />
-        </Card>
+        <div className={styles.content}>
+          {/* ── MACRO & PADS ─────────────────────────────────────────── */}
+          <section id="macro" className={styles.cat}>
+            <h3 className={styles.catTitle}>MACRO &amp; PADS</h3>
 
-        <Card
-          name="Crossfader"
-          blurb="The DRY/WET strip — a wide track with a grippy rectangular handle. Double-click recenters."
-          imports={`<ParamCrossfader paramId="mix" />`}
-          docs="/docs/components#controls"
-        >
-          <CrossfaderDemo value={xfade} onChange={setXfade} />
-        </Card>
-
-        <Card
-          name="PulseOrb"
-          blurb="A value-reactive orb: glowing core, echo rings emanating faster and brighter as the level rises."
-          imports={`<PulseOrb value={level} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.orb} style={{ ['--orbLevel' as never]: meterLevel }}>
-            <span />
-            <span />
-            <span />
-            <b />
-          </div>
-        </Card>
-
-        <Card
-          name="Knob"
-          blurb="Drag vertically, wheel to nudge, double-click to reset. ParamKnob binds it to a host parameter with automation-safe gestures."
-          imports={`import { Knob, ParamKnob } from "@vsreact/core"`}
-          docs="/docs/parameters#controls"
-        >
-          <div className={styles.row}>
-            <DemoKnob value={gain} onChange={setGain} label={dbText(gain)} />
-          </div>
-        </Card>
-
-        <Card
-          name="Knob · bipolar"
-          blurb="The value arc sweeps from 12 o'clock — the correct read for pan, tilt, and balance parameters."
-          imports={`<ParamKnob paramId="pan" bipolar />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.row}>
-            <DemoKnob
-              value={pan}
-              defaultValue={0.5}
-              bipolar
-              onChange={setPan}
-              label={
-                Math.abs(pan - 0.5) < 0.01
-                  ? 'C'
-                  : pan < 0.5
-                    ? `L ${Math.round((0.5 - pan) * 200)}`
-                    : `R ${Math.round((pan - 0.5) * 200)}`
-              }
-            />
-          </div>
-        </Card>
-
-        <Card
-          name="Slider &amp; Fader"
-          blurb="Horizontal by default; vertical makes it a fader — drag up for more, fill rises from the bottom."
-          imports={`<ParamSlider paramId="level" vertical />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.rowGap}>
-            <DemoSlider value={mix} onChange={setMix} />
-            <DemoSlider value={level} onChange={setLevel} vertical length={110} />
-          </div>
-        </Card>
-
-        <Card
-          name="Toggle"
-          blurb="A switch with a spring-animated thumb. ParamToggle treats value ≥ 0.5 as on and writes clean gestures."
-          imports={`<ParamToggle paramId="bypass" />`}
-          docs="/docs/components#controls"
-        >
-          <button
-            type="button"
-            className={`${styles.toggle} ${bypass ? styles.toggleOn : ''}`}
-            onClick={() => setBypass(!bypass)}
-            aria-pressed={bypass}
-          >
-            <i />
-          </button>
-          <span className={styles.miniLabel}>{bypass ? 'BYPASSED' : 'ACTIVE'}</span>
-        </Card>
-
-        <Card
-          name="Segmented"
-          blurb="Exclusive options in a row — oscillator shapes, filter modes. Maps 1:1 onto AudioParameterChoice."
-          imports={`<ParamSegmented paramId="shape" options={…} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.segmented}>
-            {['SINE', 'SAW', 'SQR'].map((option, i) => (
-              <button
-                type="button"
-                key={option}
-                className={i === shape ? styles.segOn : ''}
-                onClick={() => setShape(i)}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </Card>
-
-        <Card
-          name="Select"
-          blurb="The dropdown — its menu renders in the overlay layer, positioned under the trigger via onLayout, click-away closes."
-          imports={`<ParamSelect paramId="mode" options={…} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.selectWrap}>
-            <button type="button" className={styles.select} onClick={() => setMenuOpen(!menuOpen)}>
-              <span>{dropdownOptions[mode]}</span>
-              <em>{menuOpen ? '▲' : '▼'}</em>
-            </button>
-            {menuOpen ? (
-              <div className={styles.selectMenu}>
-                {dropdownOptions.map((option, i) => (
-                  <button
-                    type="button"
-                    key={option}
-                    className={i === mode ? styles.selOn : ''}
-                    onClick={() => {
-                      setMode(i)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    {option}
-                  </button>
-                ))}
+            <Family
+              title="MacroPad"
+              blurb="The centerpiece — a circular 2D pad whose rings breathe with the values. One drag, two parameters."
+              imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
+              docs="/docs/components#controls"
+            >
+              <div className={styles.showcase}>
+                <MacroPadDemo value={macro} onChange={setMacro} tick={tick} />
               </div>
-            ) : null}
-          </div>
-        </Card>
+            </Family>
 
-        <Card
-          name="XYPad"
-          blurb="Two values from one drag — cutoff/resonance, pan/depth. ParamXYPad opens both host gestures together."
-          imports={`<ParamXYPad paramX="cutoff" paramY="res" />`}
-          docs="/docs/components#controls"
-        >
-          <XYDemo xy={xy} onChange={setXy} />
-        </Card>
+            <Family
+              title="XYPad"
+              blurb="Two values from one drag — cutoff/resonance, pan/depth. Double-click recenters."
+              imports={`<ParamXYPad paramX="cutoff" paramY="res" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <XYTwin xy={xy} onChange={setXy} />} />
+            </Family>
+          </section>
 
-        <Card
-          name="Button"
-          blurb="solid / outline / ghost, three sizes, hover and active states baked in natively."
-          imports={`<Button label="APPLY" onClick={…} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.rowGap}>
-            <button type="button" className={styles.btnSolid} onClick={() => setClicks(clicks + 1)}>
-              APPLY{clicks > 0 ? ` ·${clicks}` : ''}
-            </button>
-            <button type="button" className={styles.btnOutline} onClick={() => setClicks(0)}>
-              RESET
-            </button>
-            <button type="button" className={styles.btnGhost} onClick={() => setModalOpen(true)}>
-              ABOUT
-            </button>
-          </div>
-        </Card>
+          {/* ── KNOBS ────────────────────────────────────────────────── */}
+          <section id="knobs" className={styles.cat}>
+            <h3 className={styles.catTitle}>KNOBS</h3>
 
-        <Card
-          name="NumberBox"
-          blurb="The draggable number — BPM, milliseconds, semitones. Drag vertically, wheel to step, double-click to reset."
-          imports={`<NumberBox value={bpm} min={40} max={240} />`}
-          docs="/docs/components#controls"
-        >
-          <NumberBoxDemo value={bpm} onChange={setBpm} />
-        </Card>
+            <Family
+              title="Knob"
+              blurb="The arc knob — drag, wheel, double-click reset; bipolar mode for pan-style params."
+              imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
+              docs="/docs/parameters#controls"
+            >
+              <AllThemes render={() => <KnobTwin value={gain} onChange={setGain} />} />
+            </Family>
 
-        <Card
-          name="Checkbox"
-          blurb="Settings-panel rows. ParamCheckbox binds a bool parameter, checked = value ≥ 0.5."
-          imports={`<ParamCheckbox paramId="oversample" />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.checkStack}>
-            <button type="button" className={styles.checkRow} onClick={() => setOversample(!oversample)}>
-              <i className={oversample ? styles.checkOn : ''}>{oversample ? '✓' : ''}</i>
-              <span>Oversample</span>
-            </button>
-            <button type="button" className={styles.checkRow} onClick={() => setDither(!dither)}>
-              <i className={dither ? styles.checkOn : ''}>{dither ? '✓' : ''}</i>
-              <span>Dither output</span>
-            </button>
-          </div>
-        </Card>
+            <Family
+              title="HardwareKnob"
+              blurb="The skeuomorphic cap with a pointer riding the rim over a faint tick track."
+              imports={`<ParamHardwareKnob paramId="drive" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <HWKnobTwin value={hw} onChange={setHw} />} />
+            </Family>
+          </section>
 
-        <Card
-          name="RadioGroup"
-          blurb="Vertical exclusive options with dots — the settings-panel sibling of Segmented. Maps onto choice parameters."
-          imports={`<ParamRadioGroup paramId="os" options={…} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.checkStack}>
-            {['OFF', '2X', '4X'].map((option, i) => (
-              <button type="button" key={option} className={styles.checkRow} onClick={() => setOsMode(i)}>
-                <u className={i === osMode ? styles.radioOn : ''} />
-                <span>{option}</span>
-              </button>
-            ))}
-          </div>
-        </Card>
+          {/* ── SLIDERS & FADERS ─────────────────────────────────────── */}
+          <section id="sliders" className={styles.cat}>
+            <h3 className={styles.catTitle}>SLIDERS &amp; FADERS</h3>
 
-        <Card
-          name="ProgressBar"
-          blurb="Determinate progress — downloads, renders, analysis passes. Optional percent readout."
-          imports={`<ProgressBar value={ratio} showPercent />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.progressDemo}>
-            <div className={styles.progressTrack}>
-              <i style={{ width: `${progress * 100}%` }} />
-            </div>
-            <span className={styles.miniLabel}>{Math.round(progress * 100)}%</span>
-          </div>
-        </Card>
+            <Family
+              title="Slider"
+              blurb="Horizontal track — drag, wheel, double-click recenters."
+              imports={`<ParamSlider paramId="mix" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <SliderTwin value={mix} onChange={setMix} />} />
+            </Family>
 
-        <Card
-          name="Spinner"
-          blurb="Indeterminate loading — a 100° arc chasing its own tail, painted with the same native arc keys as the knobs."
-          imports={`<Spinner size={28} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.spinner} aria-label="Loading" />
-        </Card>
-
-        <Card
-          name="Button · sizes &amp; states"
-          blurb="Three sizes and a disabled state — same Button, one prop each."
-          imports={`<Button label="GO" size="lg" disabled={busy} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.rowGap}>
-            <button type="button" className={`${styles.btnSolid} ${styles.btnSm}`} onClick={() => {}}>
-              SM
-            </button>
-            <button type="button" className={styles.btnSolid} onClick={() => {}}>
-              MD
-            </button>
-            <button type="button" className={`${styles.btnSolid} ${styles.btnLg}`} onClick={() => {}}>
-              LG
-            </button>
-            <button type="button" className={`${styles.btnSolid} ${styles.btnDisabled}`} disabled>
-              DISABLED
-            </button>
-          </div>
-        </Card>
-
-        <Card
-          name="Meter"
-          blurb="Hot zone above the threshold, peak-hold line that holds then falls. Feed it levels from a native event."
-          imports={`<Meter value={level} label="OUT" />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.meterDemo}>
-            <div className={styles.meterTrack}>
-              <i
-                style={{
-                  height: `${Math.min(meterLevel, 0.85) * 100}%`,
-                }}
+            <Family
+              title="Fader"
+              blurb="The vertical variant — drag up for more, fill rises from the bottom; barThumb for the flat hardware thumb."
+              imports={`<ParamSlider paramId="level" vertical barThumb />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes
+                render={() => <SliderTwin value={level} onChange={setLevel} vertical length={96} />}
               />
-              {meterLevel > 0.85 ? (
-                <u style={{ bottom: '85%', height: `${(meterLevel - 0.85) * 100}%` }} />
-              ) : null}
-              <b style={{ bottom: `calc(${clamp01(peakRef.current.peak) * 100}% - 1px)` }} />
-            </div>
-            <span className={styles.miniLabel}>OUT</span>
-          </div>
-        </Card>
+            </Family>
 
-        <Card
-          name="Bars"
-          blurb="Bottom-anchored bar visualizer with a hot zone — spectrum analyzers, band meters. One bar per array entry."
-          imports={`<Bars values={spectrum} />`}
-          docs="/docs/components#controls"
-        >
-          <div className={styles.barsDemo}>
-            {bars.map((v, i) => (
-              <i
-                key={i}
-                style={{ height: `${v * 100}%`, background: v >= 0.85 ? '#ff4545' : RED }}
-              />
-            ))}
-          </div>
-        </Card>
+            <Family
+              title="Crossfader"
+              blurb="The DRY/WET strip with a grippy rectangular handle."
+              imports={`<ParamCrossfader paramId="mix" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <CrossfaderTwin value={xfade} onChange={setXfade} />} />
+            </Family>
+          </section>
 
-        <Card
-          name="Waveform"
-          blurb="Centre-mirrored bars. Pair with useRollingBuffer to turn any live value into scrolling history."
-          imports={`<Waveform values={useRollingBuffer(level)} />`}
-          docs="/docs/hooks#audio"
-        >
-          <div className={styles.waveDemo}>
-            <span />
-            {wave.map((v, i) => (
-              <i key={i} style={{ height: `${Math.max(2, Math.abs(v) * 100)}%` }} />
-            ))}
-          </div>
-        </Card>
+          {/* ── SWITCHES ─────────────────────────────────────────────── */}
+          <section id="switches" className={styles.cat}>
+            <h3 className={styles.catTitle}>SWITCHES</h3>
 
-        <Card
-          name="TextInput"
-          blurb="A real chrome-stripped juce::TextEditor — caret, selection, IME — positioned by Yoga, painted chrome by VSReacT."
-          imports={`<TextInput placeholder="Paste a link…" />`}
-          docs="/docs/components#textinput"
-        >
-          <input
-            className={styles.input}
-            placeholder="Paste a link…"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-        </Card>
+            <Family
+              title="Toggle"
+              blurb="Spring-loaded thumb with hardware OFF/ON side captions."
+              imports={`<ParamToggle paramId="bypass" offLabel="OFF" onLabel="ON" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <ToggleTwin on={bypass} onChange={setBypass} />} />
+            </Family>
 
-        <Card
-          name="Tooltip"
-          blurb="Wrap any child; the tip shows below it after a hover dwell, via the overlay layer."
-          imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
-          docs="/docs/components#controls"
-        >
-          <span className={styles.tipAnchor} tabIndex={0}>
-            HOVER ME
-            <span className={styles.tip}>Resets to 0 dB</span>
-          </span>
-        </Card>
+            <Family
+              title="Checkbox"
+              blurb="Settings-panel rows; ParamCheckbox binds bool parameters."
+              imports={`<ParamCheckbox paramId="oversample" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <CheckboxTwin on={oversample} onChange={setOversample} />} />
+            </Family>
 
-        <Card
-          name="Modal"
-          blurb="Centered dialog over a click-away backdrop. Panel clicks are swallowed; the backdrop closes."
-          imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
-          docs="/docs/components#controls"
-        >
-          <button type="button" className={styles.btnOutline} onClick={() => setModalOpen(true)}>
-            OPEN MODAL
-          </button>
-        </Card>
+            <Family
+              title="RadioGroup"
+              blurb="Vertical exclusive options with dots — the settings-panel sibling of Segmented."
+              imports={`<ParamRadioGroup paramId="os" options={…} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <RadioTwin index={osMode} onChange={setOsMode} />} />
+            </Family>
+          </section>
 
-        <Card
-          name="GenericEditor"
-          wide
-          blurb="One knob per APVTS parameter with a live value label and name under each — render(<GenericEditor/>) is a complete plugin UI, before you've written a single component."
-          imports={`render(<GenericEditor />)   // that's the whole editor`}
-          docs="/docs/parameters#generic"
-        >
-          <div className={styles.rowGap}>
-            {(
-              [
-                ['GAIN', gain, setGain, dbText(gain), false],
-                ['PAN', pan, setPan, panText(pan), true],
-                ['MIX', mix, setMix, pct(mix), false],
-                ['LEVEL', level, setLevel, pct(level), false],
-              ] as Array<[string, number, (v: number) => void, string, boolean]>
-            ).map(([name, value, set, valueText, bipolar]) => (
-              <div key={name} className={styles.kv}>
-                <DemoKnob
-                  value={value}
-                  bipolar={bipolar}
-                  defaultValue={bipolar ? 0.5 : 0.7}
-                  onChange={set}
-                  size={62}
-                />
-                <b>{valueText}</b>
-                <span>{name}</span>
+          {/* ── CHOICES ──────────────────────────────────────────────── */}
+          <section id="choices" className={styles.cat}>
+            <h3 className={styles.catTitle}>CHOICES</h3>
+
+            <Family
+              title="Segmented"
+              blurb="Exclusive options in a row — oscillator shapes, filter modes."
+              imports={`<ParamSegmented paramId="shape" options={…} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <SegmentedTwin index={shape} onChange={setShape} />} />
+            </Family>
+
+            <Family
+              title="Select"
+              blurb="The dropdown — menu in the overlay layer, positioned via onLayout, click-away closes."
+              imports={`<ParamSelect paramId="mode" options={…} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <SelectTwin index={mode} onChange={setMode} />} />
+            </Family>
+          </section>
+
+          {/* ── FIELDS & INPUTS ──────────────────────────────────────── */}
+          <section id="fields" className={styles.cat}>
+            <h3 className={styles.catTitle}>FIELDS &amp; INPUTS</h3>
+
+            <Family
+              title="NumberBox"
+              blurb="The draggable number — BPM, ms, semitones. Drag, wheel-step, double-click reset."
+              imports={`<NumberBox value={bpm} min={40} max={240} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <NumberBoxTwin value={bpm} onChange={setBpm} />} />
+            </Family>
+
+            <Family
+              title="TextInput"
+              blurb="A real chrome-stripped juce::TextEditor — caret, selection, IME — with painted chrome."
+              imports={`<TextInput placeholder="Preset name…" />`}
+              docs="/docs/components#textinput"
+            >
+              <AllThemes render={() => <InputTwin />} />
+            </Family>
+          </section>
+
+          {/* ── BUTTONS ──────────────────────────────────────────────── */}
+          <section id="buttons" className={styles.cat}>
+            <h3 className={styles.catTitle}>BUTTONS</h3>
+
+            <Family
+              title="Button"
+              blurb={`Solid + outline variants (ghost too), three sizes, hover/active baked in. Pressed ${clicks} times across all six worlds.`}
+              imports={`<Button label="APPLY" variant="solid|outline|ghost" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <ButtonTwin onClick={() => setClicks((c) => c + 1)} />} />
+            </Family>
+          </section>
+
+          {/* ── METERS & VISUALIZERS ─────────────────────────────────── */}
+          <section id="visualizers" className={styles.cat}>
+            <h3 className={styles.catTitle}>METERS &amp; VISUALIZERS</h3>
+
+            <Family
+              title="Meter"
+              blurb="Hot zone above the threshold, peak-hold line that holds then falls."
+              imports={`<Meter value={level} label="OUT" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <MeterTwin level={meterLevel} tick={tick} />} />
+            </Family>
+
+            <Family
+              title="Bars"
+              blurb="Bottom-anchored bars with a hot zone — spectrum analyzers, band meters."
+              imports={`<Bars values={spectrum} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <BarsTwin values={bars} />} />
+            </Family>
+
+            <Family
+              title="Waveform"
+              blurb="Centre-mirrored bars — pair with useRollingBuffer for scrolling history."
+              imports={`<Waveform values={useRollingBuffer(level)} />`}
+              docs="/docs/hooks#audio"
+            >
+              <AllThemes render={() => <WaveTwin values={wave} />} />
+            </Family>
+
+            <Family
+              title="PulseOrb"
+              blurb="A value-reactive orb — echo rings emit faster and brighter as the level rises."
+              imports={`<PulseOrb value={level} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <OrbTwin level={meterLevel} />} />
+            </Family>
+          </section>
+
+          {/* ── FEEDBACK ─────────────────────────────────────────────── */}
+          <section id="feedback" className={styles.cat}>
+            <h3 className={styles.catTitle}>FEEDBACK</h3>
+
+            <Family
+              title="ProgressBar"
+              blurb="Determinate progress with optional percent — downloads, renders, analysis."
+              imports={`<ProgressBar value={ratio} showPercent />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <ProgressTwin value={progress} />} />
+            </Family>
+
+            <Family
+              title="Spinner"
+              blurb="Indeterminate loading — an arc chasing its own tail on the native arc keys."
+              imports={`<Spinner size={28} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={() => <div className={styles.spinner} aria-label="Loading" />} />
+            </Family>
+          </section>
+
+          {/* ── OVERLAYS & EDITORS ───────────────────────────────────── */}
+          <section id="overlays" className={styles.cat}>
+            <h3 className={styles.catTitle}>OVERLAYS &amp; EDITORS</h3>
+
+            <Family
+              title="Tooltip"
+              blurb="Wrap any child; the tip shows below after a hover dwell, via the overlay layer."
+              imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
+              docs="/docs/components#controls"
+            >
+              <div className={styles.showcase}>
+                <span className={styles.tipAnchor} tabIndex={0}>
+                  HOVER ME
+                  <span className={styles.tip}>Resets to 0 dB</span>
+                </span>
               </div>
-            ))}
-          </div>
-        </Card>
-      </section>
+            </Family>
+
+            <Family
+              title="Modal"
+              blurb="Centered dialog over a click-away backdrop; panel clicks are swallowed."
+              imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
+              docs="/docs/components#controls"
+            >
+              <div className={styles.showcase}>
+                <button type="button" className={styles.btnOutline} onClick={() => setModalOpen(true)}>
+                  OPEN MODAL
+                </button>
+              </div>
+            </Family>
+
+            <Family
+              title="GenericEditor"
+              blurb="One knob per APVTS parameter with live value labels — render(<GenericEditor/>) is a complete plugin UI."
+              imports={`render(<GenericEditor />)   // that's the whole editor`}
+              docs="/docs/parameters#generic"
+            >
+              <div className={styles.showcase}>
+                <div className={styles.geRow}>
+                  {(
+                    [
+                      ['GAIN', gain, setGain],
+                      ['MIX', mix, setMix],
+                      ['LEVEL', level, setLevel],
+                    ] as Array<[string, number, (v: number) => void]>
+                  ).map(([name, value, set]) => (
+                    <div key={name} className={styles.kv}>
+                      <KnobTwin value={value} onChange={set} size={58} />
+                      <b>{Math.round(value * 100)}%</b>
+                      <span>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Family>
+          </section>
+        </div>
+      </div>
 
       <section className={styles.footer}>
-        <p>
-          Everything above ships in one package — hooks, styling, parameters included.
-        </p>
+        <p>Every world above ships in one package — colors are props, tokens are yours.</p>
         <div className={styles.footerRow}>
           <code>bun add @vsreact/core</code>
           <Link href="/docs/installation">INSTALL →</Link>
@@ -685,8 +918,8 @@ export default function ComponentsPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
             <h3>ABOUT</h3>
             <p>
-              This dialog is the web twin of <code>&lt;Modal&gt;</code> — in a plugin it
-              renders through the overlay layer, painted natively.
+              This dialog is the web twin of <code>&lt;Modal&gt;</code> — in a plugin it renders
+              through the overlay layer, painted natively.
             </p>
             <button type="button" className={styles.btnSolid} onClick={() => setModalOpen(false)}>
               CLOSE
@@ -695,149 +928,5 @@ export default function ComponentsPage() {
         </div>
       ) : null}
     </main>
-  )
-}
-
-function MacroPadDemo({
-  value,
-  onChange,
-  tick,
-}: {
-  value: { x: number; y: number }
-  onChange: (v: { x: number; y: number }) => void
-  tick: number
-}) {
-  const SIZE = 230
-  const drag = useDrag((dx, dy) =>
-    onChange({ x: clamp01(value.x + dx / SIZE), y: clamp01(value.y - dy / SIZE) }),
-  )
-
-  const rings = Array.from({ length: 9 }, (_, i) => {
-    const t = (i + 1) / 9
-    const spread = 0.3 + 0.7 * Math.pow(t, 1.6 - value.x * 1.2)
-    const breathe = 1 + 0.02 * Math.sin(tick / 18 + i * 0.9)
-    const size = Math.min(SIZE - 2, SIZE * spread * breathe)
-    const opacity = clamp01((0.12 + 0.5 * value.y) * (1.15 - t) * (0.8 + 0.2 * Math.sin(tick / 27 + i)))
-    return { size, opacity }
-  })
-
-  return (
-    <div
-      className={styles.macro}
-      style={{ width: SIZE, height: SIZE }}
-      {...drag}
-      onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}
-      role="slider"
-      aria-label="Macro pad"
-      aria-valuenow={Math.round(value.x * 100)}
-      tabIndex={0}
-    >
-      {rings.map((ring, i) => (
-        <i
-          key={i}
-          style={{
-            width: ring.size,
-            height: ring.size,
-            left: (SIZE - ring.size) / 2,
-            top: (SIZE - ring.size) / 2,
-            opacity: ring.opacity,
-          }}
-        />
-      ))}
-      <b
-        style={{
-          left: `calc(${value.x * 100}% - 6px)`,
-          top: `calc(${(1 - value.y) * 100}% - 6px)`,
-        }}
-      />
-      <span className={styles.macroLabelY}>DEEP FX</span>
-      <span className={styles.macroLabelX}>GRANULATION</span>
-    </div>
-  )
-}
-
-function HardwareKnobDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
-  const angle = -135 + 270 * clamp01(value)
-
-  return (
-    <div className={styles.knobGroup}>
-      <div
-        className={styles.hwKnob}
-        {...drag}
-        onDoubleClick={() => onChange(0.66)}
-        onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
-        role="slider"
-        aria-valuenow={Math.round(value * 100)}
-        tabIndex={0}
-      >
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <path d={arcPath(1)} className={styles.hwTicks} />
-        </svg>
-        <i />
-        <u style={{ transform: `rotate(${angle}deg)` }} />
-      </div>
-      <span className={styles.miniLabel}>DRIVE</span>
-    </div>
-  )
-}
-
-function CrossfaderDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const TRAVEL = 220 - 26 - 6
-  const drag = useDrag((dx) => onChange(clamp01(value + dx / TRAVEL)))
-
-  return (
-    <div className={styles.xfade} {...drag} onDoubleClick={() => onChange(0.5)}>
-      <span>DRY</span>
-      <b style={{ left: 3 + value * TRAVEL }}>
-        <i />
-        <i />
-      </b>
-      <span className={styles.xfadeEnd}>WET</span>
-    </div>
-  )
-}
-
-function NumberBoxDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const clampBpm = (v: number) => Math.min(240, Math.max(40, Math.round(v)))
-  const drag = useDrag((_dx, dy) => onChange(clampBpm(value - dy / 4)))
-
-  return (
-    <div className={styles.knobGroup}>
-      <div
-        className={styles.numBox}
-        {...drag}
-        onDoubleClick={() => onChange(120)}
-        onWheel={(e) => onChange(clampBpm(value - Math.sign(e.deltaY)))}
-        role="spinbutton"
-        aria-valuenow={value}
-        aria-valuemin={40}
-        aria-valuemax={240}
-        tabIndex={0}
-      >
-        {value} BPM
-      </div>
-      <span className={styles.miniLabel}>TEMPO</span>
-    </div>
-  )
-}
-
-function XYDemo({
-  xy,
-  onChange,
-}: {
-  xy: { x: number; y: number }
-  onChange: (v: { x: number; y: number }) => void
-}) {
-  const drag = useDrag((dx, dy) =>
-    onChange({ x: clamp01(xy.x + dx / 150), y: clamp01(xy.y - dy / 110) }),
-  )
-
-  return (
-    <div className={styles.xy} {...drag} onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}>
-      <i style={{ top: `calc(${(1 - xy.y) * 100}% - 0.5px)` }} />
-      <u style={{ left: `calc(${xy.x * 100}% - 0.5px)` }} />
-      <b style={{ left: `calc(${xy.x * 100}% - 7px)`, top: `calc(${(1 - xy.y) * 100}% - 7px)` }} />
-    </div>
   )
 }

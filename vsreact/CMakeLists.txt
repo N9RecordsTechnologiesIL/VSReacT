@@ -10,6 +10,10 @@ set(QJS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third_party/quickjs-ng quickjs-ng EXCLUDE_FROM_ALL)
 
+# Linux VST3s are shared objects, so everything linked in needs PIC
+# (ld: "relocation R_X86_64_PC32 against js_realloc ... recompile with -fPIC").
+set_target_properties(qjs PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 juce_add_module(module/vsreact)
 
 target_include_directories(vsreact INTERFACE

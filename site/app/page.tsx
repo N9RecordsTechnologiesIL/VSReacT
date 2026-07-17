@@ -1,9 +1,9 @@
 'use client'
 
 // THE INSTRUMENT — vsreact.n9records.com
-// The hero is a working plugin UI. Every zone of the mock is live: knobs
-// drive the code's ParamKnob lines, the canvas maps to <View>, the window
-// chrome maps to render(<App/>), the meter reads out like real hardware.
+// Hero states the claim; the bench proves it. Every zone of the plugin
+// mock is live and traces to its own line of the demo source: knobs,
+// meter, title bar, NATIVE badge, hint bar, canvas, window chrome.
 
 import {
   useCallback,
@@ -17,14 +17,14 @@ import {
 } from 'react'
 import Link from 'next/link'
 import styles from './page.module.css'
-import { REPO, STASH, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
+import { REPO, STASH, TAGLINE, LEDE, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 const GAIN_DEFAULT = 10 / 11 // 0.0 dB on the -60..+6 range
 const PAN_DEFAULT = 0.5 // centre
 
-type Zone = 'gain' | 'pan' | 'meter' | 'view' | 'app' | null
+type Zone = 'gain' | 'pan' | 'meter' | 'title' | 'badge' | 'hint' | 'view' | 'app' | null
 
 function arcPath(value: number): string {
   const start = (-135 * Math.PI) / 180
@@ -43,6 +43,7 @@ function Knob({
   value,
   text,
   defaultValue,
+  hot,
   onChange,
   onActive,
 }: {
@@ -50,6 +51,7 @@ function Knob({
   value: number
   text: string
   defaultValue: number
+  hot: boolean
   onChange: (v: number) => void
   onActive: (active: boolean) => void
 }) {
@@ -106,7 +108,7 @@ function Knob({
   const angle = -135 + 270 * clamp01(value)
 
   return (
-    <div className={styles.knobGroup}>
+    <div className={`${styles.knobGroup} ${hot ? styles.knobHot : ''}`}>
       <div
         className={styles.knob}
         role="slider"
@@ -179,17 +181,34 @@ function CodeLine({
   )
 }
 
+// A pseudo audio signal for the hero — quiet, spikes, quiet.
+const WAVE =
+  'M0 60 L120 60 L134 42 L148 78 L162 60 L300 60 L314 22 L328 96 L342 12 L356 98 L370 60 ' +
+  'L520 60 L534 48 L548 72 L562 60 L700 60 L714 30 L728 88 L742 20 L756 92 L770 60 ' +
+  'L920 60 L934 44 L948 76 L962 60 L1080 60 L1094 26 L1108 90 L1122 60 L1200 60'
+
 export default function Home() {
   const [gain, setGain] = useState(GAIN_DEFAULT)
   const [pan, setPan] = useState(PAN_DEFAULT)
   const [knobZone, setKnobZone] = useState<'gain' | 'pan' | null>(null)
+  const [titleHover, setTitleHover] = useState(false)
+  const [badgeHover, setBadgeHover] = useState(false)
   const [meterHover, setMeterHover] = useState(false)
+  const [hintHover, setHintHover] = useState(false)
   const [canvasHover, setCanvasHover] = useState(false)
   const [windowHover, setWindowHover] = useState(false)
   useReveal()
 
-  // Zone priority mirrors real plugin hit-testing: control > meter > canvas > window.
-  const zone: Zone = knobZone ?? (meterHover ? 'meter' : canvasHover ? 'view' : windowHover ? 'app' : null)
+  // Zone priority mirrors real plugin hit-testing: innermost control wins.
+  const zone: Zone =
+    knobZone ??
+    (titleHover ? 'title'
+    : badgeHover ? 'badge'
+    : meterHover ? 'meter'
+    : hintHover ? 'hint'
+    : canvasHover ? 'view'
+    : windowHover ? 'app'
+    : null)
 
   const gainDb = -60 + gain * 66
   const gainText = `${gainDb >= 0 ? '+' : ''}${gainDb.toFixed(1)} dB`
@@ -202,6 +221,17 @@ export default function Home() {
   const meterR = clamp01(level * (panPos >= 0 ? 1 : 1 + panPos * 0.85))
   const meterLDb = `${(-60 + meterL * 66).toFixed(1)}`
   const meterRDb = `${(-60 + meterR * 66).toFixed(1)}`
+
+  const hint =
+    zone === 'gain' ? `param "gain" · ${gainText} — automation-safe host binding`
+    : zone === 'pan' ? `param "pan" · ${panText} — automation-safe host binding`
+    : zone === 'title' ? '<Text> — measured by Yoga, painted by juce::Graphics'
+    : zone === 'badge' ? '<Text> "NATIVE" — zero webview. every pixel is native'
+    : zone === 'meter' ? '<NativeView "meter"> — a juce::Component fed by the audio thread'
+    : zone === 'hint' ? '<Text>{hint}</Text> — this bar is React state. you just set it'
+    : zone === 'view' ? '<View> — Yoga flexbox layout, styled by className'
+    : zone === 'app' ? 'plugin window — render(<App />) mounts your tree'
+    : 'hover any zone to trace it to the code →'
 
   const kw = (t: string) => <span className={styles.kw}>{t}</span>
   const str = (t: string) => <span className={styles.str}>{t}</span>
@@ -233,18 +263,66 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className={styles.stage}>
-        <h1 className={`${styles.thesis} ${styles.rise}`}>
+      <section className={styles.hero}>
+        <svg
+          className={styles.heroAtom}
+          viewBox="0 0 100 100"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <ellipse cx="50" cy="50" rx="46" ry="17" />
+          <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(60 50 50)" />
+          <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(-60 50 50)" />
+        </svg>
+        <svg
+          className={styles.heroWave}
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d={WAVE} className={styles.heroWaveGhost} />
+          <path d={WAVE} className={styles.heroWaveLive} />
+        </svg>
+
+        <div className={styles.heroInner}>
+          <span className={`${styles.heroKicker} ${styles.rise}`}>{TAGLINE.toUpperCase()}</span>
+          <h1 className={`${styles.heroTitle} ${styles.rise} ${styles.d1}`}>
+            Write React.
+            <br />
+            Ship <span>native</span> VST.
+          </h1>
+          <p className={`${styles.heroLede} ${styles.rise} ${styles.d2}`}>{LEDE}</p>
+          <div className={`${styles.heroCtas} ${styles.rise} ${styles.d2}`}>
+            <a className={styles.heroBtn} href={REPO}>
+              GET IT ON GITHUB
+            </a>
+            <Link className={styles.heroBtnGhost} href="/docs">
+              READ THE DOCS
+            </Link>
+          </div>
+          <p className={`${styles.heroSpecs} ${styles.rise} ${styles.d3}`}>
+            NO WEBVIEW · QUICKJS ES2023 · YOGA FLEXBOX · JUCE::GRAPHICS · WINDOWS · MACOS · LINUX
+          </p>
+        </div>
+
+        <a className={styles.heroScroll} href="#bench">
+          <span aria-hidden="true">▼</span> THE PROOF IS BELOW — DRAG IT
+        </a>
+      </section>
+
+      <section className={styles.stage} id="bench">
+        <h2 className={`${styles.thesis}`} data-reveal>
           This UI is React.<span> Drag it.</span>
-        </h1>
-        <p className={`${styles.thesisSub} ${styles.rise} ${styles.d1}`}>
-          The window below is the exact component tree from{' '}
-          <code>examples/gain</code> — in your DAW, VSReacT paints it with
-          juce::Graphics. Here, the same React runs in your browser. Grab a
-          knob. Scroll it. Hover everything. Watch the code.
+        </h2>
+        <p className={styles.thesisSub} data-reveal>
+          The window below is a working plugin UI — the same component tree VSReacT paints
+          with juce::Graphics in your DAW, here running as the page itself. Grab a knob.
+          Scroll it. Hover every zone — title bar, badge, meter, canvas, even the hint bar —
+          and watch it trace to its own line of code.
         </p>
 
-        <div className={`${styles.bench} ${styles.rise} ${styles.d2}`}>
+        <div className={styles.bench} data-reveal>
           <div
             className={`${styles.plugin} ${zone === 'app' ? styles.zoneOn : ''}`}
             onMouseEnter={() => setWindowHover(true)}
@@ -252,8 +330,20 @@ export default function Home() {
           >
             <div className={styles.pluginBar}>
               <i aria-hidden="true" />
-              <span>VSReacT Gain — examples/gain</span>
-              <em>NATIVE</em>
+              <span
+                className={`${styles.barTitle} ${zone === 'title' ? styles.chipOn : ''}`}
+                onMouseEnter={() => setTitleHover(true)}
+                onMouseLeave={() => setTitleHover(false)}
+              >
+                VSReacT Gain
+              </span>
+              <em
+                className={zone === 'badge' ? styles.chipOn : ''}
+                onMouseEnter={() => setBadgeHover(true)}
+                onMouseLeave={() => setBadgeHover(false)}
+              >
+                NATIVE
+              </em>
             </div>
             <div
               className={`${styles.pluginBody} ${zone === 'view' ? styles.canvasOn : ''}`}
@@ -266,6 +356,7 @@ export default function Home() {
                   value={gain}
                   text={gainText}
                   defaultValue={GAIN_DEFAULT}
+                  hot={zone === 'gain'}
                   onChange={setGain}
                   onActive={(a) => setKnobZone(a ? 'gain' : null)}
                 />
@@ -274,26 +365,27 @@ export default function Home() {
                   value={pan}
                   text={panText}
                   defaultValue={PAN_DEFAULT}
+                  hot={zone === 'pan'}
                   onChange={setPan}
                   onActive={(a) => setKnobZone(a ? 'pan' : null)}
                 />
               </div>
               <div
-                className={`${styles.meter} ${meterHover ? styles.meterOn : ''}`}
+                className={`${styles.meter} ${zone === 'meter' ? styles.meterOn : ''}`}
                 onMouseEnter={() => setMeterHover(true)}
                 onMouseLeave={() => setMeterHover(false)}
                 role="img"
                 aria-label={`Output level — left ${meterLDb} dB, right ${meterRDb} dB`}
               >
                 <div className={styles.meterCol}>
-                  <span className={styles.meterVal} data-show={meterHover ? 'true' : undefined}>
+                  <span className={styles.meterVal} data-show={zone === 'meter' ? 'true' : undefined}>
                     {meterLDb}
                   </span>
                   <i style={{ height: `${8 + meterL * 88}%` }} data-hot={meterL > 0.92 ? 'true' : undefined} />
                   <span>L</span>
                 </div>
                 <div className={styles.meterCol}>
-                  <span className={styles.meterVal} data-show={meterHover ? 'true' : undefined}>
+                  <span className={styles.meterVal} data-show={zone === 'meter' ? 'true' : undefined}>
                     {meterRDb}
                   </span>
                   <i style={{ height: `${8 + meterR * 88}%` }} data-hot={meterR > 0.92 ? 'true' : undefined} />
@@ -301,13 +393,13 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className={styles.pluginFoot} data-live={zone ? 'true' : undefined}>
-              {zone === 'gain' && `param "gain" · ${gainText} — automation-safe host binding`}
-              {zone === 'pan' && `param "pan" · ${panText} — automation-safe host binding`}
-              {zone === 'meter' && 'output meter — painted by juce::Graphics at 60fps'}
-              {zone === 'view' && '<View> — Yoga flexbox layout, styled by className'}
-              {zone === 'app' && 'plugin window — render(<App />) mounts your tree'}
-              {zone === null && 'hover any zone to trace it to the code →'}
+            <div
+              className={`${styles.pluginFoot} ${zone === 'hint' ? styles.footHot : ''}`}
+              data-live={zone ? 'true' : undefined}
+              onMouseEnter={() => setHintHover(true)}
+              onMouseLeave={() => setHintHover(false)}
+            >
+              {hint}
             </div>
           </div>
 
@@ -315,7 +407,15 @@ export default function Home() {
             <code>
               <CodeLine>
                 {kw('import')}
-                {' { render, View, ParamKnob } '}
+                {' { useState } '}
+                {kw('from')} {str('"react"')};
+              </CodeLine>
+              <CodeLine>
+                {kw('import')}
+                {' { render, View, Text, ParamKnob, NativeView }'}
+              </CodeLine>
+              <CodeLine>
+                {'  '}
                 {kw('from')} {str('"@vsreact/core"')};
               </CodeLine>
               <CodeLine />
@@ -323,37 +423,102 @@ export default function Home() {
                 {kw('function')} {fn('App')}
                 {'() {'}
               </CodeLine>
+              <CodeLine hl={zone === 'hint'}>
+                {'  '}
+                {kw('const')}
+                {' [hint, setHint] = '}
+                {fn('useState')}
+                {'('}
+                {str('"hover a control"')}
+                {');'}
+              </CodeLine>
               <CodeLine>
                 {'  '}
                 {kw('return')}
                 {' ('}
               </CodeLine>
-              <CodeLine hl={zone === 'view'}>
+              <CodeLine hl={zone === 'app'}>
                 {'    <'}
                 {tag('View')} {attr('className')}
                 {'='}
-                {str('"flex-1 items-center justify-center')}
+                {str('"flex-1 bg-zinc-950"')}
+                {'>'}
+              </CodeLine>
+              <CodeLine>
+                {'      <'}
+                {tag('View')} {attr('className')}
+                {'='}
+                {str('"flex-row items-center px-3 py-2"')}
+                {'>'}
+              </CodeLine>
+              <CodeLine hl={zone === 'title'}>
+                {'        <'}
+                {tag('Text')} {attr('className')}
+                {'='}
+                {str('"text-xs"')}
+                {'>VSReacT Gain</'}
+                {tag('Text')}
+                {'>'}
+              </CodeLine>
+              <CodeLine hl={zone === 'badge'}>
+                {'        <'}
+                {tag('Text')} {attr('className')}
+                {'='}
+                {str('"text-[9] text-red-400"')}
+                {'>NATIVE</'}
+                {tag('Text')}
+                {'>'}
+              </CodeLine>
+              <CodeLine>{'      </View>'}</CodeLine>
+              <CodeLine hl={zone === 'view'}>
+                {'      <'}
+                {tag('View')} {attr('className')}
+                {'='}
+                {str('"flex-1 flex-row items-center')}
               </CodeLine>
               <CodeLine hl={zone === 'view'}>
-                {'                     '}
-                {str('bg-zinc-950 gap-10 flex-row"')}
+                {'                       '}
+                {str('justify-center gap-10"')}
                 {'>'}
               </CodeLine>
               <CodeLine hl={zone === 'gain'} live={zone === 'gain' ? gainText : undefined}>
-                {'      <'}
+                {'        <'}
                 {tag('ParamKnob')} {attr('paramId')}
                 {'='}
                 {str('"gain"')} {attr('size')}
                 {'={88} />'}
               </CodeLine>
               <CodeLine hl={zone === 'pan'} live={zone === 'pan' ? panText : undefined}>
-                {'      <'}
+                {'        <'}
                 {tag('ParamKnob')} {attr('paramId')}
                 {'='}
                 {str('"pan"')} {attr('size')}
                 {'={88} />'}
               </CodeLine>
+              <CodeLine hl={zone === 'meter'}>
+                {'        <'}
+                {tag('NativeView')} {attr('nativeId')}
+                {'='}
+                {str('"meter"')} {attr('className')}
+                {'='}
+                {str('"w-12"')}
+                {' />'}
+              </CodeLine>
               <CodeLine hl={zone === 'view'}>
+                {'      </'}
+                {tag('View')}
+                {'>'}
+              </CodeLine>
+              <CodeLine hl={zone === 'hint'}>
+                {'      <'}
+                {tag('Text')} {attr('className')}
+                {'='}
+                {str('"text-[10] px-3 py-2"')}
+                {'>{hint}</'}
+                {tag('Text')}
+                {'>'}
+              </CodeLine>
+              <CodeLine hl={zone === 'app'}>
                 {'    </'}
                 {tag('View')}
                 {'>'}
@@ -370,9 +535,10 @@ export default function Home() {
             </code>
           </pre>
         </div>
-        <p className={`${styles.benchNote} ${styles.rise} ${styles.d3}`}>
-          14 lines. Automation-safe host binding included. The arc you just
-          dragged is a painted stroke — in the plugin, C++ paints it at 60fps.
+        <p className={styles.benchNote} data-reveal>
+          One component tree: window chrome, hint bar, knobs, and a native meter. Automation-safe
+          host binding included. The arc you just dragged is a painted stroke — in the plugin,
+          C++ paints it at 60fps.
         </p>
       </section>
 

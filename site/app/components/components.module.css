@@ -581,6 +581,216 @@
   color: var(--red);
 }
 
+/* ── macro pad / hardware knob / crossfader / orb twins ────────────── */
+
+.macro {
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, #131512, #0c0d0c 70%);
+  border: 1px solid #000000aa;
+  cursor: crosshair;
+  touch-action: none;
+  overflow: hidden;
+}
+
+.macro i {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--red);
+  pointer-events: none;
+}
+
+.macro b {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 14px rgba(255, 46, 46, 0.7);
+}
+
+.macroLabelX,
+.macroLabelY {
+  position: absolute;
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 46, 46, 0.75);
+  pointer-events: none;
+}
+
+.macroLabelX {
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.macroLabelY {
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: left center;
+}
+
+.hwKnob {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.hwKnob svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hwTicks {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.hwKnob i {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #262624, #141413 68%);
+  border: 1px solid #000;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.hwKnob u {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hwKnob u::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 4px;
+  height: 13px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(255, 46, 46, 0.7);
+}
+
+.hwKnob:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+.xfade {
+  position: relative;
+  width: 220px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #000000aa;
+  background: #141614;
+  cursor: ew-resize;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+}
+
+.xfade span {
+  position: absolute;
+  left: 7px;
+  font-family: var(--font-jb), monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: #6f6e66;
+  pointer-events: none;
+}
+
+.xfadeEnd {
+  left: auto !important;
+  right: 7px;
+}
+
+.xfade b {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: 26px;
+  border-radius: 6px;
+  background: #2e332c;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.xfade b i {
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.orb {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.orb span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--red);
+  opacity: 0;
+  animation: orbEcho 2.2s linear infinite;
+}
+
+.orb span:nth-child(2) {
+  animation-delay: 0.73s;
+}
+
+.orb span:nth-child(3) {
+  animation-delay: 1.46s;
+}
+
+@keyframes orbEcho {
+  0% {
+    transform: scale(0.18);
+    opacity: calc(0.15 + var(--orbLevel, 0.6) * 0.6);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.orb b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(14px + var(--orbLevel, 0.6) * 12px);
+  height: calc(14px + var(--orbLevel, 0.6) * 12px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 calc(8px + var(--orbLevel, 0.6) * 18px) rgba(255, 46, 46, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb span {
+    animation: none;
+    opacity: 0.25;
+    transform: scale(0.6);
+  }
+}
+
 /* ── numberbox / checkbox / radio / progress / spinner twins ───────── */
 
 .numBox {

@@ -90,4 +90,22 @@ export type {
 } from "./fields";
 export { ProgressBar, Spinner } from "./feedback";
 export type { ProgressBarProps, SpinnerProps } from "./feedback";
+export {
+  MacroPad,
+  ParamMacroPad,
+  HardwareKnob,
+  ParamHardwareKnob,
+  Crossfader,
+  ParamCrossfader,
+  PulseOrb,
+} from "./specialty";
+export type {
+  MacroPadProps,
+  ParamMacroPadProps,
+  HardwareKnobProps,
+  ParamHardwareKnobProps,
+  CrossfaderProps,
+  ParamCrossfaderProps,
+  PulseOrbProps,
+} from "./specialty";
 export type { DragEventPayload, LayoutRect, WheelEventPayload } from "./primitives";

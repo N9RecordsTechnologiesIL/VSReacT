@@ -664,3 +664,112 @@ describe("0.0.10 — fields & feedback", () => {
     expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "GAIN")).toBe(true);
   });
 });
+
+describe("0.0.11 — flagship visuals", () => {
+  test("MacroPad: drag maps both axes, double-click recenters, rings render", () => {
+    const { MacroPad } = require("./index");
+    const seen: Array<[number, number]> = [];
+    render(
+      <MacroPad x={0.5} y={0.5} size={200} animate={false} rings={6} onChange={(x: number, y: number) => seen.push([x, y])} />,
+    );
+
+    const id = nodeWithListener("drag");
+    dispatch({ kind: "event", nodeId: id, type: "dragstart", payload: { dx: 0, dy: 0, x: 0, y: 0 } });
+    dispatch({ kind: "event", nodeId: id, type: "drag", payload: { dx: 50, dy: -50, x: 0, y: 0 } });
+    expect(seen.at(-1)?.[0]).toBeCloseTo(0.75);
+    expect(seen.at(-1)?.[1]).toBeCloseTo(0.75);
+
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+    expect(seen.at(-1)).toEqual([0.5, 0.5]);
+
+    // six rings + thumb: ring views carry borderColor + opacity
+    const rings = opsNamed("setProps").filter(
+      (op: any) => op[2]?.style?.borderColor === "#C6F135" && op[2]?.style?.opacity !== undefined,
+    );
+    expect(rings.length).toBeGreaterThanOrEqual(6);
+  });
+
+  test("ParamMacroPad opens and closes both gestures", () => {
+    const { ParamMacroPad } = require("./index");
+    render(<ParamMacroPad paramX="cutoff" paramY="res" animate={false} />);
+
+    const id = nodeWithListener("drag");
+    dispatch({ kind: "event", nodeId: id, type: "dragstart", payload: { dx: 0, dy: 0, x: 0, y: 0 } });
+    dispatch({ kind: "event", nodeId: id, type: "drag", payload: { dx: 20, dy: 0, x: 0, y: 0 } });
+    dispatch({ kind: "event", nodeId: id, type: "dragend", payload: { dx: 20, dy: 0, x: 0, y: 0 } });
+
+    expect(nativeCalls.filter((c) => c.name === "param:begin").length).toBe(2);
+    expect(nativeCalls.filter((c) => c.name === "param:end").length).toBe(2);
+    expect(nativeCalls.filter((c) => c.name === "param:set").length).toBe(2);
+  });
+
+  test("HardwareKnob: pointer notch tracks the angle; DAW gestures work", () => {
+    const { HardwareKnob } = require("./index");
+    const seen: number[] = [];
+    render(<HardwareKnob value={0.5} defaultValue={0.25} onChange={(v: number) => seen.push(v)} />);
+
+    // value 0.5 -> angle 0 -> notch arc -4..+4
+    const notch: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.arcValueStart === -4 && op[2]?.style?.arcValueEnd === 4,
+    );
+    expect(notch).toBeDefined();
+
+    const id = nodeWithListener("dblclick");
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+    expect(seen.at(-1)).toBe(0.25);
+
+    dispatch({ kind: "event", nodeId: id, type: "wheel", payload: { dy: 0.1 } });
+    expect(seen.at(-1)).toBeCloseTo(0.54);
+  });
+
+  test("Crossfader: horizontal drag with travel compensation, labels render", () => {
+    const { Crossfader } = require("./index");
+    const seen: number[] = [];
+    render(<Crossfader value={0.5} width={220} onChange={(v: number) => seen.push(v)} />);
+
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "DRY")).toBe(true);
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "WET")).toBe(true);
+
+    const id = nodeWithListener("drag");
+    dispatch({ kind: "event", nodeId: id, type: "dragstart", payload: { dx: 0, dy: 0, x: 0, y: 0 } });
+    dispatch({ kind: "event", nodeId: id, type: "drag", payload: { dx: 94, dy: 0, x: 0, y: 0 } }); // travel = 220-26-6 = 188
+    expect(seen.at(-1)).toBeCloseTo(1);
+
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+    expect(seen.at(-1)).toBe(0.5);
+  });
+
+  test("PulseOrb: echo rings advance with the phase", async () => {
+    const { PulseOrb } = require("./index");
+    render(<PulseOrb value={0.8} size={100} rings={3} />);
+
+    const sizesAt = () =>
+      opsNamed("setProps")
+        .filter((op: any) => op[2]?.style?.borderColor === "#C6F135")
+        .map((op: any) => op[2].style.width);
+    const before = sizesAt().length;
+    await new Promise((r) => setTimeout(r, 100));
+    expect(sizesAt().length).toBeGreaterThan(before); // new frames landed
+
+    // the core glows with the level
+    const core: any = opsNamed("setProps").find((op: any) => op[2]?.style?.shadowColor === "#C6F135");
+    expect(core).toBeDefined();
+  });
+
+  test("Toggle side labels highlight the active side; Slider barThumb renders a bar", () => {
+    const { Toggle: T2, Slider: S2 } = require("./index");
+    render(<T2 on={false} offLabel="OFF" onLabel="ON" onChange={() => {}} />);
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "OFF")).toBe(true);
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "ON")).toBe(true);
+
+    unmount();
+    batches.length = 0;
+    render(<S2 vertical barThumb height={100} value={0.5} onChange={() => {}} />);
+    // bar thumb: 18 wide, 5 tall at the halfway point
+    const bar: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.width === 18 && op[2]?.style?.height === 5,
+    );
+    expect(bar).toBeDefined();
+    expect(bar[2].style.top).toBeCloseTo(0.5 * 95);
+  });
+});

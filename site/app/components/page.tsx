@@ -194,6 +194,9 @@ export default function ComponentsPage() {
   const [oversample, setOversample] = useState(true)
   const [dither, setDither] = useState(false)
   const [osMode, setOsMode] = useState(1)
+  const [macro, setMacro] = useState({ x: 0.62, y: 0.55 })
+  const [hwVal, setHwVal] = useState(0.66)
+  const [xfade, setXfade] = useState(0.5)
 
   // animated feeds for meter/bars/waveform
   const [tick, setTick] = useState(0)
@@ -274,6 +277,48 @@ export default function ComponentsPage() {
       </section>
 
       <section className={styles.grid}>
+        <Card
+          name="MacroPad"
+          wide
+          blurb="The centerpiece macro control — a circular 2D pad whose concentric rings breathe with the values: x spreads them, y drives their intensity. One drag, two parameters. ParamMacroPad opens both host gestures together."
+          imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
+          docs="/docs/components#controls"
+        >
+          <MacroPadDemo value={macro} onChange={setMacro} tick={tick} />
+        </Card>
+
+        <Card
+          name="HardwareKnob"
+          blurb="The skeuomorphic cap with a glowing pointer notch riding the rim and a faint tick track — hardware feel, painted natively."
+          imports={`<ParamHardwareKnob paramId="drive" />`}
+          docs="/docs/components#controls"
+        >
+          <HardwareKnobDemo value={hwVal} onChange={setHwVal} />
+        </Card>
+
+        <Card
+          name="Crossfader"
+          blurb="The DRY/WET strip — a wide track with a grippy rectangular handle. Double-click recenters."
+          imports={`<ParamCrossfader paramId="mix" />`}
+          docs="/docs/components#controls"
+        >
+          <CrossfaderDemo value={xfade} onChange={setXfade} />
+        </Card>
+
+        <Card
+          name="PulseOrb"
+          blurb="A value-reactive orb: glowing core, echo rings emanating faster and brighter as the level rises."
+          imports={`<PulseOrb value={level} />`}
+          docs="/docs/components#controls"
+        >
+          <div className={styles.orb} style={{ ['--orbLevel' as never]: meterLevel }}>
+            <span />
+            <span />
+            <span />
+            <b />
+          </div>
+        </Card>
+
         <Card
           name="Knob"
           blurb="Drag vertically, wheel to nudge, double-click to reset. ParamKnob binds it to a host parameter with automation-safe gestures."
@@ -650,6 +695,106 @@ export default function ComponentsPage() {
         </div>
       ) : null}
     </main>
+  )
+}
+
+function MacroPadDemo({
+  value,
+  onChange,
+  tick,
+}: {
+  value: { x: number; y: number }
+  onChange: (v: { x: number; y: number }) => void
+  tick: number
+}) {
+  const SIZE = 230
+  const drag = useDrag((dx, dy) =>
+    onChange({ x: clamp01(value.x + dx / SIZE), y: clamp01(value.y - dy / SIZE) }),
+  )
+
+  const rings = Array.from({ length: 9 }, (_, i) => {
+    const t = (i + 1) / 9
+    const spread = 0.3 + 0.7 * Math.pow(t, 1.6 - value.x * 1.2)
+    const breathe = 1 + 0.02 * Math.sin(tick / 18 + i * 0.9)
+    const size = Math.min(SIZE - 2, SIZE * spread * breathe)
+    const opacity = clamp01((0.12 + 0.5 * value.y) * (1.15 - t) * (0.8 + 0.2 * Math.sin(tick / 27 + i)))
+    return { size, opacity }
+  })
+
+  return (
+    <div
+      className={styles.macro}
+      style={{ width: SIZE, height: SIZE }}
+      {...drag}
+      onDoubleClick={() => onChange({ x: 0.5, y: 0.5 })}
+      role="slider"
+      aria-label="Macro pad"
+      aria-valuenow={Math.round(value.x * 100)}
+      tabIndex={0}
+    >
+      {rings.map((ring, i) => (
+        <i
+          key={i}
+          style={{
+            width: ring.size,
+            height: ring.size,
+            left: (SIZE - ring.size) / 2,
+            top: (SIZE - ring.size) / 2,
+            opacity: ring.opacity,
+          }}
+        />
+      ))}
+      <b
+        style={{
+          left: `calc(${value.x * 100}% - 6px)`,
+          top: `calc(${(1 - value.y) * 100}% - 6px)`,
+        }}
+      />
+      <span className={styles.macroLabelY}>DEEP FX</span>
+      <span className={styles.macroLabelX}>GRANULATION</span>
+    </div>
+  )
+}
+
+function HardwareKnobDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const drag = useDrag((_dx, dy) => onChange(clamp01(value - dy * 0.006)))
+  const angle = -135 + 270 * clamp01(value)
+
+  return (
+    <div className={styles.knobGroup}>
+      <div
+        className={styles.hwKnob}
+        {...drag}
+        onDoubleClick={() => onChange(0.66)}
+        onWheel={(e) => onChange(clamp01(value - Math.sign(e.deltaY) * 0.04))}
+        role="slider"
+        aria-valuenow={Math.round(value * 100)}
+        tabIndex={0}
+      >
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d={arcPath(1)} className={styles.hwTicks} />
+        </svg>
+        <i />
+        <u style={{ transform: `rotate(${angle}deg)` }} />
+      </div>
+      <span className={styles.miniLabel}>DRIVE</span>
+    </div>
+  )
+}
+
+function CrossfaderDemo({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const TRAVEL = 220 - 26 - 6
+  const drag = useDrag((dx) => onChange(clamp01(value + dx / TRAVEL)))
+
+  return (
+    <div className={styles.xfade} {...drag} onDoubleClick={() => onChange(0.5)}>
+      <span>DRY</span>
+      <b style={{ left: 3 + value * TRAVEL }}>
+        <i />
+        <i />
+      </b>
+      <span className={styles.xfadeEnd}>WET</span>
+    </div>
   )
 }
 

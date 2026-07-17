@@ -52,7 +52,10 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
 <ParamSelect    paramId="mode" options={MODES} />          // dropdown for long lists
 <ParamNumberBox paramId="freq" />                          // host text, drag/wheel/reset
 <ParamCheckbox  paramId="oversample" />                    // bool, settings-panel style
-<ParamRadioGroup paramId="os" options={["OFF","2X","4X"]} />`}</Code>
+<ParamRadioGroup paramId="os" options={["OFF","2X","4X"]} />
+<ParamMacroPad  paramX="granulation" paramY="deepFx" />    // the Output-style centerpiece
+<ParamHardwareKnob paramId="drive" />                      // skeuomorphic cap + notch
+<ParamCrossfader paramId="mix" />                          // DRY/WET strip`}</Code>
       <ul>
         <li>
           <strong>ParamToggle</strong> — bool-style parameters; a click writes a full

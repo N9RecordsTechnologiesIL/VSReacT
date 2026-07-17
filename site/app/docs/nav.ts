@@ -84,7 +84,7 @@ export const DOCS: DocPage[] = [
       ['nativeview', '<NativeView>'],
     ],
     keywords:
-      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading native escape hatch',
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty native escape hatch',
   },
   {
     slug: 'styling',

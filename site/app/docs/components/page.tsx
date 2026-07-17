@@ -204,6 +204,47 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;MacroPad&gt;</code>
+            </td>
+            <td>Centerpiece macros</td>
+            <td>
+              A circular 2D pad with value-reactive concentric rings — x spreads them, y
+              drives intensity. <code>ParamMacroPad</code> drives two host parameters from
+              one drag.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;HardwareKnob&gt;</code>
+            </td>
+            <td>Hardware feel</td>
+            <td>
+              Skeuomorphic cap with a glowing pointer notch at the rim and a faint tick
+              track; same DAW gestures as <code>Knob</code>.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Crossfader&gt;</code>
+            </td>
+            <td>Mix controls</td>
+            <td>
+              The DRY/WET strip — wide track, grippy rectangular handle, double-click
+              recenters.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;PulseOrb&gt;</code>
+            </td>
+            <td>Presence</td>
+            <td>
+              A value-reactive orb: glowing core with echo rings that emit faster and
+              brighter as the level rises.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;NumberBox&gt;</code>
             </td>
             <td>Fine values</td>

@@ -152,6 +152,8 @@ export interface SliderProps {
   height?: number;
   /** Vertical fader — drag up for more, fill rises from the bottom. */
   vertical?: boolean;
+  /** Flat hardware-style bar thumb instead of the dot. */
+  barThumb?: boolean;
   label?: string;
   disabled?: boolean;
   /** Double-click resets to this (DAW convention). */
@@ -170,6 +172,7 @@ export function Slider({
   width = 160,
   height = 160,
   vertical,
+  barThumb,
   label,
   disabled,
   defaultValue,
@@ -223,10 +226,17 @@ export function Slider({
             className="absolute w-[4] rounded-full left-[7] bottom-0"
             style={{ height: clamped * height, backgroundColor: valueColor }}
           />
-          <View
-            className="absolute w-[12] h-[12] rounded-full left-[3]"
-            style={{ top: (1 - clamped) * (height - 12), backgroundColor: valueColor }}
-          />
+          {barThumb ? (
+            <View
+              className="absolute w-[18] h-[5] rounded-[2] left-0"
+              style={{ top: (1 - clamped) * (height - 5), backgroundColor: valueColor }}
+            />
+          ) : (
+            <View
+              className="absolute w-[12] h-[12] rounded-full left-[3]"
+              style={{ top: (1 - clamped) * (height - 12), backgroundColor: valueColor }}
+            />
+          )}
         </View>
         {label !== undefined ? (
           <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>
@@ -251,10 +261,17 @@ export function Slider({
           className="absolute h-[4] rounded-full top-[7]"
           style={{ width: clamped * width, backgroundColor: valueColor }}
         />
-        <View
-          className="absolute w-[12] h-[12] rounded-full top-[3]"
-          style={{ left: clamped * (width - 12), backgroundColor: valueColor }}
-        />
+        {barThumb ? (
+          <View
+            className="absolute w-[5] h-[18] rounded-[2] top-0"
+            style={{ left: clamped * (width - 5), backgroundColor: valueColor }}
+          />
+        ) : (
+          <View
+            className="absolute w-[12] h-[12] rounded-full top-[3]"
+            style={{ left: clamped * (width - 12), backgroundColor: valueColor }}
+          />
+        )}
       </View>
       {label !== undefined ? (
         <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>
@@ -295,6 +312,9 @@ export function ParamSlider({ paramId, label, ...rest }: ParamSliderProps) {
 export interface ToggleProps {
   on: boolean;
   label?: string;
+  /** Side captions, hardware style: <Toggle offLabel="OFF" onLabel="ON" />. */
+  offLabel?: string;
+  onLabel?: string;
   /** Track height; width is 1.8×. Default 22. */
   size?: number;
   disabled?: boolean;
@@ -308,6 +328,8 @@ export interface ToggleProps {
 export function Toggle({
   on,
   label,
+  offLabel,
+  onLabel,
   size = 22,
   disabled,
   trackColor = "#2A2F27",
@@ -322,21 +344,39 @@ export function Toggle({
 
   return (
     <View className="items-center gap-2">
-      <View
-        className={`relative rounded-full ${disabled ? "opacity-40" : "cursor-pointer"}`}
-        style={{ width: trackWidth, height: size, backgroundColor: on ? onColor : trackColor }}
-        onClick={disabled ? undefined : () => onChange(!on)}
-      >
+      <View className="flex-row items-center gap-2">
+        {offLabel !== undefined ? (
+          <Text
+            className="text-[9] font-bold tracking-widest"
+            style={{ color: on ? "#6f6e66" : "#ECF2E8" }}
+          >
+            {offLabel}
+          </Text>
+        ) : null}
         <View
-          className="absolute rounded-full"
-          style={{
-            width: thumb,
-            height: thumb,
-            top: 3,
-            left: 3 + clamp01(t) * travel,
-            backgroundColor: thumbColor,
-          }}
-        />
+          className={`relative rounded-full ${disabled ? "opacity-40" : "cursor-pointer"}`}
+          style={{ width: trackWidth, height: size, backgroundColor: on ? onColor : trackColor }}
+          onClick={disabled ? undefined : () => onChange(!on)}
+        >
+          <View
+            className="absolute rounded-full"
+            style={{
+              width: thumb,
+              height: thumb,
+              top: 3,
+              left: 3 + clamp01(t) * travel,
+              backgroundColor: thumbColor,
+            }}
+          />
+        </View>
+        {onLabel !== undefined ? (
+          <Text
+            className="text-[9] font-bold tracking-widest"
+            style={{ color: on ? "#ECF2E8" : "#6f6e66" }}
+          >
+            {onLabel}
+          </Text>
+        ) : null}
       </View>
       {label !== undefined ? (
         <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>

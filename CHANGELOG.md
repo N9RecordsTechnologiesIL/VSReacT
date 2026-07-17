@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.0.11 — 2026-07-17
+
+The flagship-visual tier — Output-style centerpieces and hardware feel.
+JS-only; native module unchanged from 0.0.9.
+
+### New components
+
+- **`<MacroPad>` / `<ParamMacroPad>`** — the centerpiece macro control:
+  a circular 2D pad whose concentric rings breathe with the values
+  (x spreads them, y drives intensity), axis labels, drag anywhere,
+  double-click recenters. The Param twin drives two host parameters
+  from one drag with both gestures opened together.
+- **`<HardwareKnob>` / `<ParamHardwareKnob>`** — the skeuomorphic cap
+  with a glowing pointer notch riding the rim (a short value arc) and a
+  faint tick track; drag/wheel/double-click like Knob.
+- **`<Crossfader>` / `<ParamCrossfader>`** — the DRY/WET strip: wide
+  track, grippy rectangular handle, end labels, double-click recenters.
+- **`<PulseOrb>`** — a value-reactive orb: glowing core with echo rings
+  that emit faster and brighter as the level rises.
+
+### Control upgrades
+
+- `Toggle` — `offLabel` / `onLabel` side captions (hardware OFF/ON
+  style), the active side highlighted.
+- `Slider` — `barThumb` renders the flat hardware-style bar thumb in
+  both orientations.
+
+### Site
+
+- Gallery: MacroPad showpiece card (wide), HardwareKnob, Crossfader,
+  and PulseOrb cards — all interactive.
+
 ## 0.0.10 — 2026-07-17
 
 Fields & feedback — the settings-panel tier, and value labels on the

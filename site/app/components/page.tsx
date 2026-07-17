@@ -25,8 +25,8 @@ const THEMES: Array<[key: string, label: string]> = [
   ['inst', 'INSTRUMENT'],
   ['metal', 'METAL'],
   ['std', 'STANDARD'],
-  ['plast', 'PLASTIC'],
-  ['vint', 'VINTAGE'],
+  ['glass', 'GLASS'],
+  ['carbon', 'CARBON'],
   ['neon', 'NEON'],
 ]
 
@@ -128,8 +128,8 @@ function KnobTwin({
     )
   }
 
-  // PLASTIC — glossy dome on a wide skirt, wedge pointer
-  if (theme === 'plast') {
+  // GLASS — glossy dome on a wide skirt, wedge pointer
+  if (theme === 'glass') {
     return (
       <div className={styles.knobPlast} style={{ width: size, height: size }} {...h}>
         <s aria-hidden="true" />
@@ -139,8 +139,8 @@ function KnobTwin({
     )
   }
 
-  // VINTAGE — chicken-head pointer knob over a printed tick scale
-  if (theme === 'vint') {
+  // CARBON — chicken-head pointer knob over a printed tick scale
+  if (theme === 'carbon') {
     return (
       <div className={styles.knobVint} style={{ width: size + 16, height: size + 16 }} {...h}>
         <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -217,7 +217,7 @@ function HWKnobTwin({
   }
 
   // Structural spread: bezel ring (metal), dot indicator (std), ribbed cap +
-  // wedge (plast), fluted cap (vint), glow slit + halo (neon).
+  // wedge (glass), fluted cap (carbon), glow slit + halo (neon).
   return (
     <div className={`${styles.hwKnob} ${styles[`hw_${theme}`] ?? ''}`} {...h}>
       {theme === 'metal' ? <s aria-hidden="true" /> : null}
@@ -273,8 +273,8 @@ function SliderTwin({
     )
   }
 
-  // VINTAGE — console fader: slot + printed tick scale + cream cap handle
-  if (theme === 'vint') {
+  // CARBON — console fader: slot + printed tick scale + cream cap handle
+  if (theme === 'carbon') {
     return (
       <div
         className={`${styles.fadeVint} ${vertical ? styles.fadeVintV : ''}`}
@@ -318,8 +318,8 @@ function SliderTwin({
     )
   }
 
-  // PLASTIC — chunky inset channel with a glossy rectangular thumb
-  if (theme === 'plast') {
+  // GLASS — chunky inset channel with a glossy rectangular thumb
+  if (theme === 'glass') {
     return (
       <div
         className={`${styles.fadePlast} ${vertical ? styles.fadePlastV : ''}`}
@@ -412,8 +412,8 @@ function CrossfaderTwin({
     )
   }
 
-  // VINTAGE — screened panel labels + tick ruler + bakelite handle
-  if (theme === 'vint') {
+  // CARBON — screened panel labels + tick ruler + bakelite handle
+  if (theme === 'carbon') {
     return (
       <div className={`${styles.xfade} ${styles.xfVint}`} {...h}>
         <span>DRY</span>
@@ -436,8 +436,8 @@ function CrossfaderTwin({
     )
   }
 
-  // PLASTIC — A/B rocker-look: two halves fill toward the handle
-  if (theme === 'plast') {
+  // GLASS — A/B rocker-look: two halves fill toward the handle
+  if (theme === 'glass') {
     return (
       <div className={`${styles.xfade} ${styles.xfPlast}`} {...h}>
         <i className={styles.xfPlastA} style={{ width: `${value * 100}%` }} />
@@ -497,8 +497,8 @@ function ToggleTwin({
     )
   }
 
-  // PLASTIC — a rocker switch: the pressed half sinks, I/O printed on it
-  if (theme === 'plast') {
+  // GLASS — a rocker switch: the pressed half sinks, I/O printed on it
+  if (theme === 'glass') {
     return (
       <button
         type="button"
@@ -512,8 +512,8 @@ function ToggleTwin({
     )
   }
 
-  // VINTAGE — a slide lever on a screwed panel plate, UP/DOWN
-  if (theme === 'vint') {
+  // CARBON — a slide lever on a screwed panel plate, UP/DOWN
+  if (theme === 'carbon') {
     return (
       <button
         type="button"
@@ -588,8 +588,8 @@ function CheckboxTwin({
   on: boolean
   onChange: (v: boolean) => void
 }) {
-  // VINTAGE — illuminated jewel lamps instead of boxes
-  if (theme === 'vint') {
+  // CARBON — illuminated jewel lamps instead of boxes
+  if (theme === 'carbon') {
     return (
       <div className={styles.checkStack}>
         {(
@@ -676,8 +676,8 @@ function RadioTwin({
 }) {
   const options = ['OFF', '2X', '4X']
 
-  // VINTAGE — a latching piano-key pushbutton bank (the pressed key stays down)
-  if (theme === 'vint') {
+  // CARBON — a latching piano-key pushbutton bank (the pressed key stays down)
+  if (theme === 'carbon') {
     return (
       <div className={styles.pianoBank}>
         {options.map((option, i) => (
@@ -792,8 +792,8 @@ function SegmentedTwin({
     )
   }
 
-  // VINTAGE — round typewriter keys, the active key sits pressed
-  if (theme === 'vint') {
+  // CARBON — round typewriter keys, the active key sits pressed
+  if (theme === 'carbon') {
     return (
       <div className={styles.typeKeys}>
         {options.map((option, i) => (
@@ -857,9 +857,9 @@ function SelectTwin({
   const [open, setOpen] = useState(false)
   const options = ['CLEAN', 'TAPE', 'TUBE', 'FUZZ']
 
-  // VINTAGE — no dropdown at all: a program wheel you click to advance,
+  // CARBON — no dropdown at all: a program wheel you click to advance,
   // value shown in a punched window
-  if (theme === 'vint') {
+  if (theme === 'carbon') {
     return (
       <button
         type="button"
@@ -947,8 +947,8 @@ function XYTwin({
     )
   }
 
-  // VINTAGE — chart-recorder paper: ruled grid, two pen needles, no dot
-  if (theme === 'vint') {
+  // CARBON — chart-recorder paper: ruled grid, two pen needles, no dot
+  if (theme === 'carbon') {
     return (
       <div className={`${styles.xy} ${styles.xyVint}`} {...h}>
         <i style={{ top: `calc(${(1 - xy.y) * 100}% - 1px)` }} />
@@ -966,8 +966,8 @@ function XYTwin({
     )
   }
 
-  // PLASTIC — glossy trackpad with a big dome cursor
-  if (theme === 'plast') {
+  // GLASS — glossy trackpad with a big dome cursor
+  if (theme === 'glass') {
     return (
       <div className={`${styles.xy} ${styles.xyPlast}`} {...h}>
         <b style={{ left: `calc(${xy.x * 100}% - 10px)`, top: `calc(${(1 - xy.y) * 100}% - 10px)` }} />
@@ -1010,8 +1010,8 @@ function ButtonTwin({ theme = 'inst', onClick }: { theme?: string; onClick: () =
     )
   }
 
-  // VINTAGE — round typewriter action keys
-  if (theme === 'vint') {
+  // CARBON — round typewriter action keys
+  if (theme === 'carbon') {
     return (
       <div className={styles.btnRowGap}>
         <button type="button" className={styles.typeAction} onClick={onClick}>
@@ -1038,8 +1038,8 @@ function ButtonTwin({ theme = 'inst', onClick }: { theme?: string; onClick: () =
     )
   }
 
-  // PLASTIC — 2000s raised buttons that physically depress
-  if (theme === 'plast') {
+  // GLASS — 2000s raised buttons that physically depress
+  if (theme === 'glass') {
     return (
       <div className={styles.btnStack}>
         <button type="button" className={styles.xpBtn} onClick={onClick}>
@@ -1100,8 +1100,8 @@ function NumberBoxTwin({
     )
   }
 
-  // VINTAGE — a mechanical flip counter: each digit in its own drum cell
-  if (theme === 'vint') {
+  // CARBON — a mechanical flip counter: each digit in its own drum cell
+  if (theme === 'carbon') {
     return (
       <div className={styles.flipCounter} {...h}>
         {String(value).padStart(3, '0').split('').map((digit, i) => (
@@ -1123,8 +1123,8 @@ function NumberBoxTwin({
     )
   }
 
-  // PLASTIC — an LCD pocket-gear window
-  if (theme === 'plast') {
+  // GLASS — an LCD pocket-gear window
+  if (theme === 'glass') {
     return (
       <div className={styles.lcdBox} {...h}>
         {value} <span>BPM</span>
@@ -1158,8 +1158,8 @@ function InputTwin({ theme = 'inst' }: { theme?: string }) {
     )
   }
 
-  // VINTAGE — a typewriter underline field on paper
-  if (theme === 'vint') {
+  // CARBON — a typewriter underline field on paper
+  if (theme === 'carbon') {
     return (
       <div className={styles.typedInput}>
         <label>NAME:</label>
@@ -1195,8 +1195,8 @@ function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: num
   else if (tick - peak.current.held > 30)
     peak.current.value = Math.max(level, peak.current.value - 0.012)
 
-  // VINTAGE — an analog VU: cream dial, printed scale arc, swinging needle
-  if (theme === 'vint') {
+  // CARBON — an analog VU: cream dial, printed scale arc, swinging needle
+  if (theme === 'carbon') {
     const needle = -46 + clamp01(level) * 92
     return (
       <div className={styles.vu}>
@@ -1236,8 +1236,8 @@ function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: num
     )
   }
 
-  // PLASTIC — chunky block segments in an inset well
-  if (theme === 'plast') {
+  // GLASS — chunky block segments in an inset well
+  if (theme === 'glass') {
     const CELLS = 8
     return (
       <div className={styles.blockMeter}>
@@ -1283,8 +1283,8 @@ function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: num
 }
 
 function BarsTwin({ theme = 'inst', values }: { theme?: string; values: number[] }) {
-  // VINTAGE — a pen-plotter line chart on ruled paper
-  if (theme === 'vint') {
+  // CARBON — a pen-plotter line chart on ruled paper
+  if (theme === 'carbon') {
     const points = values
       .map((v, i) => `${(i / (values.length - 1)) * 100},${60 - clamp01(v) * 52}`)
       .join(' ')
@@ -1328,7 +1328,7 @@ function BarsTwin({ theme = 'inst', values }: { theme?: string; values: number[]
 function WaveTwin({ theme = 'inst', values }: { theme?: string; values: number[] }) {
   // NEON / VINTAGE — a real oscilloscope trace (continuous path), phosphor
   // glow vs pen-on-paper
-  if (theme === 'neon' || theme === 'vint') {
+  if (theme === 'neon' || theme === 'carbon') {
     const path = values
       .map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i / (values.length - 1)) * 100} ${30 - v * 24}`)
       .join(' ')
@@ -1353,8 +1353,8 @@ function WaveTwin({ theme = 'inst', values }: { theme?: string; values: number[]
 }
 
 function ProgressTwin({ theme = 'inst', value }: { theme?: string; value: number }) {
-  // PLASTIC — the XP block bar: discrete green chunks marching across
-  if (theme === 'plast') {
+  // GLASS — the XP block bar: discrete green chunks marching across
+  if (theme === 'glass') {
     const CELLS = 10
     return (
       <div className={styles.xpProgress}>
@@ -1365,8 +1365,8 @@ function ProgressTwin({ theme = 'inst', value }: { theme?: string; value: number
     )
   }
 
-  // VINTAGE — a rotating tape-reel with a percent counter card
-  if (theme === 'vint') {
+  // CARBON — a rotating tape-reel with a percent counter card
+  if (theme === 'carbon') {
     return (
       <div className={styles.reelProgress}>
         <i style={{ transform: `rotate(${value * 720}deg)` }}>
@@ -1414,8 +1414,8 @@ function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: numbe
     )
   }
 
-  // VINTAGE — a jewel pilot lamp that breathes with the level
-  if (theme === 'vint') {
+  // CARBON — a jewel pilot lamp that breathes with the level
+  if (theme === 'carbon') {
     return (
       <div className={styles.pilotLamp}>
         <i style={{ opacity: 0.35 + clamp01(level) * 0.65 }} />
@@ -1433,8 +1433,8 @@ function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: numbe
     )
   }
 
-  // PLASTIC — a glossy bubble that inflates with the level
-  if (theme === 'plast') {
+  // GLASS — a glossy bubble that inflates with the level
+  if (theme === 'glass') {
     return (
       <div className={styles.bubbleOrb}>
         <i style={{ transform: `scale(${0.7 + clamp01(level) * 0.45})` }} />
@@ -1491,8 +1491,8 @@ function MacroPadTwin({
     )
   }
 
-  // VINTAGE — a chart recorder: ruled paper disc, two pen arms crossing
-  if (theme === 'vint') {
+  // CARBON — a chart recorder: ruled paper disc, two pen arms crossing
+  if (theme === 'carbon') {
     return (
       <div className={`${styles.macroPad} ${styles.mpChart}`} style={{ width: SIZE, height: SIZE }} {...h}>
         <i style={{ top: `calc(${(1 - value.y) * 100}% - 1px)` }} aria-hidden="true" />
@@ -1520,8 +1520,8 @@ function MacroPadTwin({
     )
   }
 
-  // PLASTIC — a glossy trackpad bubble with a dome cursor
-  if (theme === 'plast') {
+  // GLASS — a glossy trackpad bubble with a dome cursor
+  if (theme === 'glass') {
     return (
       <div className={`${styles.macroPad} ${styles.mpBubble}`} style={{ width: SIZE, height: SIZE }} {...h}>
         <b style={{ left: `calc(${value.x * 100}% - 11px)`, top: `calc(${(1 - value.y) * 100}% - 11px)` }} />
@@ -1577,8 +1577,8 @@ function TooltipTwin({ theme = 'inst' }: { theme?: string }) {
     inst: 'Resets to 0 dB',
     metal: 'CAL: −6 dB PAD',
     std: 'Resets to default',
-    plast: 'Double-click me!',
-    vint: 'SEE MANUAL P.12',
+    glass: 'Hold Shift for fine',
+    carbon: 'LAUNCH CONTROL',
     neon: 'reset://0.0dB',
   }
 
@@ -1630,13 +1630,13 @@ function GenericEditorTwin({
     )
   }
 
-  // VINTAGE — a cream radio panel with chicken-head knobs
-  if (theme === 'vint') {
+  // CARBON — a cream radio panel with chicken-head knobs
+  if (theme === 'carbon') {
     return (
       <div className={styles.gePanel}>
         {params.map(([name, value, set]) => (
           <div key={name} className={styles.geCell}>
-            <KnobTwin theme="vint" value={value} onChange={set} size={40} />
+            <KnobTwin theme="carbon" value={value} onChange={set} size={40} />
             <span>{name}</span>
           </div>
         ))}
@@ -1658,13 +1658,13 @@ function GenericEditorTwin({
     )
   }
 
-  // PLASTIC — chunky beveled tray of dome knobs
-  if (theme === 'plast') {
+  // GLASS — chunky beveled tray of dome knobs
+  if (theme === 'glass') {
     return (
       <div className={styles.geTray}>
         {params.map(([name, value, set]) => (
           <div key={name} className={styles.geCell}>
-            <KnobTwin theme="plast" value={value} onChange={set} size={42} />
+            <KnobTwin theme="glass" value={value} onChange={set} size={42} />
             <span>{name}</span>
           </div>
         ))}
@@ -1819,7 +1819,7 @@ export default function ComponentsPage() {
         </h1>
         <p>
           Each strip below is <strong>one component</strong> with one shared value — drag any
-          skin and they all move. Instrument, metal, standard, plastic, vintage, neon: same
+          skin and they all move. Instrument, metal, standard, glass, carbon, neon: same
           API, different props and theme tokens. In your DAW, <code>juce::Graphics</code>{' '}
           paints the same geometry natively.
         </p>
@@ -1842,7 +1842,7 @@ export default function ComponentsPage() {
 
             <Family
               title="MacroPad"
-              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a glossy trackpad, a chart recorder, a starfield — one drag drives them all."
+              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a frosted lightfield, a telemetry grid, a starfield — one drag drives them all."
               imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
               docs="/docs/components#controls"
             >
@@ -1865,7 +1865,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Knob"
-              blurb="Six shapes of the same control: arc dial, machined cap, flat gauge, glossy dome, chicken-head on a scale, LED segment ring — one shared value."
+              blurb="Six shapes of the same control: arc dial, machined billet cap, flat gauge, frosted halo puck, tick-scale racer, LED segment ring — one shared value."
               imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
               docs="/docs/parameters#controls"
             >
@@ -2073,7 +2073,7 @@ export default function ComponentsPage() {
               <AllThemes
                 render={(t) => (
                   <div className={`${styles.spinner} ${styles[`sp_${t}`] ?? ''}`} aria-label="Loading">
-                    {t === 'vint' ? <i /> : null}
+                    {t === 'carbon' ? <i /> : null}
                   </div>
                 )}
               />
@@ -2086,7 +2086,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Tooltip"
-              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, comic balloon, manila tag on a string, terminal readout."
+              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, frosted card, telemetry chip, terminal readout."
               imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
               docs="/docs/components#controls"
             >
@@ -2095,7 +2095,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Modal"
-              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a 2000s titlebar with an ✕, a paper notice, a scanlined terminal."
+              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a frosted glass sheet, a carbon telemetry panel, a scanlined terminal."
               imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
               docs="/docs/components#controls"
             >
@@ -2110,7 +2110,7 @@ export default function ComponentsPage() {
 
             <Family
               title="GenericEditor"
-              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, a beveled tray, a radio panel, a glowing console."
+              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, a frosted deck, a carbon rack, a glowing console."
               imports={`render(<GenericEditor />)   // that's the whole editor`}
               docs="/docs/parameters#generic"
             >
@@ -2177,31 +2177,31 @@ export default function ComponentsPage() {
                 </b>
               </footer>
             </div>
-          ) : modalOpen === 'plast' ? (
-            // PLASTIC — a 2000s OS dialog: gradient titlebar with an ✕ button
-            <div className={`${styles.mBase} ${styles.mPlast}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-              <header>
-                About.exe
-                <button type="button" onClick={() => setModalOpen(null)} aria-label="Close">
-                  ✕
-                </button>
-              </header>
-              <div>
-                <p>Glossy bevels, gradient chrome, and a button that physically clunks.</p>
-                <button type="button" className={styles.xpBtn} onClick={() => setModalOpen(null)}>
-                  OK
-                </button>
-              </div>
-            </div>
-          ) : modalOpen === 'vint' ? (
-            // VINTAGE — a paper service notice with a stamp corner
-            <div className={`${styles.mBase} ${styles.mVint}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-              <s>N9</s>
-              <h4>SERVICE NOTICE</h4>
-              <p>Double-bordered paper card, typewriter set, rubber-stamped corner.</p>
-              <button type="button" className={styles.typeAction} onClick={() => setModalOpen(null)}>
-                OK
+          ) : modalOpen === 'glass' ? (
+            // GLASS — a frosted sheet floating over glowing color
+            <div className={`${styles.mBase} ${styles.mGlass}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <i aria-hidden="true" />
+              <h4>About</h4>
+              <p>A frosted sheet — real backdrop blur, a specular top edge, light bleeding through from behind.</p>
+              <button type="button" onClick={() => setModalOpen(null)}>
+                Close
               </button>
+            </div>
+          ) : modalOpen === 'carbon' ? (
+            // CARBON — a telemetry panel on woven carbon
+            <div className={`${styles.mBase} ${styles.mCarbon}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <header>
+                <i />
+                SYSTEM / ABOUT
+              </header>
+              <p>Woven carbon panel, volt accents, telemetry footer.</p>
+              <footer>
+                <span>TEMP 42°</span>
+                <span>LOAD 07%</span>
+                <button type="button" onClick={() => setModalOpen(null)}>
+                  DISMISS
+                </button>
+              </footer>
             </div>
           ) : modalOpen === 'neon' ? (
             // NEON — a scanlined terminal window with a prompt

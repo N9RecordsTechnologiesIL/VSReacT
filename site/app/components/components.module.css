@@ -5850,3 +5850,1187 @@
 .xyStd b {
   box-shadow: 0 1px 3px rgba(28, 31, 38, 0.35), inset 0 1px 0 #fff;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   WORLDS V2 (final override layer)
+   METAL → photoreal: SVG-noise grain, many-stop turned-metal conics,
+           layered speculars + contact shadows.
+   GLASS  → frosted glassmorphism over glowing color (replaces PLASTIC;
+            reuses its structural classes).
+   CARBON → woven carbon-fiber racing gear, volt accents (replaces
+            VINTAGE; reuses its structural classes).
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── METAL: the real thing ─────────────────────────────────────────── */
+
+.t_metal {
+  --acc: #ffa028;
+  --accText: #241503;
+  --hot: #ff4a1f;
+  --trk: #101216;
+  --box: #23262b;
+  --tx: #e8eaee;
+  --sub: #969ba3;
+  --lineEdge: #08090b;
+  --glow: rgba(255, 160, 40, 0.35);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='90'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='420' height='90' filter='url(%23b)'/%3E%3C/svg%3E"),
+    radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.13), transparent 55%),
+    linear-gradient(180deg, #33373d, #22252a 55%, #1a1d21);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.7),
+    inset 0 0 40px rgba(0, 0, 0, 0.35);
+}
+
+/* spun-aluminum knob ring: 15-stop conic + grain + top light */
+.knobMetal {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.55), transparent 40%),
+    conic-gradient(from 118deg, #6e737b, #cfd3d9 5%, #7c8189 11%, #e9ebef 18%, #767b83 26%, #c3c7cd 33%, #676c74 41%, #dfe2e6 49%, #71767e 57%, #cdd1d7 64%, #7a7f87 71%, #eef0f3 79%, #6b7078 86%, #d5d8dd 93%, #6e737b);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.75),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.55),
+    0 1px 1px rgba(0, 0, 0, 0.9),
+    0 4px 6px rgba(0, 0, 0, 0.55),
+    0 12px 20px rgba(0, 0, 0, 0.45);
+}
+
+.knobMetal i {
+  inset: 17%;
+  background:
+    conic-gradient(from 200deg, rgba(255, 255, 255, 0.07), transparent 22%, rgba(255, 255, 255, 0.05) 47%, transparent 71%, rgba(255, 255, 255, 0.07)),
+    radial-gradient(circle at 50% 118%, #2e3138, #0d0e11 58%);
+  border: 1px solid #030404;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    inset 0 -4px 7px rgba(0, 0, 0, 0.75),
+    0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.knobMetal i::after {
+  content: '';
+  position: absolute;
+  left: 16%;
+  top: 7%;
+  width: 52%;
+  height: 26%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  transform: rotate(-8deg);
+  filter: blur(1px);
+}
+
+.knobMetal u::after {
+  top: 7%;
+  width: 3px;
+  height: 26%;
+  background: linear-gradient(180deg, #ffe2b0, var(--acc) 70%);
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.7), 0 0 1px rgba(0, 0, 0, 0.8);
+}
+
+/* billet hardware knob */
+.hw_metal s {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.6), transparent 42%),
+    conic-gradient(from 130deg, #787d85, #d9dce1 6%, #83888f 13%, #eff1f4 21%, #7d828a 30%, #ccd0d5 38%, #6f747c 47%, #e6e8ec 56%, #7a7f87 64%, #d2d5da 72%, #82878e 80%, #f2f3f6 89%, #787d85);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5),
+    0 1px 1px rgba(0, 0, 0, 0.9),
+    0 5px 8px rgba(0, 0, 0, 0.55),
+    0 14px 22px rgba(0, 0, 0, 0.45);
+}
+
+.hw_metal i {
+  inset: 20%;
+  background:
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.15), transparent 48%),
+    radial-gradient(circle at 50% 120%, #24262c, #0b0c0f 60%);
+  border: 1px solid #030404;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* console fader: brushed slot rails + capped handle */
+.fadeMetal::before {
+  background:
+    linear-gradient(180deg, #030405, #101216 45%, #1d2025);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.fadeMetal b {
+  background:
+    radial-gradient(130% 60% at 50% 12%, rgba(255, 255, 255, 0.3), transparent 45%),
+    linear-gradient(180deg, #3a3e45, #16181c 55%, #23262b);
+  border: 1px solid #030404;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 2px rgba(0, 0, 0, 0.8),
+    0 6px 9px rgba(0, 0, 0, 0.55),
+    0 12px 16px rgba(0, 0, 0, 0.35);
+}
+
+.fadeMetal b::after {
+  background: linear-gradient(180deg, #ffffff, #b9bdc3);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.8), 0 0 3px rgba(255, 255, 255, 0.35);
+}
+
+/* chrome bat toggle: banded lever */
+.batToggle i {
+  background: linear-gradient(90deg, #f6f7f9 8%, #b3b7bd 30%, #767b83 50%, #c9ccd2 72%, #8d929a 92%);
+  border-color: #26282c;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.75), inset 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.batToggle i b {
+  background: radial-gradient(circle at 30% 24%, #ffffff, #cfd3d9 38%, #7c8189 78%, #5a5e66);
+  border-color: #26282c;
+}
+
+/* ── GLASS: frosted over glowing color ─────────────────────────────── */
+
+.t_glass {
+  --acc: #b79cff;
+  --accText: #17102e;
+  --hot: #ff7ad9;
+  --trk: rgba(255, 255, 255, 0.14);
+  --box: rgba(255, 255, 255, 0.09);
+  --tx: #f6f3ff;
+  --sub: rgba(238, 232, 255, 0.6);
+  --lineEdge: rgba(255, 255, 255, 0.3);
+  --glow: rgba(183, 156, 255, 0.55);
+  background:
+    radial-gradient(60% 50% at 18% 16%, rgba(124, 92, 255, 0.55), transparent 70%),
+    radial-gradient(55% 45% at 84% 28%, rgba(255, 122, 217, 0.4), transparent 70%),
+    radial-gradient(70% 60% at 55% 96%, rgba(64, 140, 255, 0.35), transparent 70%),
+    linear-gradient(180deg, #17142b, #100e20);
+}
+
+.t_glass .tileLabel {
+  color: rgba(238, 232, 255, 0.55);
+}
+
+/* halo puck knob (ex knobPlast structure) */
+.knobPlast s {
+  inset: -4%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 24px rgba(183, 156, 255, 0.35), inset 0 0 18px rgba(183, 156, 255, 0.14);
+}
+
+.knobPlast i {
+  inset: 12%;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 55%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 22px rgba(8, 5, 24, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.knobPlast i::before {
+  left: 14%;
+  right: 42%;
+  top: 9%;
+  height: 26%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+}
+
+.knobPlast u::after {
+  border: none;
+  width: 3px;
+  height: 30%;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ffffff, var(--acc));
+  box-shadow: 0 0 10px var(--glow);
+  filter: none;
+}
+
+.hw_glass i {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05) 60%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 10px 22px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hw_glass svg {
+  display: none;
+}
+
+.hw_glass u::after {
+  background: linear-gradient(180deg, #fff, var(--acc));
+  box-shadow: 0 0 10px var(--glow);
+}
+
+/* luminous rail slider (ex fadePlast) */
+.fadePlast {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 2px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.fadePlastFill {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(183, 156, 255, 0.5), #b79cff);
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.fadePlastV .fadePlastFill {
+  background: linear-gradient(0deg, rgba(183, 156, 255, 0.5), #b79cff);
+}
+
+.fadePlast b {
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  width: 20px;
+  top: -3px;
+  bottom: -3px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.3));
+  box-shadow: 0 2px 8px rgba(8, 5, 24, 0.6), 0 0 12px rgba(255, 255, 255, 0.25);
+}
+
+.fadePlastV b {
+  left: -3px;
+  right: -3px;
+  width: auto;
+  height: 20px;
+}
+
+/* glass crossfader (ex xfPlast) */
+.xfPlast {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.xfPlast span {
+  color: rgba(238, 232, 255, 0.7);
+  font-weight: 700;
+}
+
+.xfPlastA {
+  background: linear-gradient(90deg, rgba(183, 156, 255, 0.15), rgba(183, 156, 255, 0.45));
+  opacity: 1;
+}
+
+.xfPlast b {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.25));
+  box-shadow: 0 2px 8px rgba(8, 5, 24, 0.55);
+}
+
+/* glass rocker (ex rocker) */
+.rocker {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 2px rgba(8, 5, 24, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+.rocker b {
+  border: none;
+  background: transparent;
+  color: rgba(238, 232, 255, 0.55);
+  box-shadow: none;
+}
+
+.rockerDown {
+  background: linear-gradient(180deg, rgba(183, 156, 255, 0.65), rgba(183, 156, 255, 0.35)) !important;
+  color: #17102e !important;
+  box-shadow: 0 0 16px var(--glow) !important;
+}
+
+/* frosted readout chip (ex lcdBox) */
+.lcdBox {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  text-shadow: 0 0 12px var(--glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 8px 18px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lcdBox span {
+  color: rgba(238, 232, 255, 0.6);
+}
+
+/* frosted buttons (ex xpBtn) */
+.xpBtn {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.1));
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 16px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.xpBtn:active {
+  background: linear-gradient(160deg, rgba(183, 156, 255, 0.4), rgba(183, 156, 255, 0.2));
+  box-shadow: inset 0 2px 6px rgba(8, 5, 24, 0.5);
+  transform: translateY(1px);
+}
+
+.xpBtnGrey {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(238, 232, 255, 0.75);
+  text-shadow: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 16px rgba(8, 5, 24, 0.45);
+}
+
+/* frosted progress chunks + meter cells */
+.xpProgress {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px rgba(8, 5, 24, 0.5);
+}
+
+.xpProgress i {
+  border-radius: 999px;
+}
+
+.xpProgress .xpChunk {
+  background: linear-gradient(180deg, #d9c9ff, #b79cff);
+  border: none;
+  box-shadow: 0 0 10px var(--glow);
+}
+
+.blockMeter {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px rgba(8, 5, 24, 0.5);
+}
+
+.blockMeter i {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+.blockMeter .blockLit {
+  background: linear-gradient(180deg, #ffffff, #b79cff);
+  border: none;
+  box-shadow: 0 0 12px var(--glow);
+}
+
+/* glass orb / pad / xy */
+.bubbleOrb i {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 60%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 26px var(--glow), 0 12px 24px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.bubbleOrb i::before {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.xyPlast {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 22px rgba(8, 5, 24, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.xyPlast::before {
+  display: none;
+}
+
+.xyPlast b {
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.35));
+  box-shadow: 0 0 16px var(--glow), 0 3px 8px rgba(8, 5, 24, 0.5);
+}
+
+.mpBubble {
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background:
+    radial-gradient(70% 60% at 30% 22%, rgba(183, 156, 255, 0.3), transparent 65%),
+    radial-gradient(60% 55% at 74% 80%, rgba(255, 122, 217, 0.22), transparent 65%),
+    rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 0 40px rgba(183, 156, 255, 0.12), 0 14px 30px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mpBubble::before {
+  display: none;
+}
+
+.mpBubble b {
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.35));
+  box-shadow: 0 0 18px var(--glow);
+}
+
+.in_glass {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  color: #fff;
+  caret-color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.sel_glass .select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 999px;
+  color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.sel_glass .selectMenu {
+  background: rgba(30, 24, 58, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 34px rgba(8, 5, 24, 0.6);
+}
+
+.sp_glass {
+  border-color: rgba(255, 255, 255, 0.15);
+  border-top-color: #ffffff;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
+}
+
+.tip_glass {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(238, 232, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tip_glass .tip {
+  background: rgba(30, 24, 58, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  color: #fff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(8, 5, 24, 0.55);
+}
+
+.geTray {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 14px 30px rgba(8, 5, 24, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.geTray .geCell span {
+  color: rgba(238, 232, 255, 0.65);
+}
+
+.mGlass {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background:
+    radial-gradient(80% 60% at 20% 0%, rgba(124, 92, 255, 0.3), transparent 60%),
+    radial-gradient(70% 50% at 90% 100%, rgba(255, 122, 217, 0.22), transparent 60%),
+    rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 30px 80px rgba(0, 0, 0, 0.55);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  color: #fff;
+}
+
+.mGlass i {
+  position: absolute;
+  left: 10%;
+  right: 40%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+}
+
+.mGlass h4 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mGlass p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(238, 232, 255, 0.75);
+}
+
+.mGlass button {
+  align-self: flex-end;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.12));
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mGlass button:active {
+  transform: translateY(1px);
+}
+
+/* ── CARBON: woven fiber + volt ────────────────────────────────────── */
+
+.t_carbon {
+  --acc: #d6f224;
+  --accText: #151a02;
+  --hot: #ff3d2e;
+  --trk: #191b1c;
+  --box: #0e1010;
+  --tx: #edf2e4;
+  --sub: #83887b;
+  --lineEdge: #000000;
+  --glow: rgba(214, 242, 36, 0.4);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.07), transparent 55%),
+    linear-gradient(27deg, #131516 5px, transparent 5px) 0 5px,
+    linear-gradient(207deg, #131516 5px, transparent 5px) 10px 0,
+    linear-gradient(27deg, #1d2021 5px, transparent 5px) 0 10px,
+    linear-gradient(207deg, #1d2021 5px, transparent 5px) 10px 5px,
+    linear-gradient(90deg, #0c0d0e 10px, transparent 10px),
+    linear-gradient(#101112 25%, #0c0d0e 25%, #0c0d0e 50%, transparent 50%, transparent 75%, #080909 75%, #080909);
+  background-color: #101112;
+  background-size: auto, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 34px rgba(0, 0, 0, 0.6);
+}
+
+.t_carbon .tileLabel {
+  color: #83887b;
+}
+
+/* tick-scale racer knob (ex knobVint structure) */
+.knobVint svg line {
+  stroke: #3a3f34;
+  stroke-width: 2.4;
+}
+
+.knobVint i {
+  background:
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.1), transparent 46%),
+    radial-gradient(circle at 50% 115%, #23262a, #0a0b0c 60%);
+  border: 1px solid #000;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.knobVint i::after {
+  clip-path: none;
+  left: 50%;
+  top: 6%;
+  width: 4px;
+  height: 30%;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #f0ffb0, var(--acc));
+  box-shadow: 0 0 8px var(--glow);
+}
+
+.knobVint i::before {
+  display: none;
+}
+
+.hw_carbon i {
+  background:
+    linear-gradient(27deg, #141617 3px, transparent 3px) 0 3px,
+    linear-gradient(207deg, #141617 3px, transparent 3px) 6px 0,
+    linear-gradient(27deg, #1e2122 3px, transparent 3px) 0 6px,
+    linear-gradient(207deg, #1e2122 3px, transparent 3px) 6px 3px,
+    linear-gradient(90deg, #0d0e0f 6px, transparent 6px),
+    linear-gradient(#111213 25%, #0d0e0f 25%, #0d0e0f 50%, transparent 50%, transparent 75%, #090a0a 75%, #090a0a);
+  background-color: #111213;
+  background-size: 12px 12px;
+  border: 1px solid #000;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.hw_carbon u::after {
+  background: var(--acc);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+.hw_carbon .hwTicks {
+  stroke: #3a3f34;
+}
+
+/* carbon fader: slot + volt ticks + machined cap (ex fadeVint) */
+.fadeVint {
+  background: repeating-linear-gradient(90deg, #3a3f34 0 2px, transparent 2px 14px);
+  background-size: 100% 7px;
+  background-repeat: no-repeat;
+}
+
+.fadeVint i {
+  background: #050606;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.fadeVint b {
+  background:
+    radial-gradient(130% 60% at 50% 12%, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(180deg, #2c2f33, #121415 55%, #1c1f21);
+  border: 1px solid #000;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.fadeVint b u {
+  background: var(--acc);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.fadeVintV {
+  background: repeating-linear-gradient(0deg, #3a3f34 0 2px, transparent 2px 14px);
+  background-size: 7px 100%;
+  background-repeat: no-repeat;
+}
+
+/* carbon crossfader (ex xfVint) */
+.xfVint {
+  background: #0e1010;
+  border-color: #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.xfVint span {
+  color: #83887b;
+  font-weight: 700;
+}
+
+.xfVint u {
+  background: repeating-linear-gradient(90deg, #3a3f34 0 1.5px, transparent 1.5px 10px);
+}
+
+.xfVint b {
+  background:
+    radial-gradient(130% 60% at 50% 12%, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(180deg, #2c2f33, #121415 55%, #1c1f21);
+  border: 1px solid #000;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* carbon slide switch (ex plateToggle) */
+.plateToggle {
+  background: #0e1010;
+  border: 1px solid #000;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.plateToggle::before {
+  background: #050606;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95);
+}
+
+.plateToggle i {
+  background:
+    radial-gradient(130% 60% at 50% 12%, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(180deg, #2c2f33, #121415 55%, #1c1f21);
+  border-color: #000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.plateToggle span {
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+}
+
+.screwTL,
+.screwBR {
+  background: radial-gradient(circle at 35% 30%, #4a4e55, #17191c 75%);
+  border-color: #000;
+}
+
+.screwTL::after,
+.screwBR::after {
+  background: #55595f;
+}
+
+/* carbon status LEDs (ex jewelRow) */
+.jewelRow {
+  color: #b9bfae;
+}
+
+.jewelRow i {
+  width: 13px;
+  height: 13px;
+  background: #131514;
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.jewelRow .jewelLit {
+  background: radial-gradient(circle at 45% 35%, #f4ffc0, var(--acc) 65%);
+  box-shadow: 0 0 12px var(--glow);
+}
+
+/* carbon keycaps (ex pianoKey / typeKeys) */
+.pianoKey {
+  background: linear-gradient(180deg, #26292c, #141617);
+  border: 1px solid #000;
+  border-bottom-width: 5px;
+  color: #83887b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+}
+
+.pianoDown {
+  background: linear-gradient(180deg, #171a10, #10130a);
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.typeKeys button {
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(180deg, #26292c, #141617);
+  border: 1px solid #000;
+  box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #83887b;
+}
+
+.typeKeys .typeKeyDown {
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+  box-shadow: 0 1px 0 #000, inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* carbon mode dial (ex progWheel) */
+.progWheel i {
+  background:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.05) 0deg 6deg, transparent 6deg 24deg),
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.1), transparent 46%),
+    radial-gradient(circle at 50% 115%, #23262a, #0a0b0c 60%);
+  border: 1px solid #000;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+}
+
+.progWheel b {
+  background: #0d0f02;
+  border: 1px solid #000;
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+}
+
+.progWheel span {
+  color: #83887b;
+}
+
+/* carbon buttons (ex typeAction) */
+.btnRowGap .typeAction {
+  border-radius: 10px;
+  background: linear-gradient(180deg, #26292c, #141617);
+  border: 1px solid #000;
+  box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #b9bfae;
+}
+
+.btnRowGap .typeAction:active {
+  box-shadow: 0 1px 0 #000, inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.btnRowGap .typeActionAlt {
+  background: linear-gradient(180deg, #1c2205, #10130a);
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+}
+
+/* carbon odometer (ex flipCounter) */
+.flipCounter b {
+  background: linear-gradient(180deg, #16181a 48%, #0a0b0c 52%);
+  border: 1px solid #000;
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+}
+
+.flipCounter span {
+  color: #83887b;
+}
+
+/* carbon boost gauge (ex vu) */
+.vu {
+  background:
+    radial-gradient(120% 100% at 50% 0%, #16181a, #0c0d0e 75%);
+  border: 2px solid #000;
+  border-radius: 10px;
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.vuArc {
+  stroke: #3a3f34;
+}
+
+.vuArcHot {
+  stroke: var(--hot);
+}
+
+.vu svg line {
+  stroke: #6f7566;
+}
+
+.vu i {
+  background: var(--acc);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.vu i::after {
+  background: #1c1f21;
+  border: 1px solid #000;
+}
+
+.vu span {
+  color: #83887b;
+  letter-spacing: 0.34em;
+}
+
+/* carbon telemetry chart + scope (ex plotter / scopeVint) */
+.plotter,
+.scopeVint {
+  background:
+    repeating-linear-gradient(0deg, rgba(214, 242, 36, 0.07) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(214, 242, 36, 0.07) 0 1px, transparent 1px 10px),
+    #0a0b0c;
+  border: 1px solid #000;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.7);
+}
+
+.plotter polyline {
+  stroke: var(--acc);
+  filter: drop-shadow(0 0 3px var(--glow));
+}
+
+.scopeVint path {
+  stroke: var(--acc);
+  filter: drop-shadow(0 0 3px var(--glow));
+}
+
+/* carbon turbine progress (ex reelProgress) */
+.reelProgress i {
+  background: radial-gradient(circle, #0a0b0c 24%, #1c1f21 25% 60%, #0a0b0c 61%);
+  border: 2px solid #000;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.reelProgress i b {
+  background: var(--acc);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.reelProgress span {
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--glow);
+}
+
+/* carbon status lamp (ex pilotLamp) */
+.pilotLamp i {
+  background: radial-gradient(circle at 45% 35%, #f4ffc0, var(--acc) 55%, #4c5a08 90%);
+  border: 3px solid #000;
+  box-shadow: 0 0 22px var(--glow), inset 0 -3px 6px rgba(0, 0, 0, 0.45);
+}
+
+.pilotLamp span {
+  color: #83887b;
+}
+
+/* carbon xy + macro (ex xyVint / mpChart) */
+.xyVint {
+  background:
+    repeating-linear-gradient(0deg, rgba(214, 242, 36, 0.08) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, rgba(214, 242, 36, 0.08) 0 1px, transparent 1px 12px),
+    #0a0b0c;
+  border: 1px solid #000;
+  border-radius: 6px;
+}
+
+.xyVint i,
+.xyVint u {
+  background: var(--acc);
+  box-shadow: 0 0 5px var(--glow);
+  opacity: 1;
+}
+
+.mpChart {
+  background:
+    repeating-radial-gradient(circle, transparent 0 13px, rgba(214, 242, 36, 0.12) 13px 14px),
+    radial-gradient(circle at 50% 45%, #131516, #0a0b0c 75%);
+  border: 3px solid #000;
+  box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.8), 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.mpChart i,
+.mpChart u {
+  background: var(--acc);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.mpChart s {
+  background: var(--acc);
+  box-shadow: 0 0 10px var(--glow);
+}
+
+/* carbon input (ex typedInput) */
+.typedInput label {
+  color: #83887b;
+}
+
+.typedInput input {
+  border-bottom: 2px solid #3a3f34;
+  color: #edf2e4;
+  caret-color: var(--acc);
+}
+
+.in_carbon {
+  background: #0e1010;
+  border: 1px solid #000;
+  color: #edf2e4;
+  caret-color: var(--acc);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.sel_carbon .select {
+  background: #0e1010;
+  border: 1px solid #000;
+  color: var(--acc);
+  text-shadow: 0 0 6px var(--glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.sel_carbon .selectMenu {
+  background: #0e1010;
+  border: 1px solid #000;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+}
+
+.sp_carbon {
+  border: 3.5px solid #1c1f21;
+  border-top-color: var(--acc);
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.sp_carbon i {
+  display: none;
+}
+
+.tip_carbon {
+  border: 1px solid #000;
+  border-radius: 6px;
+  background: #0e1010;
+  color: #83887b;
+}
+
+.tip_carbon .tip {
+  background: #0d0f02;
+  border: 1px solid #000;
+  border-left: 3px solid var(--acc);
+  color: var(--acc);
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 6px var(--glow);
+  transform: translateX(-50%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+.tipAnchor.tip_carbon:hover .tip,
+.tipAnchor.tip_carbon:focus .tip {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* carbon rack (ex gePanel) */
+.gePanel {
+  background:
+    linear-gradient(27deg, #131516 4px, transparent 4px) 0 4px,
+    linear-gradient(207deg, #131516 4px, transparent 4px) 8px 0,
+    linear-gradient(27deg, #1d2021 4px, transparent 4px) 0 8px,
+    linear-gradient(207deg, #1d2021 4px, transparent 4px) 8px 4px,
+    linear-gradient(90deg, #0c0d0e 8px, transparent 8px),
+    linear-gradient(#101112 25%, #0c0d0e 25%, #0c0d0e 50%, transparent 50%, transparent 75%, #080909 75%, #080909);
+  background-color: #101112;
+  background-size: 16px 16px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 5px 10px rgba(0, 0, 0, 0.55);
+}
+
+.gePanel .geCell span {
+  color: #83887b;
+}
+
+/* carbon modal */
+.mCarbon {
+  border-radius: 10px;
+  border: 1px solid #000;
+  background:
+    linear-gradient(27deg, #131516 5px, transparent 5px) 0 5px,
+    linear-gradient(207deg, #131516 5px, transparent 5px) 10px 0,
+    linear-gradient(27deg, #1d2021 5px, transparent 5px) 0 10px,
+    linear-gradient(207deg, #1d2021 5px, transparent 5px) 10px 5px,
+    linear-gradient(90deg, #0c0d0e 10px, transparent 10px),
+    linear-gradient(#101112 25%, #0c0d0e 25%, #0c0d0e 50%, transparent 50%, transparent 75%, #080909 75%, #080909);
+  background-color: #101112;
+  background-size: 20px 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 80px rgba(0, 0, 0, 0.65);
+  padding: 0 0 14px;
+}
+
+.mCarbon header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 16px;
+  font-family: var(--font-jb), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  color: #d6f224;
+  text-shadow: 0 0 8px rgba(214, 242, 36, 0.5);
+  border-bottom: 2px solid #d6f224;
+  margin-bottom: 14px;
+}
+
+.mCarbon header i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d6f224;
+  box-shadow: 0 0 10px rgba(214, 242, 36, 0.7);
+}
+
+.mCarbon p {
+  padding: 0 16px;
+  font-family: var(--font-jb), monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #b9bfae;
+}
+
+.mCarbon footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px 0;
+}
+
+.mCarbon footer span {
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #83887b;
+}
+
+.mCarbon footer button {
+  margin-left: auto;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #d6f224;
+  color: #d6f224;
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(214, 242, 36, 0.5);
+}
+
+.mCarbon footer button:active {
+  background: rgba(214, 242, 36, 0.12);
+}
+
+/* dynamic per-world wells for bars/waves/progress */
+.bars_glass {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bars_glass i {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff, #b79cff);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+.wave_glass {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wave_glass i {
+  border-radius: 999px;
+  background: #d9c9ff;
+}
+
+.prog_glass {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.prog_glass i {
+  background: linear-gradient(90deg, rgba(183, 156, 255, 0.6), #ffffff);
+  box-shadow: 0 0 12px var(--glow);
+  border-radius: 999px;
+}
+
+.bars_carbon,
+.wave_carbon {
+  border: 1px solid #000;
+  background: #0a0b0c;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.7);
+}
+
+.bars_carbon i,
+.wave_carbon i {
+  background: var(--acc);
+}
+
+.prog_carbon {
+  background: #0a0b0c;
+  border: 1px solid #000;
+}
+
+.prog_carbon i {
+  background: var(--acc);
+  box-shadow: 0 0 8px var(--glow);
+}

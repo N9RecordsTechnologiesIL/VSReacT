@@ -13,7 +13,8 @@ export type {
 } from "./primitives";
 export { render, unmount } from "./render";
 export { native } from "./native";
-export { useNativeEvent, useDebounced } from "./hooks";
+export { useNativeEvent, useDebounced, useLayoutRect } from "./hooks";
+export { useOverlay, OverlayLayer } from "./overlay";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
 export { cx } from "./cx";
@@ -28,12 +29,14 @@ export {
   Toggle,
   XYPad,
   Segmented,
+  Select,
   GenericEditor,
   ParamKnob,
   ParamSlider,
   ParamToggle,
   ParamXYPad,
   ParamSegmented,
+  ParamSelect,
   dragToValue,
 } from "./controls";
 export type {
@@ -42,13 +45,15 @@ export type {
   ToggleProps,
   XYPadProps,
   SegmentedProps,
+  SelectProps,
   GenericEditorProps,
   ParamKnobProps,
   ParamSliderProps,
   ParamToggleProps,
   ParamXYPadProps,
   ParamSegmentedProps,
+  ParamSelectProps,
 } from "./controls";
 export { Meter, usePeakHold, peakHoldStep } from "./meter";
 export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
-export type { DragEventPayload } from "./primitives";
+export type { DragEventPayload, LayoutRect } from "./primitives";

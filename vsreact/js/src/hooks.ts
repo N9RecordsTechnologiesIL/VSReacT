@@ -2,6 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { native } from "./native";
+import type { LayoutRect } from "./primitives";
+
+/**
+ * Captures a node's root-space rect from its onLayout prop:
+ *
+ *   const [rect, onLayout] = useLayoutRect();
+ *   <View onLayout={onLayout} />   // rect updates whenever layout moves it
+ */
+export function useLayoutRect(): [LayoutRect | null, (rect: LayoutRect) => void] {
+  const [rect, setRect] = useState<LayoutRect | null>(null);
+  return [rect, setRect];
+}
 
 /**
  * Subscribes to a C++ event (RootView::sendNativeEvent) for the lifetime

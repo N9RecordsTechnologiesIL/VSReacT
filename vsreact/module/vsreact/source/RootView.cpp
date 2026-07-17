@@ -146,7 +146,45 @@ void RootView::relayout()
 
     tree.computeLayout (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
     syncHostedComponents();
+    dispatchLayoutEvents();
     repaint();
+}
+
+void RootView::dispatchLayoutEvents()
+{
+    // Collect first, dispatch after: a layout handler can setState → flush →
+    // tree mutation, which must not happen while we walk the tree.
+    struct PendingLayout { int nodeId; juce::var payload; };
+    std::vector<PendingLayout> pending;
+
+    std::function<void (Node&)> collect = [&] (Node& node)
+    {
+        if (node.listeners.contains ("layout"))
+        {
+            const auto rect = node.frame.translated (0.0f, -node.accumulatedAncestorScroll());
+
+            if (! node.layoutReported || rect != node.reportedLayout)
+            {
+                node.reportedLayout = rect;
+                node.layoutReported = true;
+
+                auto* payload = new juce::DynamicObject();
+                payload->setProperty ("x", rect.getX());
+                payload->setProperty ("y", rect.getY());
+                payload->setProperty ("width", rect.getWidth());
+                payload->setProperty ("height", rect.getHeight());
+                pending.push_back ({ node.id, juce::var (payload) });
+            }
+        }
+
+        for (auto* child : node.children)
+            collect (*child);
+    };
+
+    collect (*tree.root());
+
+    for (auto& event : pending)
+        dispatchNodeEvent (event.nodeId, "layout", event.payload);
 }
 
 void RootView::syncHostedComponents()

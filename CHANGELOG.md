@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.0.5 — 2026-07-17
+
+Layout feedback, overlays, and the dropdown.
+
+### Layout feedback (new native capability)
+
+- **`onLayout`** on every primitive — fires with the node's root-space,
+  scroll-adjusted rect after layout, and only when the rect actually
+  changes. JS finally knows where things landed.
+- **`useLayoutRect()`** — `[rect, onLayout]` sugar.
+
+### Overlays
+
+- **`useOverlay()` + `<OverlayLayer/>`** — a top-most layer for menus,
+  tooltips, and modals. `render()` mounts it automatically after your
+  app, so overlay content paints above everything and receives input
+  first. `show(node)` / `hide()`, auto-cleanup on unmount.
+
+### Select
+
+- **`<Select>` / `<ParamSelect>`** — the dropdown, built from onLayout +
+  the overlay layer: menu positioned under the trigger, matches its
+  width, scrolls past `maxMenuHeight`, click-away closes, hover states,
+  active option highlighted. `ParamSelect` maps choice-style parameters
+  exactly like `ParamSegmented`.
+
+### Docs
+
+- Search moved to the right side of the top bar; focus handling fixed
+  (input auto-focuses, clicking results can't strand the keyboard,
+  arrows/Enter work globally while open, Esc/click-away close, focus
+  returns to the trigger, page scroll locks) and the modal got an
+  entrance animation.
+
 ## 0.0.4 — 2026-07-17
 
 The one-line editor, meters, and utilities.

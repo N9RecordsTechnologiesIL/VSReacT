@@ -172,6 +172,17 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;Select&gt;</code>
+            </td>
+            <td>Long choice lists</td>
+            <td>
+              A dropdown — the menu renders in the overlay layer, positioned under the
+              trigger via <code>onLayout</code>, scrolls past <code>maxMenuHeight</code>,
+              click-away closes.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Meter&gt;</code>
             </td>
             <td>Levels</td>

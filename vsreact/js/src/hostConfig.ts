@@ -31,6 +31,7 @@ const eventPropNames: Record<string, string> = {
   onDragStart: "dragstart",
   onDrag: "drag",
   onDragEnd: "dragend",
+  onLayout: "layout",
   onChange: "change",
   onSubmit: "submit",
   onFocus: "focus",

@@ -7,12 +7,13 @@ let paramGetResult: any = { value: 0.5, text: "0.0 dB", name: "Gain", label: "dB
 (globalThis as Record<string, any>).__vsreact_flush = (json: string) => {
   batches.push(JSON.parse(json));
 };
-(globalThis as Record<string, any>).__vsreact_nativeCall = (name: string, argsJson: string) => {
+const defaultNativeCall = (name: string, argsJson: string) => {
   const args = JSON.parse(argsJson);
   nativeCalls.push({ name, args });
   if (name === "param:get") return JSON.stringify(paramGetResult);
   return "null";
 };
+(globalThis as Record<string, any>).__vsreact_nativeCall = defaultNativeCall;
 
 import { render, unmount, Slider, Toggle, XYPad, Segmented, ParamSegmented, ParamToggle } from "./index";
 
@@ -33,6 +34,7 @@ beforeEach(() => {
   batches.length = 0;
   nativeCalls.length = 0;
   paramGetResult = { value: 0.5, text: "0.0 dB", name: "Gain", label: "dB" };
+  (globalThis as Record<string, any>).__vsreact_nativeCall = defaultNativeCall;
 });
 
 describe("vertical Slider", () => {
@@ -189,5 +191,114 @@ describe("Meter", () => {
     expect(fill).toBeDefined();
     const hot = opsNamed("setProps").find((op: any) => op[2]?.style?.bottom === 85);
     expect(hot).toBeUndefined();
+  });
+});
+
+describe("onLayout + Select", () => {
+  /** Map child → parent from appendChild ops, to find a row by its text. */
+  const parentMap = () => {
+    const map = new Map<number, number>();
+    for (const op of allOps() as any[])
+      if (op[0] === "appendChild" || op[0] === "insertBefore") map.set(op[2], op[1]);
+    return map;
+  };
+
+  test("onLayout registers a layout listener and receives the rect", () => {
+    const seen: any[] = [];
+    render(<Slider value={0.5} onChange={() => {}} />); // warm-up unrelated tree
+    unmount();
+    batches.length = 0;
+
+    const { View: V } = require("./index");
+    render(<V onLayout={(r: any) => seen.push(r)} className="w-4" />);
+
+    const props: any = opsNamed("setProps").find((op: any) =>
+      op[2]?.listeners?.includes("layout"),
+    );
+    expect(props).toBeDefined();
+
+    dispatch({
+      kind: "event",
+      nodeId: props[1],
+      type: "layout",
+      payload: { x: 5, y: 10, width: 160, height: 32 },
+    });
+    expect(seen).toEqual([{ x: 5, y: 10, width: 160, height: 32 }]);
+  });
+
+  test("Select opens a positioned overlay menu and selects on click", async () => {
+    const { Select } = require("./index");
+    const seen: number[] = [];
+    render(
+      <Select options={["SINE", "SAW", "SQR"]} index={0} width={160} onChange={(i: number) => seen.push(i)} />,
+    );
+    await new Promise((r) => setTimeout(r, 0)); // let effects flush
+
+    // trigger has both layout + click listeners
+    const trigger: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.listeners?.includes("layout") && op[2]?.listeners?.includes("click"),
+    );
+    expect(trigger).toBeDefined();
+
+    // layout arrives, then the click opens the menu
+    dispatch({
+      kind: "event",
+      nodeId: trigger[1],
+      type: "layout",
+      payload: { x: 20, y: 40, width: 160, height: 33 },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    dispatch({ kind: "event", nodeId: trigger[1], type: "click" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    // menu panel positioned under the trigger, same width
+    const panel: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.top === 40 + 33 + 4 && op[2]?.style?.left === 20,
+    );
+    expect(panel).toBeDefined();
+    expect(panel[2].style.width).toBe(160);
+
+    // find the "SAW" row: rawtext -> Text -> row
+    const sawText: any = allOps().find((op: any) => op[0] === "setText" && op[2] === "SAW");
+    expect(sawText).toBeDefined();
+    const parents = parentMap();
+    const rowId = parents.get(parents.get(sawText[1])!)!;
+
+    dispatch({ kind: "event", nodeId: rowId, type: "click" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(seen).toEqual([1]);
+    // menu removed after selection
+    expect(allOps().some((op: any) => op[0] === "removeChild")).toBe(true);
+  });
+
+  test("ParamSelect writes a begin/set/end gesture with the index mapping", async () => {
+    paramGetResult = { value: 0, text: "Sine", name: "Shape", label: "" };
+    const { ParamSelect } = require("./index");
+    render(<ParamSelect paramId="shape" options={["SINE", "SAW", "SQR"]} />);
+    await new Promise((r) => setTimeout(r, 0));
+
+    const trigger: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.listeners?.includes("layout") && op[2]?.listeners?.includes("click"),
+    );
+    dispatch({
+      kind: "event",
+      nodeId: trigger[1],
+      type: "layout",
+      payload: { x: 0, y: 0, width: 160, height: 33 },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    dispatch({ kind: "event", nodeId: trigger[1], type: "click" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    const sqrText: any = allOps().find((op: any) => op[0] === "setText" && op[2] === "SQR");
+    const parents = parentMap();
+    const rowId = parents.get(parents.get(sqrText[1])!)!;
+    dispatch({ kind: "event", nodeId: rowId, type: "click" });
+
+    const set = nativeCalls.find((c) => c.name === "param:set");
+    expect(set?.args).toEqual({ id: "shape", value: 1 });
+    expect(nativeCalls.some((c) => c.name === "param:begin")).toBe(true);
+    expect(nativeCalls.some((c) => c.name === "param:end")).toBe(true);
   });
 });

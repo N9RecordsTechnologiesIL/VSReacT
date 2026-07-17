@@ -35,8 +35,8 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
         <a className={styles.ver} href={`${REPO}/releases`}>
           v{VERSION}
         </a>
-        <Search />
         <nav className={styles.headNav}>
+          <Search />
           <Link className={styles.headLink} href="/">
             HOME
           </Link>

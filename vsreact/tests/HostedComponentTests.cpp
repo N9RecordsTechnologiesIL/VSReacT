@@ -107,6 +107,50 @@ public:
 
             expectEquals (root.getNumChildComponents(), childrenBefore - 1);
         }
+
+        beginTest ("layout events fire once per rect change for layout listeners");
+        {
+            juce::Array<juce::var> layouts;
+
+            vsreact::RootOptions options;
+            options.onNativeCall = [&layouts] (const juce::String& name, const juce::var& args) -> juce::var
+            {
+                if (name == "test:layout")
+                    layouts.add (args);
+                return {};
+            };
+            options.bundleSource = R"js(
+                globalThis.__vsreact_dispatch = function (json) {
+                    var msg = JSON.parse(json);
+                    if (msg.kind === "event" && msg.type === "layout")
+                        __vsreact_nativeCall("test:layout", JSON.stringify(msg.payload));
+                };
+                __vsreact_flush(JSON.stringify([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%", "padding": 10}}],
+                    ["appendChild", 0, 1],
+                    ["create", 2, "view"],
+                    ["setProps", 2, {"style": {"flex": 1}, "listeners": ["layout"]}],
+                    ["appendChild", 1, 2]
+                ]));
+            )js";
+
+            vsreact::RootView root (std::move (options), {});
+            root.setSize (200, 100);
+
+            expectEquals (layouts.size(), 1);
+            expectEquals (static_cast<double> (layouts[0]["x"]), 10.0);
+            expectEquals (static_cast<double> (layouts[0]["y"]), 10.0);
+            expectEquals (static_cast<double> (layouts[0]["width"]), 180.0);
+            expectEquals (static_cast<double> (layouts[0]["height"]), 80.0);
+
+            root.resized(); // relayout with an unchanged rect — no new event
+            expectEquals (layouts.size(), 1);
+
+            root.setSize (300, 100); // rect changed — exactly one new event
+            expectEquals (layouts.size(), 2);
+            expectEquals (static_cast<double> (layouts[1]["width"]), 280.0);
+        }
     }
 };
 

@@ -2,10 +2,12 @@
 // switches — drawn by the VSReacT painter and driven by drag gestures.
 // Each has a Param* variant bound to an APVTS parameter.
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
 import { useParameter, useParameterList } from "./parameters";
 import { useSpring } from "./animation";
+import { useLayoutRect } from "./hooks";
+import { useOverlay } from "./overlay";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -562,5 +564,153 @@ export function GenericEditor({ columns = 4, size = 72, trackColor, valueColor }
         </View>
       ))}
     </View>
+  );
+}
+
+// ── Select ─────────────────────────────────────────────────────────────
+
+export interface SelectProps {
+  options: string[];
+  index: number;
+  /** Trigger width; the menu matches it. Default 160. */
+  width?: number;
+  label?: string;
+  disabled?: boolean;
+  trackColor?: string;
+  menuColor?: string;
+  activeColor?: string;
+  textColor?: string;
+  activeTextColor?: string;
+  /** Menu scrolls beyond this height. Default 190. */
+  maxMenuHeight?: number;
+  onChange: (index: number) => void;
+}
+
+const SELECT_ROW_HEIGHT = 30;
+
+/** A dropdown: the menu renders in the overlay layer, positioned under
+    the trigger via onLayout, with a click-away backdrop and a scrolling
+    option list. */
+export function Select({
+  options,
+  index,
+  width = 160,
+  label,
+  disabled,
+  trackColor = "#2A2F27",
+  menuColor = "#20241F",
+  activeColor = "#C6F135",
+  textColor = "#d4d4d8",
+  activeTextColor = "#09090b",
+  maxMenuHeight = 190,
+  onChange,
+}: SelectProps) {
+  const [open, setOpen] = useState(false);
+  const [rect, onLayout] = useLayoutRect();
+  const overlay = useOverlay();
+  const current = Math.min(options.length - 1, Math.max(0, index));
+
+  useEffect(() => {
+    if (!open || rect === null) {
+      overlay.hide();
+      return;
+    }
+
+    const menuHeight = Math.min(options.length * SELECT_ROW_HEIGHT + 8, maxMenuHeight);
+
+    overlay.show(
+      <View className="absolute inset-0" onClick={() => setOpen(false)}>
+        <View
+          className="absolute rounded-lg border shadow-lg overflow-hidden"
+          style={{
+            left: rect.x,
+            top: rect.y + rect.height + 4,
+            width: rect.width,
+            backgroundColor: menuColor,
+            borderColor: "#00000066",
+          }}
+        >
+          <View className="overflow-y-scroll p-[4] gap-[2]" style={{ height: menuHeight }}>
+            {options.map((option, i) => (
+              <View
+                key={`${option}-${i}`}
+                className="px-3 py-[6] rounded cursor-pointer hover:bg-white/10"
+                style={{ backgroundColor: i === current ? activeColor : "#00000000" }}
+                onClick={() => {
+                  onChange(i);
+                  setOpen(false);
+                }}
+              >
+                <Text
+                  className="text-[12] font-medium"
+                  style={{ color: i === current ? activeTextColor : textColor }}
+                >
+                  {option}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, rect, options, current, menuColor, activeColor, textColor, activeTextColor, maxMenuHeight]);
+
+  return (
+    <View className="items-center gap-2">
+      <View
+        className={`flex-row items-center justify-between rounded-lg border px-3 py-[8] ${
+          disabled ? "opacity-40" : "cursor-pointer"
+        }`}
+        style={{ width, backgroundColor: trackColor, borderColor: "#00000055" }}
+        onLayout={onLayout}
+        onClick={disabled ? undefined : () => setOpen((v) => !v)}
+      >
+        <Text className="text-[12] font-medium" style={{ color: textColor }}>
+          {options[current] ?? ""}
+        </Text>
+        <Text className="text-[9]" style={{ color: textColor, opacity: 0.7 }}>
+          {open ? "▲" : "▼"}
+        </Text>
+      </View>
+      {label !== undefined ? (
+        <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>
+      ) : null}
+    </View>
+  );
+}
+
+export interface ParamSelectProps {
+  paramId: string;
+  options: string[];
+  width?: number;
+  label?: string;
+  trackColor?: string;
+  menuColor?: string;
+  activeColor?: string;
+  textColor?: string;
+  activeTextColor?: string;
+  maxMenuHeight?: number;
+}
+
+/** A Select bound to a choice-style APVTS parameter (same value↔index
+    mapping as ParamSegmented). */
+export function ParamSelect({ paramId, options, label, ...rest }: ParamSelectProps) {
+  const param = useParameter(paramId);
+  const count = Math.max(1, options.length);
+  const index = Math.round(param.value * (count - 1));
+
+  return (
+    <Select
+      options={options}
+      index={index}
+      label={label ?? param.name.toUpperCase()}
+      onChange={(i) => {
+        param.begin();
+        param.set(count <= 1 ? 0 : i / (count - 1));
+        param.end();
+      }}
+      {...rest}
+    />
   );
 }

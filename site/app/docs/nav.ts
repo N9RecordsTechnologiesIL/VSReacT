@@ -83,7 +83,8 @@ export const DOCS: DocPage[] = [
       ['controls', 'Built-in controls'],
       ['nativeview', '<NativeView>'],
     ],
-    keywords: 'primitives div view text image input knob slider toggle xypad segmented meter button native escape hatch',
+    keywords:
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor native escape hatch',
   },
   {
     slug: 'styling',
@@ -106,9 +107,11 @@ export const DOCS: DocPage[] = [
       ['pointer', 'Pointer events'],
       ['drag', 'Drag gestures'],
       ['scroll', 'Scroll containers'],
+      ['layout', 'Layout feedback — onLayout'],
       ['cursor', 'Cursors'],
     ],
-    keywords: 'click mouse hover onclick drag gesture dx dy scroll wheel overflow cursor bubbling',
+    keywords:
+      'click mouse hover onclick drag gesture dx dy scroll wheel overflow cursor bubbling onlayout layout rect useoverlay overlay popover tooltip uselayoutrect',
   },
   {
     slug: 'animation',

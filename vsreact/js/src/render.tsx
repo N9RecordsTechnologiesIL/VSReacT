@@ -3,12 +3,14 @@ import { LegacyRoot } from "react-reconciler/constants";
 import type { ReactNode } from "react";
 import { hostConfig } from "./hostConfig";
 import { flushOps } from "./bridge";
+import { OverlayLayer } from "./overlay";
 
 const reconciler = Reconciler(hostConfig as any);
 
 let container: ReturnType<typeof reconciler.createContainer> | null = null;
 
-/** Mounts (or re-renders) the app into the plugin window. */
+/** Mounts (or re-renders) the app into the plugin window. The overlay
+    layer (menus, tooltips) mounts after the app so it paints on top. */
 export function render(element: ReactNode): void {
   if (!container) {
     container = reconciler.createContainer(
@@ -23,7 +25,15 @@ export function render(element: ReactNode): void {
     );
   }
 
-  reconciler.updateContainer(element, container, null, null);
+  reconciler.updateContainer(
+    <>
+      {element}
+      <OverlayLayer />
+    </>,
+    container,
+    null,
+    null,
+  );
   flushOps();
 }
 

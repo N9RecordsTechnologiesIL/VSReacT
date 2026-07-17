@@ -30,8 +30,7 @@ function buildResults(query: string): Result[] {
     const base = hrefFor(page)
 
     const pageHaystack = `${title} ${group} ${keywords}`
-    const pageMatches = words.every((w) => pageHaystack.includes(w))
-    if (pageMatches) {
+    if (words.every((w) => pageHaystack.includes(w))) {
       const score =
         (words.every((w) => title.includes(w)) ? 6 : 0) +
         (words.some((w) => title.includes(w)) ? 2 : 0) +
@@ -65,13 +64,20 @@ export function Search() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const resultsRef = useRef<Result[]>([])
+  const selectedRef = useRef(0)
 
   const results = useMemo(() => buildResults(query), [query])
+  resultsRef.current = results
+  selectedRef.current = selected
 
   const close = useCallback(() => {
     setOpen(false)
     setQuery('')
     setSelected(0)
+    // hand focus back to the trigger so Ctrl+K / Enter keep working
+    buttonRef.current?.focus()
   }, [])
 
   const go = useCallback(
@@ -82,21 +88,53 @@ export function Search() {
     [close, router],
   )
 
+  // Global keys: Ctrl/⌘+K toggles; while open, Esc closes and arrows/Enter
+  // navigate even if the input lost focus (clicks can't strand the keyboard).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        setOpen((v) => !v)
-      } else if (e.key === 'Escape') {
+        setOpen((v) => {
+          if (v) close()
+          return !v
+        })
+        return
+      }
+      if (!open) return
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
         close()
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelected((s) => Math.min(resultsRef.current.length - 1, s + 1))
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelected((s) => Math.max(0, s - 1))
+      } else if (e.key === 'Enter') {
+        const target = resultsRef.current[selectedRef.current]
+        if (target) {
+          e.preventDefault()
+          go(target.href)
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault() // keep focus in the modal
+        inputRef.current?.focus()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [close])
+  }, [open, close, go])
 
+  // Own the focus + lock page scroll while open.
   useEffect(() => {
-    if (open) inputRef.current?.focus()
+    if (!open) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    requestAnimationFrame(() => inputRef.current?.focus())
+    return () => {
+      document.body.style.overflow = previous
+    }
   }, [open])
 
   useEffect(() => {
@@ -106,10 +144,11 @@ export function Search() {
   return (
     <>
       <button
+        ref={buttonRef}
         type="button"
         className={styles.searchBtn}
         onClick={() => setOpen(true)}
-        aria-label="Search the documentation"
+        aria-label="Search the documentation (Ctrl+K)"
       >
         <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.4" />
@@ -120,37 +159,31 @@ export function Search() {
       </button>
 
       {open ? (
-        <div className={styles.searchOverlay} onClick={close} role="presentation">
+        <div className={styles.searchOverlay} onMouseDown={close} role="presentation">
           <div
             className={styles.searchModal}
             role="dialog"
             aria-modal="true"
             aria-label="Search the documentation"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <input
               ref={inputRef}
               className={styles.searchInput}
               placeholder="Search the docs… (knob, hot reload, param:list)"
               value={query}
+              autoFocus
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowDown') {
-                  e.preventDefault()
-                  setSelected((s) => Math.min(results.length - 1, s + 1))
-                } else if (e.key === 'ArrowUp') {
-                  e.preventDefault()
-                  setSelected((s) => Math.max(0, s - 1))
-                } else if (e.key === 'Enter' && results[selected]) {
-                  go(results[selected].href)
-                }
-              }}
             />
-            <div className={styles.searchList}>
+            <div
+              className={styles.searchList}
+              onMouseDown={(e) => e.preventDefault()} // clicking results never blurs the input
+            >
               {results.map((result, index) => (
                 <button
                   type="button"
                   key={result.href}
+                  tabIndex={-1}
                   className={`${styles.searchRow} ${index === selected ? styles.searchRowOn : ''}`}
                   onMouseEnter={() => setSelected(index)}
                   onClick={() => go(result.href)}
@@ -172,7 +205,8 @@ export function Search() {
               ) : null}
               {!query ? (
                 <p className={styles.searchEmpty}>
-                  Type to search every page and section. ↑↓ to move, Enter to open.
+                  Type to search every page and section. ↑↓ to move, Enter to open, Esc to
+                  close.
                 </p>
               ) : null}
             </div>

@@ -47,7 +47,8 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
 <ParamSlider    paramId="level" vertical height={140} />   // fader
 <ParamToggle    paramId="bypass" />                        // on = value ≥ 0.5
 <ParamXYPad     paramX="cutoff" paramY="resonance" />      // two params, one drag
-<ParamSegmented paramId="shape" options={["SINE", "SAW", "SQR"]} />`}</Code>
+<ParamSegmented paramId="shape" options={["SINE", "SAW", "SQR"]} />
+<ParamSelect    paramId="mode" options={MODES} />          // dropdown for long lists`}</Code>
       <ul>
         <li>
           <strong>ParamToggle</strong> — bool-style parameters; a click writes a full

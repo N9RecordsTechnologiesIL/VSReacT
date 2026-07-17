@@ -61,6 +61,7 @@ private:
     void handleFlush (const juce::String& opsJson);
     void showError (const juce::String& message, const juce::String& stack);
     void relayout();
+    void dispatchLayoutEvents();
     void syncHostedComponents();
     void hostComponentFor (Node& node);
     void dispatchNodeEvent (int nodeId, const juce::String& type, const juce::var& payload = {});

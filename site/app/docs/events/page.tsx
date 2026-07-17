@@ -100,6 +100,49 @@ export default function Page() {
   {items.map((item) => <Row key={item.id} item={item} />)}
 </View>`}</Code>
 
+      <h2 id="layout">Layout feedback — onLayout</h2>
+      <p>
+        Layout happens in C++ (Yoga), so JS normally never knows where anything landed.{' '}
+        <code>onLayout</code> closes the loop: it fires with the node’s root-space rect
+        (scroll-adjusted) whenever layout moves or resizes it — and only when the rect
+        actually changes. This is the foundation for menus, tooltips, and popovers.
+      </p>
+      <Code title="TSX">{`import { useLayoutRect, useOverlay } from "@vsreact/core";
+
+function InfoTip({ children }) {
+  const [rect, onLayout] = useLayoutRect();
+  const overlay = useOverlay();
+
+  return (
+    <View
+      onLayout={onLayout}
+      onMouseEnter={() => rect && overlay.show(
+        <View className="absolute rounded-lg bg-zinc-800 px-3 py-2"
+              style={{ left: rect.x, top: rect.y + rect.height + 4 }}>
+          <Text className="text-[11]">{children}</Text>
+        </View>
+      )}
+      onMouseLeave={() => overlay.hide()}
+    >
+      <Text className="text-faint">?</Text>
+    </View>
+  );
+}`}</Code>
+      <ul>
+        <li>
+          <code>useLayoutRect()</code> — <code>[rect, onLayout]</code> sugar for capturing
+          the rect in state.
+        </li>
+        <li>
+          <code>useOverlay()</code> — a slot in the overlay layer, which <code>render()</code>{' '}
+          mounts after your app automatically so overlay content paints on top and receives
+          input first. <code>show(node)</code> / <code>hide()</code>; unmount cleans up.
+        </li>
+        <li>
+          The built-in <code>&lt;Select&gt;</code> is built entirely from these parts.
+        </li>
+      </ul>
+
       <h2 id="cursor">Cursors</h2>
       <p>
         Cursors come from classes — <code>cursor-pointer</code>, <code>cursor-text</code>,{' '}

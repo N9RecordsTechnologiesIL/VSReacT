@@ -10,6 +10,14 @@ export interface DragEventPayload {
   y: number;
 }
 
+/** A node's laid-out rect in root coordinates (scroll-adjusted). */
+export interface LayoutRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface CommonProps {
   className?: string;
   style?: Style;
@@ -24,6 +32,9 @@ export interface CommonProps {
   onDragStart?: (e: DragEventPayload) => void;
   onDrag?: (e: DragEventPayload) => void;
   onDragEnd?: (e: DragEventPayload) => void;
+  /** Fires after layout whenever this node's root-space rect changes —
+      the foundation for popovers, menus, and tooltips. */
+  onLayout?: (rect: LayoutRect) => void;
 }
 
 export function View(props: CommonProps) {

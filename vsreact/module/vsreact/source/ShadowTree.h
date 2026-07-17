@@ -27,6 +27,11 @@ struct Node
     juce::Rectangle<float> frame;   // absolute (unscrolled) within the root, set by computeLayout
     float scrollY = 0.0f;           // scroll offset for overflow:"scroll" nodes
 
+    // Last rect delivered to a "layout" listener — layout events fire only
+    // when this changes (RootView::dispatchLayoutEvents).
+    juce::Rectangle<float> reportedLayout;
+    bool layoutReported = false;
+
     /** style + the state variants that currently apply. */
     Style effectiveStyle() const;
 

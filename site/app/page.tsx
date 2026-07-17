@@ -485,7 +485,7 @@ export default function Home() {
               </CodeLine>
               <CodeLine>
                 {'  '}
-                {kw('from')} {str('"vsreact-core"')};
+                {kw('from')} {str('"@vsreact/core"')};
               </CodeLine>
               <CodeLine />
               <CodeLine hl={zone === 'app'}>

@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "vsreact-core": "workspace:*",
+    "@vsreact/core": "workspace:*",
     "react": "18.3.1"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@ export default function Page() {
       </p>
 
       <h2 id="js">The JS side</h2>
-      <Code title="TSX">{`import { native } from "vsreact-core";
+      <Code title="TSX">{`import { native } from "@vsreact/core";
 
 // synchronous request → C++ handler → JSON result
 const version = native.call("app:version");

@@ -26,7 +26,7 @@ export const FEATURES: Array<[string, string]> = [
   ['Motion built in', 'Drag gestures with pixel deltas, scroll containers, a useTween API.'],
 ]
 
-export const CODE = `import { render, View, ParamKnob } from "vsreact-core";
+export const CODE = `import { render, View, ParamKnob } from "@vsreact/core";
 
 function App() {
   return (

@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pack vsreact-core
+      - name: Pack @vsreact/core
         working-directory: vsreact/js
         run: |
           npm pack
@@ -45,7 +45,7 @@ jobs:
           Install the UI package:
 
           \`\`\`sh
-          bun add vsreact-core   # or npm install / yarn add / pnpm add
+          bun add @vsreact/core   # or npm install / yarn add / pnpm add
           \`\`\`
 
           Fetch the native JUCE module with CMake:

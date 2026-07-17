@@ -23,14 +23,14 @@ export default function Page() {
       <h2 id="ui-package">1. The UI package</h2>
       <PmTabs
         commands={{
-          bun: 'bun add vsreact-core',
-          npm: 'npm install vsreact-core',
-          yarn: 'yarn add vsreact-core',
-          pnpm: 'pnpm add vsreact-core',
+          bun: 'bun add @vsreact/core',
+          npm: 'npm install @vsreact/core',
+          yarn: 'yarn add @vsreact/core',
+          pnpm: 'pnpm add @vsreact/core',
         }}
       />
       <p>
-        That’s the whole JS side — <code>vsreact-core</code> brings React 18 and the
+        That’s the whole JS side — <code>@vsreact/core</code> brings React 18 and the
         reconciler with it.
       </p>
 

@@ -20,13 +20,23 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
+      - name: Enable Pages if needed
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Attach custom domain
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PUT "repos/${{ github.repository }}/pages" \
+            -f cname=vsreact.n9records.com -f build_type=workflow || true
       - uses: oven-sh/setup-bun@v2
       - name: Build static site
         run: |
           cd site
           bun install
           bun run build
-      - name: Custom domain
+      - name: Custom domain file
         run: echo "vsreact.n9records.com" > site/out/CNAME
       - uses: actions/upload-pages-artifact@v3
         with:

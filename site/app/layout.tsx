@@ -28,10 +28,8 @@ export const metadata: Metadata = {
       },
     ],
   },
-  icons: {
-    icon: '/logos/logo-no-text.jpeg',
-    apple: '/logos/logo-no-text.jpeg',
-  },
+  // favicon + apple icon come from app/icon.png and app/apple-icon.png
+  // (the hue-shifted red logo), injected automatically by Next.
 }
 
 export const viewport: Viewport = {

@@ -18,6 +18,7 @@ import {
 import Link from 'next/link'
 import styles from './page.module.css'
 import { REPO, STASH, TAGLINE, LEDE, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
+import { VERSION } from './version'
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
@@ -181,11 +182,19 @@ function CodeLine({
   )
 }
 
-// A pseudo audio signal for the hero — quiet, spikes, quiet.
-const WAVE =
-  'M0 60 L120 60 L134 42 L148 78 L162 60 L300 60 L314 22 L328 96 L342 12 L356 98 L370 60 ' +
-  'L520 60 L534 48 L548 72 L562 60 L700 60 L714 30 L728 88 L742 20 L756 92 L770 60 ' +
-  'L920 60 L934 44 L948 76 L962 60 L1080 60 L1094 26 L1108 90 L1122 60 L1200 60'
+// The hero signal traces the contour of the headline block — up the left
+// edge, along the tops of both lines, down past "VST." — with jitter like
+// a live scope. Coordinates are the title wrapper's box (1000×300).
+const OUTLINE =
+  'M 0 300 L -5 258 L 5 212 L -4 164 L 5 116 L -5 64 L 4 22 L 0 -6 ' +
+  'L 88 -12 L 176 -2 L 266 -11 L 356 -3 L 444 -12 L 532 -4 L 614 -10 ' +
+  'L 636 -4 L 630 38 L 642 84 L 633 126 L 640 143 ' +
+  'L 706 137 L 788 146 L 868 135 L 944 144 L 1000 138 ' +
+  'L 1006 178 L 996 224 L 1006 266 L 1000 300'
+
+// Flat EKG tails running out from the headline's baseline corners.
+const TAIL_L = 'M 0 40 L 500 40 L 516 40 L 528 12 L 540 54 L 552 40 L 600 40'
+const TAIL_R = 'M 0 40 L 48 40 L 60 8 L 72 56 L 84 40 L 600 40'
 
 export default function Home() {
   const [gain, setGain] = useState(GAIN_DEFAULT)
@@ -252,6 +261,9 @@ export default function Home() {
           </svg>
           <b>T</b>
         </span>
+        <a className={styles.verChip} href={`${REPO}/releases`}>
+          v{VERSION}
+        </a>
         <p className={styles.claim}>React in. Native VST out. No webview.</p>
         <nav className={styles.headNav}>
           <Link className={styles.headLink} href="/docs">
@@ -264,34 +276,46 @@ export default function Home() {
       </header>
 
       <section className={styles.hero}>
-        <svg
-          className={styles.heroAtom}
-          viewBox="0 0 100 100"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <ellipse cx="50" cy="50" rx="46" ry="17" />
-          <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(60 50 50)" />
-          <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(-60 50 50)" />
-        </svg>
-        <svg
-          className={styles.heroWave}
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path d={WAVE} className={styles.heroWaveGhost} />
-          <path d={WAVE} className={styles.heroWaveLive} />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logos/logo-red.png" alt="" className={styles.heroLogo} aria-hidden="true" />
 
         <div className={styles.heroInner}>
           <span className={`${styles.heroKicker} ${styles.rise}`}>{TAGLINE.toUpperCase()}</span>
-          <h1 className={`${styles.heroTitle} ${styles.rise} ${styles.d1}`}>
-            Write React.
-            <br />
-            Ship <span>native</span> VST.
-          </h1>
+          <div className={`${styles.heroTitleWrap} ${styles.rise} ${styles.d1}`}>
+            <svg
+              className={styles.heroOutline}
+              viewBox="0 0 1000 300"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d={OUTLINE} pathLength={1000} className={styles.heroOutlineGhost} />
+              <path d={OUTLINE} pathLength={1000} className={styles.heroOutlineLive} />
+            </svg>
+            <svg
+              className={`${styles.heroTail} ${styles.heroTailL}`}
+              viewBox="0 0 600 44"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d={TAIL_L} pathLength={600} />
+            </svg>
+            <svg
+              className={`${styles.heroTail} ${styles.heroTailR}`}
+              viewBox="0 0 600 44"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d={TAIL_R} pathLength={600} />
+            </svg>
+            <h1 className={styles.heroTitle}>
+              Write React.
+              <br />
+              Ship <span>native</span> VST.
+            </h1>
+          </div>
           <p className={`${styles.heroLede} ${styles.rise} ${styles.d2}`}>{LEDE}</p>
           <div className={`${styles.heroCtas} ${styles.rise} ${styles.d2}`}>
             <a className={styles.heroBtn} href={REPO}>

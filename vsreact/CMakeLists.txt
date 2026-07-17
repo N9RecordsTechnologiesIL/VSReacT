@@ -21,7 +21,9 @@ target_include_directories(vsreact INTERFACE
 
 target_link_libraries(vsreact INTERFACE qjs)
 
-option(VSREACT_BUILD_TESTS "Build VSReacT unit tests" ON)
+# Off by default so FetchContent/add_subdirectory consumers get just the
+# module; the CI entry point forces this ON.
+option(VSREACT_BUILD_TESTS "Build VSReacT unit tests" OFF)
 
 if (VSREACT_BUILD_TESTS)
     add_subdirectory(tests)

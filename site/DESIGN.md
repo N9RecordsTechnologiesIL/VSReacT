@@ -44,6 +44,17 @@ respond. The product demonstrates itself in the first five seconds.
 - Reduced motion / no-JS: static composition with default values remains
   complete and truthful.
 
+## Hero
+
+Monumental claim ("WRITE REACT. / SHIP NATIVE VST.") with the signal
+literally tracing the headline: a jittered red contour path hugs the two
+text lines (SVG scaled to the title wrapper, `pathLength`-normalized
+dash pulse orbiting it), with flat EKG tails running out both sides from
+the baseline corners. The real brand logo (hue-shifted lime → signal
+red, `mix-blend-mode: screen` so its ground melts into the ink) sits
+large on the right. Version chip (`v0.0.1`) beside the mark links to
+releases; favicon/apple icon are the red logo via `app/icon.png`.
+
 ## /docs
 
 Full production manual at `/docs`, same design contract (same palette,

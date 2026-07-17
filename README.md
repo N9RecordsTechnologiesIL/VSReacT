@@ -79,25 +79,33 @@ audio software: the framework owns every pixel, so beautiful is the default.
   and the running plugin remounts in ~100 ms. Production embeds the bundle in the binary.
 - **Error overlay** — JS exceptions render a red box with the stack trace instead of dying silently.
 
-## Quick start
+## Install
 
-Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framework/JUCE), and [Bun](https://bun.sh).
+Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framework/JUCE), and [Bun](https://bun.sh) (or any Node package manager).
 
-The fastest tour is the bundled example — a working gain/pan plugin whose UI
-is the fourteen lines above:
+**The UI package** — straight from the latest release (registry publish coming; same artifact):
 
 ```bash
-cd vsreact/examples/gain/ui && bun install && bun run build && cd ..
-cmake -S . -B build -DJUCE_SOURCE_DIR=path/to/JUCE   # -G "Visual Studio 17 2022" -A x64 on Windows
-cmake --build build --target GainExample_Standalone --config Release
+bun add https://github.com/N9RecordsTechnologiesIL/VSReacT/releases/latest/download/vsreact-core.tgz
+# or: npm install / yarn add / pnpm add — same URL
 ```
 
-Wiring it into your own plugin:
+**The native module** — CMake fetches it, pinned to a tag (place after JUCE is added):
 
 ```cmake
-add_subdirectory(path/to/vsreact vsreact-build)
+include(FetchContent)
+FetchContent_Declare(vsreact
+    GIT_REPOSITORY https://github.com/N9RecordsTechnologiesIL/VSReacT.git
+    GIT_TAG        v0.0.1
+    SOURCE_SUBDIR  vsreact)
+FetchContent_MakeAvailable(vsreact)
+
 target_link_libraries(MyPlugin PRIVATE vsreact)
 ```
+
+## Quick start
+
+Drop a `RootView` into your plugin editor:
 
 ```cpp
 vsreact::RootOptions options;
@@ -114,9 +122,19 @@ bridge.attach (*root);
 addAndMakeVisible (*root);
 ```
 
-See [`vsreact/README.md`](vsreact/README.md) for the full module
-documentation and [`vsreact/examples/gain`](vsreact/examples/gain) for the
-complete plugin.
+The fastest full tour is the bundled example — a working gain/pan plugin
+whose UI is the fourteen lines above:
+
+```bash
+git clone https://github.com/N9RecordsTechnologiesIL/VSReacT.git && cd VSReacT
+cd vsreact/examples/gain/ui && bun install && bun run build && cd ..
+cmake -S . -B build -DJUCE_SOURCE_DIR=path/to/JUCE   # -G "Visual Studio 17 2022" -A x64 on Windows
+cmake --build build --target GainExample_Standalone --config Release
+```
+
+Full documentation at **[vsreact.n9records.com/docs](https://vsreact.n9records.com/docs)** —
+installation, the complete JS and C++ API, styling reference, parameter
+binding, hot reload, and architecture.
 
 ## Built with VSReacT
 

@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import styles from './docs.module.css'
 import { Sidebar } from './Sidebar'
 import { REPO } from '../variants/content'
+import { VERSION } from '../version'
 
 export const metadata: Metadata = {
   title: {
@@ -29,6 +30,9 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           <b>T</b>
         </Link>
         <span className={styles.crumb}>DOCS</span>
+        <a className={styles.ver} href={`${REPO}/releases`}>
+          v{VERSION}
+        </a>
         <nav className={styles.headNav}>
           <Link className={styles.headLink} href="/">
             HOME

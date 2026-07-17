@@ -105,6 +105,23 @@
   to { transform: rotate(360deg); }
 }
 
+.verChip {
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--red);
+  border: 1px solid rgba(255, 46, 46, 0.4);
+  border-radius: 3px;
+  padding: 3px 7px;
+  margin-left: -12px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.verChip:hover {
+  background: var(--red);
+  color: var(--ink);
+}
+
 .claim {
   font-size: 14px;
   color: var(--dim);
@@ -170,59 +187,91 @@
   padding: 10vh 4vw 12vh;
 }
 
-.heroAtom {
+.heroLogo {
   position: absolute;
   z-index: 0;
   top: 50%;
-  right: -14vw;
-  width: 52vw;
-  max-width: 760px;
+  right: -5vw;
+  width: min(46vw, 620px);
   aspect-ratio: 1;
   transform: translateY(-50%);
-  animation: heroSpin 90s linear infinite;
+  mix-blend-mode: screen; /* drops the near-black jpeg ground into the ink */
+  opacity: 0.32;
+  pointer-events: none;
+  user-select: none;
 }
 
-.heroAtom ellipse {
-  fill: none;
-  stroke: #191918;
-  stroke-width: 0.8;
+/* the signal traces the headline: contour + EKG tails */
+
+.heroTitleWrap {
+  position: relative;
+  display: inline-block;
+  margin: 10px 0 6px;
 }
 
-@keyframes heroSpin {
-  to { transform: translateY(-50%) rotate(360deg); }
-}
-
-.heroWave {
+.heroOutline {
   position: absolute;
-  z-index: 1;
-  left: 0;
-  right: 0;
-  top: 55%;
+  inset: 0;
   width: 100%;
-  height: 120px;
-  transform: translateY(-50%);
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
 }
 
-.heroWaveGhost {
+.heroOutlineGhost {
   fill: none;
-  stroke: rgba(255, 46, 46, 0.13);
+  stroke: rgba(255, 46, 46, 0.18);
   stroke-width: 2;
   vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
 }
 
-.heroWaveLive {
+.heroOutlineLive {
   fill: none;
   stroke: var(--red);
-  stroke-width: 2;
+  stroke-width: 2.5;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 6px rgba(255, 46, 46, 0.5));
-  stroke-dasharray: 26 190;
-  animation: signalFlow 5s linear infinite;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgba(255, 46, 46, 0.55));
+  stroke-dasharray: 34 216; /* pathLength=1000 → 4 pulses, seamless loop */
+  animation: heroPulse 7s linear infinite;
 }
 
-@keyframes signalFlow {
-  to { stroke-dashoffset: -864; }
+@keyframes heroPulse {
+  to { stroke-dashoffset: -1000; }
+}
+
+.heroTail {
+  position: absolute;
+  top: calc(100% - 40px);
+  height: 44px;
+  width: 48vw;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.heroTail path {
+  fill: none;
+  stroke: rgba(255, 46, 46, 0.55);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(255, 46, 46, 0.35));
+  stroke-dasharray: 30 170; /* pathLength=600 → seamless */
+  animation: tailFlow 9s linear infinite;
+}
+
+@keyframes tailFlow {
+  to { stroke-dashoffset: -600; }
+}
+
+.heroTailL {
+  right: 100%;
+}
+
+.heroTailR {
+  left: 100%;
 }
 
 .heroKicker {
@@ -334,10 +383,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroAtom,
-  .heroWaveLive,
+  .heroOutlineLive,
+  .heroTail path,
   .heroScroll span {
     animation: none;
+  }
+
+  .heroOutlineLive {
+    stroke-dasharray: none;
+    opacity: 0.6;
+  }
+
+  .heroTail path {
+    stroke-dasharray: none;
   }
 }
 

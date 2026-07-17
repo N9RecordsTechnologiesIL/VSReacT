@@ -7,9 +7,11 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(VSReacTCI VERSION 0.1.0)
+project(VSReacTCI VERSION 0.0.1)
 
 enable_testing()
+
+set(VSREACT_BUILD_TESTS ON CACHE BOOL "" FORCE)
 
 set(JUCE_SOURCE_DIR "" CACHE PATH "Path to a JUCE checkout")
 

@@ -1,0 +1,65 @@
+# Tag vX.Y.Z → GitHub release carrying the @vsreact/core tarball
+# (versioned + stable asset names), plus an npm-registry publish once an
+# NPM_TOKEN secret is configured.
+
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack @vsreact/core
+        working-directory: vsreact/js
+        run: |
+          npm pack
+          cp vsreact-core-*.tgz vsreact-core.tgz
+
+      - name: Publish to npm (skipped until NPM_TOKEN is configured)
+        working-directory: vsreact/js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret not set — skipping registry publish."
+            exit 0
+          fi
+          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
+          npm publish --access public
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "VSReacT $GITHUB_REF_NAME" \
+            --notes "## @vsreact/core $GITHUB_REF_NAME
+
+          Install the UI package straight from this release:
+
+          \`\`\`sh
+          bun add https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/vsreact-core.tgz
+          \`\`\`
+
+          Fetch the native JUCE module with CMake:
+
+          \`\`\`cmake
+          include(FetchContent)
+          FetchContent_Declare(vsreact
+            GIT_REPOSITORY https://github.com/${GITHUB_REPOSITORY}.git
+            GIT_TAG        $GITHUB_REF_NAME
+            SOURCE_SUBDIR  vsreact)
+          FetchContent_MakeAvailable(vsreact)
+          \`\`\`
+
+          Docs: https://vsreact.n9records.com/docs" \
+            vsreact/js/vsreact-core-*.tgz \
+            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)"

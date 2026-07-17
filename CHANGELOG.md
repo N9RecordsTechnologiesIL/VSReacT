@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.0.6 — 2026-07-17
+
+The DAW-feel update — the mouse conventions plugin hands expect, plus the
+dialog kit.
+
+### DAW conventions on every control
+
+- **Double-click resets to default** — new `onDoubleClick` events
+  (native `dblclick` dispatch); `Knob`/`Slider` take `defaultValue`, and
+  `ParamKnob`/`ParamSlider` wire the **host's** normalized default
+  automatically (`defaultValue` now included in `param:get`/`param:list`).
+  Resets are full begin/set/end gestures, so hosts record them cleanly.
+- **Wheel nudging** — new `onWheel` events (`{dy}`): controls get first
+  refusal on the wheel, scroll containers keep it otherwise.
+  `wheelSensitivity` prop (0 disables).
+- **Bipolar knobs** — `bipolar` on `Knob`/`ParamKnob` sweeps the value
+  arc from 12 o'clock for centre-based params (pan, tilt). Powered by a
+  new `arcValueStart` paint key.
+
+### Dialog kit
+
+- **`<Tooltip label delayMs?>`** — wraps any child; the tip shows below
+  it after a hover dwell, via the overlay layer.
+- **`<Modal open onClose title? width?>`** — centered dialog over a
+  click-away backdrop; panel clicks are swallowed.
+
+Native changes: `dblclick` + `wheel` event dispatch, `arcValueStart`,
+`defaultValue` in the parameter protocol — all backward-compatible.
+
 ## 0.0.5 — 2026-07-17
 
 Layout feedback, overlays, and the dropdown.

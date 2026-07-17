@@ -9,6 +9,8 @@ export interface ParameterState {
   text: string;
   name: string;
   label: string;
+  /** The host's normalized default — double-click-reset target. */
+  defaultValue: number;
 }
 
 export interface ParameterHandle extends ParameterState {
@@ -24,6 +26,7 @@ export interface ParameterInfo {
   /** Normalized 0..1 snapshot at mount — use useParameter(id) for live values. */
   value: number;
   text: string;
+  defaultValue: number;
 }
 
 /**
@@ -41,6 +44,7 @@ export function useParameterList(): ParameterInfo[] {
       label: String(entry?.label ?? ""),
       value: Number(entry?.value ?? 0),
       text: String(entry?.text ?? ""),
+      defaultValue: Number(entry?.defaultValue ?? 0),
     }));
   });
 
@@ -56,8 +60,9 @@ export function useParameter(id: string): ParameterHandle {
           text: String(initial.text ?? ""),
           name: String(initial.name ?? id),
           label: String(initial.label ?? ""),
+          defaultValue: Number(initial.defaultValue ?? 0),
         }
-      : { value: 0, text: "", name: id, label: "" };
+      : { value: 0, text: "", name: id, label: "", defaultValue: 0 };
   });
 
   useEffect(

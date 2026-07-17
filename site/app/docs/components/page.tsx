@@ -134,7 +134,11 @@ export default function Page() {
               <code>&lt;Knob&gt;</code>
             </td>
             <td>Continuous values</td>
-            <td>Natively painted arc, vertical drag, host text in the middle.</td>
+            <td>
+              Natively painted arc, vertical drag, wheel nudge, double-click reset to{' '}
+              <code>defaultValue</code>; <code>bipolar</code> sweeps from 12 o’clock for
+              pan-style params.
+            </td>
           </tr>
           <tr>
             <td>
@@ -198,6 +202,25 @@ export default function Page() {
             <td>Whole plugins</td>
             <td>One knob per APVTS parameter — a complete UI in one line.</td>
           </tr>
+          <tr>
+            <td>
+              <code>&lt;Tooltip&gt;</code>
+            </td>
+            <td>Hover help</td>
+            <td>
+              Wraps any child; shows the tip below it after a hover dwell
+              (<code>delayMs</code>), via the overlay layer.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Modal&gt;</code>
+            </td>
+            <td>Dialogs</td>
+            <td>
+              Centered panel over a click-away backdrop — confirms, settings, about boxes.
+            </td>
+          </tr>
         </tbody>
       </table>
       <Code title="TSX">{`<Toggle on={bypassed} label="BYPASS" onChange={setBypassed} />
@@ -209,7 +232,15 @@ function OutputMeter() {
   const [level, setLevel] = useState(0);
   useNativeEvent("meter", (m) => setLevel(m.level));
   return <Meter value={level} length={140} label="OUT" />;
-}`}</Code>
+}
+
+<Tooltip label="Double-click resets to 0 dB">
+  <ParamKnob paramId="gain" />
+</Tooltip>
+
+<Modal open={showAbout} onClose={() => setShowAbout(false)} title="ABOUT">
+  <Text className="text-[12] text-zinc-400">MyPlugin 1.0 — built with VSReacT.</Text>
+</Modal>`}</Code>
 
       <h2 id="nativeview">&lt;NativeView nativeId&gt;</h2>
       <p>

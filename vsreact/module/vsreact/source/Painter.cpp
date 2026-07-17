@@ -140,7 +140,9 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
             drawArc (*track, arcStart, style.getFloat ("arcEnd", 135.0f));
 
         if (const auto value = style.getColour ("arcColor"))
-            drawArc (*value, arcStart, style.getFloat ("arcValueEnd", arcStart));
+            drawArc (*value,
+                     style.getFloat ("arcValueStart", arcStart), // bipolar knobs sweep from centre
+                     style.getFloat ("arcValueEnd", arcStart));
     }
 
     if (node.type == "text")

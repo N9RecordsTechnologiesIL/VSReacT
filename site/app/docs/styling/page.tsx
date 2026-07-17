@@ -148,9 +148,10 @@ configureTheme({
       <ul>
         <li>
           <strong>Arcs</strong> — <code>arcTrackColor</code>, <code>arcColor</code>,{' '}
-          <code>arcStart</code>, <code>arcEnd</code>, <code>arcValueEnd</code>,{' '}
-          <code>arcThickness</code>: the natively painted knob arc, angles in degrees around
-          the View’s center. The built-in <code>Knob</code> uses −135°…+135°.
+          <code>arcStart</code>, <code>arcEnd</code>, <code>arcValueStart</code>,{' '}
+          <code>arcValueEnd</code>, <code>arcThickness</code>: the natively painted knob
+          arc, angles in degrees around the View’s center. The built-in <code>Knob</code>{' '}
+          uses −135°…+135°; <code>arcValueStart</code> is what powers its bipolar mode.
         </li>
         <li>
           <strong>Text input chrome</strong> — <code>caretColor</code>,{' '}

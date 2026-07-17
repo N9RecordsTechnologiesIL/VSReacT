@@ -24,6 +24,8 @@ const hostTypes: Record<string, string> = {
 
 const eventPropNames: Record<string, string> = {
   onClick: "click",
+  onDoubleClick: "dblclick",
+  onWheel: "wheel",
   onMouseEnter: "mouseenter",
   onMouseLeave: "mouseleave",
   onMouseDown: "mousedown",

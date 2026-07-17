@@ -22,10 +22,11 @@ export default function Page() {
       <h2 id="useparameter">useParameter(id)</h2>
       <Code title="TSX">{`const gain = useParameter("gain");
 
-gain.value   // 0..1, live — updates when the DAW automates it
-gain.text    // host-formatted display text, e.g. "-3.2 dB"
-gain.name    // parameter name from the APVTS
-gain.label   // unit label, e.g. "dB"
+gain.value        // 0..1, live — updates when the DAW automates it
+gain.text         // host-formatted display text, e.g. "-3.2 dB"
+gain.name         // parameter name from the APVTS
+gain.label        // unit label, e.g. "dB"
+gain.defaultValue // the host's normalized default — double-click reset target
 
 gain.begin();       // start an automation gesture
 gain.set(0.75);     //   ...as many times as you like (drag)

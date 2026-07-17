@@ -38,6 +38,25 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>onDoubleClick</code>
+            </td>
+            <td>—</td>
+            <td>The DAW reset gesture — built-in controls use it for reset-to-default.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>onWheel</code>
+            </td>
+            <td>
+              <code>{'{dy}'}</code>
+            </td>
+            <td>
+              Controls get first refusal on the wheel; scroll containers keep it otherwise.{' '}
+              <code>dy</code> is the notch fraction (~0.1/notch).
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>onMouseEnter</code> / <code>onMouseLeave</code>
             </td>
             <td>—</td>

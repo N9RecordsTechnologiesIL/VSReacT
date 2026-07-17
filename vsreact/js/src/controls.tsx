@@ -25,6 +25,13 @@ export interface KnobProps {
   label?: string;
   size?: number;
   disabled?: boolean;
+  /** Double-click resets to this (DAW convention). */
+  defaultValue?: number;
+  /** Value arc sweeps from 12 o'clock instead of the left stop — for
+      centre-based parameters like pan. */
+  bipolar?: boolean;
+  /** Value change per wheel notch fraction. 0 disables. Default 0.4. */
+  wheelSensitivity?: number;
   trackColor?: string;
   valueColor?: string;
   onChange: (value: number) => void;
@@ -38,6 +45,9 @@ export function Knob({
   label,
   size = 64,
   disabled,
+  defaultValue,
+  bipolar,
+  wheelSensitivity = 0.4,
   trackColor = "#2A2F27",
   valueColor = "#C6F135",
   onChange,
@@ -45,6 +55,15 @@ export function Knob({
   onEnd,
 }: KnobProps) {
   const startValue = useRef(0);
+  const clamped = clamp01(value);
+  const angle = ARC_START + (ARC_END - ARC_START) * clamped;
+  const center = (ARC_START + ARC_END) / 2;
+
+  const nudge = (target: number) => {
+    onBegin?.();
+    onChange(clamp01(target));
+    onEnd?.();
+  };
 
   return (
     <View className="items-center gap-2">
@@ -57,19 +76,28 @@ export function Knob({
           arcColor: valueColor,
           arcStart: ARC_START,
           arcEnd: ARC_END,
-          arcValueEnd: ARC_START + (ARC_END - ARC_START) * Math.min(1, Math.max(0, value)),
+          arcValueStart: bipolar ? Math.min(center, angle) : ARC_START,
+          arcValueEnd: bipolar ? Math.max(center, angle) : angle,
           arcThickness: Math.max(3, size * 0.08),
         }}
         onDragStart={
           disabled
             ? undefined
             : () => {
-                startValue.current = value;
+                startValue.current = clamped;
                 onBegin?.();
               }
         }
         onDrag={disabled ? undefined : (e) => onChange(dragToValue(startValue.current, e.dy))}
         onDragEnd={disabled ? undefined : () => onEnd?.()}
+        onDoubleClick={
+          disabled || defaultValue === undefined ? undefined : () => nudge(defaultValue)
+        }
+        onWheel={
+          disabled || wheelSensitivity === 0
+            ? undefined
+            : (e) => nudge(clamped + e.dy * wheelSensitivity)
+        }
       >
         {text !== undefined ? (
           <Text
@@ -91,12 +119,15 @@ export interface ParamKnobProps {
   paramId: string;
   label?: string;
   size?: number;
+  bipolar?: boolean;
+  wheelSensitivity?: number;
   trackColor?: string;
   valueColor?: string;
 }
 
-/** A Knob bound to an APVTS parameter (via ParameterBridge). */
-export function ParamKnob({ paramId, label, size, trackColor, valueColor }: ParamKnobProps) {
+/** A Knob bound to an APVTS parameter — double-click resets to the
+    host's default, the wheel nudges, gestures stay automation-safe. */
+export function ParamKnob({ paramId, label, ...rest }: ParamKnobProps) {
   const param = useParameter(paramId);
 
   return (
@@ -104,12 +135,11 @@ export function ParamKnob({ paramId, label, size, trackColor, valueColor }: Para
       value={param.value}
       text={param.text}
       label={label ?? param.name.toUpperCase()}
-      size={size}
-      trackColor={trackColor}
-      valueColor={valueColor}
+      defaultValue={param.defaultValue}
       onChange={param.set}
       onBegin={param.begin}
       onEnd={param.end}
+      {...rest}
     />
   );
 }
@@ -124,6 +154,10 @@ export interface SliderProps {
   vertical?: boolean;
   label?: string;
   disabled?: boolean;
+  /** Double-click resets to this (DAW convention). */
+  defaultValue?: number;
+  /** Value change per wheel notch fraction. 0 disables. Default 0.4. */
+  wheelSensitivity?: number;
   trackColor?: string;
   valueColor?: string;
   onChange: (value: number) => void;
@@ -138,6 +172,8 @@ export function Slider({
   vertical,
   label,
   disabled,
+  defaultValue,
+  wheelSensitivity = 0.4,
   trackColor = "#2A2F27",
   valueColor = "#C6F135",
   onChange,
@@ -155,6 +191,18 @@ export function Slider({
       };
   const onDragEnd = disabled ? undefined : () => onEnd?.();
 
+  const nudge = (target: number) => {
+    onBegin?.();
+    onChange(clamp01(target));
+    onEnd?.();
+  };
+  const onDoubleClick =
+    disabled || defaultValue === undefined ? undefined : () => nudge(defaultValue);
+  const onWheel =
+    disabled || wheelSensitivity === 0
+      ? undefined
+      : (e: { dy: number }) => nudge(clamped + e.dy * wheelSensitivity);
+
   if (vertical) {
     return (
       <View className="items-center gap-2">
@@ -164,6 +212,8 @@ export function Slider({
           onDragStart={onDragStart}
           onDrag={disabled ? undefined : (e) => onChange(clamp01(startValue.current - e.dy / height))}
           onDragEnd={onDragEnd}
+          onDoubleClick={onDoubleClick}
+          onWheel={onWheel}
         >
           <View
             className="absolute w-[4] rounded-full left-[7] top-0 bottom-0"
@@ -193,6 +243,8 @@ export function Slider({
         onDragStart={onDragStart}
         onDrag={disabled ? undefined : (e) => onChange(clamp01(startValue.current + e.dx / width))}
         onDragEnd={onDragEnd}
+        onDoubleClick={onDoubleClick}
+        onWheel={onWheel}
       >
         <View className="h-[4] rounded-full" style={{ backgroundColor: trackColor }} />
         <View
@@ -217,22 +269,23 @@ export interface ParamSliderProps {
   width?: number;
   height?: number;
   vertical?: boolean;
+  wheelSensitivity?: number;
 }
 
-/** A Slider bound to an APVTS parameter (via ParameterBridge). */
-export function ParamSlider({ paramId, label, width, height, vertical }: ParamSliderProps) {
+/** A Slider bound to an APVTS parameter — double-click resets to the
+    host's default, the wheel nudges, gestures stay automation-safe. */
+export function ParamSlider({ paramId, label, ...rest }: ParamSliderProps) {
   const param = useParameter(paramId);
 
   return (
     <Slider
       value={param.value}
       label={label ?? param.name.toUpperCase()}
-      width={width}
-      height={height}
-      vertical={vertical}
+      defaultValue={param.defaultValue}
       onChange={param.set}
       onBegin={param.begin}
       onEnd={param.end}
+      {...rest}
     />
   );
 }

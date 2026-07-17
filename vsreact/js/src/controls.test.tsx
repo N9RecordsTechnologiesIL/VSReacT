@@ -302,3 +302,134 @@ describe("onLayout + Select", () => {
     expect(nativeCalls.some((c) => c.name === "param:end")).toBe(true);
   });
 });
+
+describe("DAW feel (0.0.6)", () => {
+  test("Knob: double-click resets to defaultValue as a full gesture", () => {
+    const { Knob } = require("./index");
+    const calls: string[] = [];
+    render(
+      <Knob
+        value={0.9}
+        defaultValue={0.5}
+        onChange={(v: number) => calls.push(`set:${v}`)}
+        onBegin={() => calls.push("begin")}
+        onEnd={() => calls.push("end")}
+      />,
+    );
+
+    const id = nodeWithListener("dblclick");
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+    expect(calls).toEqual(["begin", "set:0.5", "end"]);
+  });
+
+  test("Knob: wheel nudges by dy * sensitivity, clamped", () => {
+    const { Knob } = require("./index");
+    const seen: number[] = [];
+    render(<Knob value={0.5} wheelSensitivity={0.4} onChange={(v: number) => seen.push(v)} />);
+
+    const id = nodeWithListener("wheel");
+    dispatch({ kind: "event", nodeId: id, type: "wheel", payload: { dy: 0.1 } });
+    expect(seen.at(-1)).toBeCloseTo(0.54);
+
+    dispatch({ kind: "event", nodeId: id, type: "wheel", payload: { dy: 100 } });
+    expect(seen.at(-1)).toBe(1);
+  });
+
+  test("Knob: bipolar arc sweeps from centre in both directions", () => {
+    const { Knob } = require("./index");
+    render(<Knob bipolar value={0.75} onChange={() => {}} />);
+    let arc: any = opsNamed("setProps").find((op: any) => op[2]?.style?.arcValueEnd !== undefined);
+    expect(arc[2].style.arcValueStart).toBe(0);
+    expect(arc[2].style.arcValueEnd).toBeCloseTo(67.5);
+
+    unmount();
+    batches.length = 0;
+    render(<Knob bipolar value={0.25} onChange={() => {}} />);
+    arc = opsNamed("setProps").find((op: any) => op[2]?.style?.arcValueEnd !== undefined);
+    expect(arc[2].style.arcValueStart).toBeCloseTo(-67.5);
+    expect(arc[2].style.arcValueEnd).toBe(0);
+  });
+
+  test("ParamKnob: host default drives the double-click reset", () => {
+    paramGetResult = { value: 0.9, text: "+5 dB", name: "Gain", label: "dB", defaultValue: 0.25 };
+    const { ParamKnob } = require("./index");
+    render(<ParamKnob paramId="gain" />);
+
+    const id = nodeWithListener("dblclick");
+    dispatch({ kind: "event", nodeId: id, type: "dblclick" });
+
+    const set = nativeCalls.find((c) => c.name === "param:set");
+    expect(set?.args).toEqual({ id: "gain", value: 0.25 });
+    expect(nativeCalls.some((c) => c.name === "param:begin")).toBe(true);
+    expect(nativeCalls.some((c) => c.name === "param:end")).toBe(true);
+  });
+
+  test("Slider: double-click reset + wheel work in both orientations", () => {
+    const { Slider } = require("./index");
+    const seen: number[] = [];
+    render(<Slider vertical value={0.8} defaultValue={0.5} onChange={(v: number) => seen.push(v)} />);
+
+    dispatch({ kind: "event", nodeId: nodeWithListener("dblclick"), type: "dblclick" });
+    expect(seen.at(-1)).toBe(0.5);
+
+    dispatch({ kind: "event", nodeId: nodeWithListener("wheel"), type: "wheel", payload: { dy: -0.1 } });
+    expect(seen.at(-1)).toBeCloseTo(0.76);
+  });
+});
+
+describe("Tooltip + Modal", () => {
+  test("Tooltip shows below its anchor after the hover delay, hides on leave", async () => {
+    const { Tooltip } = require("./index");
+    render(
+      <Tooltip label="Resets to 0 dB" delayMs={15} offset={6}>
+        <Slider value={0.5} onChange={() => {}} />
+      </Tooltip>,
+    );
+
+    const anchor = nodeWithListener("mouseenter");
+    dispatch({
+      kind: "event",
+      nodeId: anchor,
+      type: "layout",
+      payload: { x: 10, y: 20, width: 100, height: 30 },
+    });
+    dispatch({ kind: "event", nodeId: anchor, type: "mouseenter" });
+    await new Promise((r) => setTimeout(r, 40));
+
+    const tip: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.top === 20 + 30 + 6 && op[2]?.style?.left === 10,
+    );
+    expect(tip).toBeDefined();
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "Resets to 0 dB")).toBe(true);
+
+    dispatch({ kind: "event", nodeId: anchor, type: "mouseleave" });
+    await new Promise((r) => setTimeout(r, 5));
+    expect(allOps().some((op: any) => op[0] === "removeChild")).toBe(true);
+  });
+
+  test("Modal renders a centered panel; backdrop closes, panel doesn't", async () => {
+    const { Modal, Text: T } = require("./index");
+    const closed: number[] = [];
+    render(
+      <Modal open onClose={() => closed.push(1)} title="ABOUT" width={280}>
+        <T>VSReacT 0.0.6</T>
+      </Modal>,
+    );
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "ABOUT")).toBe(true);
+    const panel: any = opsNamed("setProps").find((op: any) => op[2]?.style?.width === 280);
+    expect(panel).toBeDefined();
+
+    // panel click swallows; backdrop click closes
+    dispatch({ kind: "event", nodeId: panel[1], type: "click" });
+    expect(closed.length).toBe(0);
+
+    const backdrop: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.listeners?.includes("click") && op[2]?.style?.left === 0 && op[2]?.style?.right === 0,
+    );
+    expect(backdrop).toBeDefined();
+    dispatch({ kind: "event", nodeId: backdrop[1], type: "click" });
+    expect(closed).toEqual([1]);
+  });
+});

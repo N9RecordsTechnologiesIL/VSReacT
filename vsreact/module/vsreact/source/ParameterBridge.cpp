@@ -55,6 +55,7 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
                 entry->setProperty ("label", parameter->getLabel());
                 entry->setProperty ("value", parameter->getValue());
                 entry->setProperty ("text", parameter->getCurrentValueAsText());
+                entry->setProperty ("defaultValue", parameter->getDefaultValue());
                 list.add (juce::var (entry));
             }
 
@@ -73,6 +74,7 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
         result->setProperty ("text", parameter->getCurrentValueAsText());
         result->setProperty ("name", parameter->getName (64));
         result->setProperty ("label", parameter->getLabel());
+        result->setProperty ("defaultValue", parameter->getDefaultValue());
         return juce::var (result);
     }
 

@@ -218,6 +218,70 @@ public:
 static DragDispatchTests dragDispatchTests;
 
 //==============================================================================
+class WheelAndDoubleClickTests final : public juce::UnitTest
+{
+public:
+    WheelAndDoubleClickTests() : juce::UnitTest ("vsreact wheel + dblclick dispatch") {}
+
+    void runTest() override
+    {
+        beginTest ("wheel and double-click events reach their listeners");
+
+        juce::StringArray seen;
+
+        vsreact::RootOptions options;
+        options.bundleSource = R"js(
+            __vsreact_flush(JSON.stringify([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"},
+                                  "listeners": ["wheel", "dblclick"]}],
+                ["appendChild", 0, 1]
+            ]));
+            globalThis.__vsreact_dispatch = function (json) {
+                var msg = JSON.parse(json);
+                if (msg.kind === "event")
+                    __vsreact_nativeCall("seen", JSON.stringify({ type: msg.type, dy: msg.payload && msg.payload.dy }));
+            };
+        )js";
+
+        options.onNativeCall = [&seen] (const juce::String& name, const juce::var& args) -> juce::var
+        {
+            if (name == "seen")
+                seen.add (args["type"].toString() + ":" + args["dy"].toString());
+
+            return {};
+        };
+
+        vsreact::RootView root (std::move (options), {});
+        root.setSize (200, 200);
+
+        auto& source = juce::Desktop::getInstance().getMainMouseSource();
+        const auto now = juce::Time::getCurrentTime();
+
+        const auto event = juce::MouseEvent (source, { 100.0f, 100.0f }, juce::ModifierKeys(),
+                                             juce::MouseInputSource::defaultPressure,
+                                             juce::MouseInputSource::defaultOrientation,
+                                             juce::MouseInputSource::defaultRotation,
+                                             juce::MouseInputSource::defaultTiltX,
+                                             juce::MouseInputSource::defaultTiltY,
+                                             &root, &root, now, { 100.0f, 100.0f }, now, 2, false);
+
+        juce::MouseWheelDetails wheel;
+        wheel.deltaX = 0.0f;
+        wheel.deltaY = 0.25f;
+        wheel.isReversed = wheel.isSmooth = wheel.isInertial = false;
+
+        root.mouseWheelMove (event, wheel);
+        expect (seen.contains ("wheel:0.25"));
+
+        root.mouseDoubleClick (event);
+        expect (seen.joinIntoString (",").contains ("dblclick"));
+    }
+};
+
+static WheelAndDoubleClickTests wheelAndDoubleClickTests;
+
+//==============================================================================
 namespace
 {
     struct BridgeTestProcessor final : juce::AudioProcessor
@@ -276,6 +340,7 @@ public:
             expect (result.has_value());
             expectEquals (static_cast<float> (static_cast<double> ((*result)["value"])), 0.5f);
             expectEquals ((*result)["name"].toString(), juce::String ("Gain"));
+            expectEquals (static_cast<float> (static_cast<double> ((*result)["defaultValue"])), 0.5f);
         }
 
         beginTest ("param:set moves the parameter and pushes an event");
@@ -313,6 +378,7 @@ public:
             expect ((*list)[0].hasProperty ("value"));
             expect ((*list)[0].hasProperty ("text"));
             expect ((*list)[0].hasProperty ("label"));
+            expect ((*list)[0].hasProperty ("defaultValue"));
         }
 
         beginTest ("gestures and unknown calls");

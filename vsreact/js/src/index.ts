@@ -15,6 +15,8 @@ export { render, unmount } from "./render";
 export { native } from "./native";
 export { useNativeEvent, useDebounced, useLayoutRect } from "./hooks";
 export { useOverlay, OverlayLayer } from "./overlay";
+export { Tooltip, Modal } from "./popover";
+export type { TooltipProps, ModalProps } from "./popover";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
 export { cx } from "./cx";
@@ -56,4 +58,4 @@ export type {
 } from "./controls";
 export { Meter, usePeakHold, peakHoldStep } from "./meter";
 export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
-export type { DragEventPayload, LayoutRect } from "./primitives";
+export type { DragEventPayload, LayoutRect, WheelEventPayload } from "./primitives";

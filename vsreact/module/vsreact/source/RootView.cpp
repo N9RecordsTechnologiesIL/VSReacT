@@ -508,8 +508,28 @@ void RootView::mouseUp (const juce::MouseEvent& e)
     repaint();
 }
 
+void RootView::mouseDoubleClick (const juce::MouseEvent& e)
+{
+    auto* hit = vsreact::hitTest (*tree.root(), e.position);
+
+    if (auto* listener = nearestListener (hit, "dblclick"))
+        dispatchNodeEvent (listener->id, "dblclick");
+}
+
 void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel)
 {
+    // Controls get first refusal on the wheel (knob nudging); scroll
+    // containers keep it otherwise.
+    auto* hit = vsreact::hitTest (*tree.root(), e.position);
+
+    if (auto* listener = nearestListener (hit, "wheel"))
+    {
+        auto* payload = new juce::DynamicObject();
+        payload->setProperty ("dy", wheel.deltaY);
+        dispatchNodeEvent (listener->id, "wheel", juce::var (payload));
+        return;
+    }
+
     auto* scrollable = hitTestScrollable (*tree.root(), e.position);
 
     if (scrollable == nullptr)

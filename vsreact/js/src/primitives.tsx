@@ -18,6 +18,12 @@ export interface LayoutRect {
   height: number;
 }
 
+/** Mouse-wheel payload. dy is JUCE's notch fraction (~0.1 per notch,
+    positive = wheel up). */
+export interface WheelEventPayload {
+  dy: number;
+}
+
 export interface CommonProps {
   className?: string;
   style?: Style;
@@ -25,6 +31,9 @@ export interface CommonProps {
   /** Resets the scroll offset of an overflow-y-scroll container. */
   scrollTop?: number;
   onClick?: () => void;
+  onDoubleClick?: () => void;
+  /** Wheel over this node (controls win the wheel over scroll containers). */
+  onWheel?: (e: WheelEventPayload) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   onMouseDown?: () => void;

@@ -1,9 +1,9 @@
 'use client'
 
 // THE INSTRUMENT — vsreact.n9records.com
-// Thesis: proof, not promise. The hero is a working plugin UI: drag the
-// knobs (pointer/touch/wheel/keyboard), and the readouts, stereo meter,
-// and the actual 14 lines of code react live.
+// The hero is a working plugin UI. Every zone of the mock is live: knobs
+// drive the code's ParamKnob lines, the canvas maps to <View>, the window
+// chrome maps to render(<App/>), the meter reads out like real hardware.
 
 import {
   useCallback,
@@ -12,8 +12,10 @@ import {
   useState,
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
   type WheelEvent,
 } from 'react'
+import Link from 'next/link'
 import styles from './page.module.css'
 import { REPO, STASH, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
 
@@ -22,8 +24,9 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const GAIN_DEFAULT = 10 / 11 // 0.0 dB on the -60..+6 range
 const PAN_DEFAULT = 0.5 // centre
 
+type Zone = 'gain' | 'pan' | 'meter' | 'view' | 'app' | null
+
 function arcPath(value: number): string {
-  // 270° sweep from -135° (0) to +135° (1); 0° is 12 o'clock.
   const start = (-135 * Math.PI) / 180
   const end = ((-135 + 270 * clamp01(value)) * Math.PI) / 180
   const r = 40
@@ -136,7 +139,6 @@ function Knob({
   )
 }
 
-/** Adds .in to sections as they enter the viewport (reveal motion). */
 function useReveal() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -159,11 +161,35 @@ function useReveal() {
   }, [])
 }
 
+/** One stable line of the demo source; only its background ever changes. */
+function CodeLine({
+  hl,
+  live,
+  children,
+}: {
+  hl?: boolean
+  live?: string
+  children?: ReactNode
+}) {
+  return (
+    <div className={`${styles.codeLine} ${hl ? styles.hl : ''}`}>
+      {children ?? ' '}
+      {live ? <em className={styles.live}>{`  // ${live}`}</em> : null}
+    </div>
+  )
+}
+
 export default function Home() {
   const [gain, setGain] = useState(GAIN_DEFAULT)
   const [pan, setPan] = useState(PAN_DEFAULT)
-  const [active, setActive] = useState<'gain' | 'pan' | null>(null)
+  const [knobZone, setKnobZone] = useState<'gain' | 'pan' | null>(null)
+  const [meterHover, setMeterHover] = useState(false)
+  const [canvasHover, setCanvasHover] = useState(false)
+  const [windowHover, setWindowHover] = useState(false)
   useReveal()
+
+  // Zone priority mirrors real plugin hit-testing: control > meter > canvas > window.
+  const zone: Zone = knobZone ?? (meterHover ? 'meter' : canvasHover ? 'view' : windowHover ? 'app' : null)
 
   const gainDb = -60 + gain * 66
   const gainText = `${gainDb >= 0 ? '+' : ''}${gainDb.toFixed(1)} dB`
@@ -174,6 +200,14 @@ export default function Home() {
   const level = clamp01((gainDb + 60) / 66)
   const meterL = clamp01(level * (panPos <= 0 ? 1 : 1 - panPos * 0.85))
   const meterR = clamp01(level * (panPos >= 0 ? 1 : 1 + panPos * 0.85))
+  const meterLDb = `${(-60 + meterL * 66).toFixed(1)}`
+  const meterRDb = `${(-60 + meterR * 66).toFixed(1)}`
+
+  const kw = (t: string) => <span className={styles.kw}>{t}</span>
+  const str = (t: string) => <span className={styles.str}>{t}</span>
+  const tag = (t: string) => <span className={styles.tag}>{t}</span>
+  const attr = (t: string) => <span className={styles.attr}>{t}</span>
+  const fn = (t: string) => <span className={styles.fn}>{t}</span>
 
   return (
     <main className={styles.page}>
@@ -189,9 +223,14 @@ export default function Home() {
           <b>T</b>
         </span>
         <p className={styles.claim}>React in. Native VST out. No webview.</p>
-        <a className={styles.headCta} href={REPO}>
-          GET IT ON GITHUB
-        </a>
+        <nav className={styles.headNav}>
+          <Link className={styles.headLink} href="/docs">
+            DOCS
+          </Link>
+          <a className={styles.headCta} href={REPO}>
+            GET IT ON GITHUB
+          </a>
+        </nav>
       </header>
 
       <section className={styles.stage}>
@@ -202,17 +241,25 @@ export default function Home() {
           The window below is the exact component tree from{' '}
           <code>examples/gain</code> — in your DAW, VSReacT paints it with
           juce::Graphics. Here, the same React runs in your browser. Grab a
-          knob. Scroll it. Use arrow keys. Watch the code.
+          knob. Scroll it. Hover everything. Watch the code.
         </p>
 
         <div className={`${styles.bench} ${styles.rise} ${styles.d2}`}>
-          <div className={styles.plugin}>
+          <div
+            className={`${styles.plugin} ${zone === 'app' ? styles.zoneOn : ''}`}
+            onMouseEnter={() => setWindowHover(true)}
+            onMouseLeave={() => setWindowHover(false)}
+          >
             <div className={styles.pluginBar}>
               <i aria-hidden="true" />
               <span>VSReacT Gain — examples/gain</span>
               <em>NATIVE</em>
             </div>
-            <div className={styles.pluginBody}>
+            <div
+              className={`${styles.pluginBody} ${zone === 'view' ? styles.canvasOn : ''}`}
+              onMouseEnter={() => setCanvasHover(true)}
+              onMouseLeave={() => setCanvasHover(false)}
+            >
               <div className={styles.knobs}>
                 <Knob
                   label="GAIN"
@@ -220,7 +267,7 @@ export default function Home() {
                   text={gainText}
                   defaultValue={GAIN_DEFAULT}
                   onChange={setGain}
-                  onActive={(a) => setActive(a ? 'gain' : null)}
+                  onActive={(a) => setKnobZone(a ? 'gain' : null)}
                 />
                 <Knob
                   label="PAN"
@@ -228,68 +275,98 @@ export default function Home() {
                   text={panText}
                   defaultValue={PAN_DEFAULT}
                   onChange={setPan}
-                  onActive={(a) => setActive(a ? 'pan' : null)}
+                  onActive={(a) => setKnobZone(a ? 'pan' : null)}
                 />
               </div>
-              <div className={styles.meter} aria-hidden="true">
+              <div
+                className={`${styles.meter} ${meterHover ? styles.meterOn : ''}`}
+                onMouseEnter={() => setMeterHover(true)}
+                onMouseLeave={() => setMeterHover(false)}
+                role="img"
+                aria-label={`Output level — left ${meterLDb} dB, right ${meterRDb} dB`}
+              >
                 <div className={styles.meterCol}>
+                  <span className={styles.meterVal} data-show={meterHover ? 'true' : undefined}>
+                    {meterLDb}
+                  </span>
                   <i style={{ height: `${8 + meterL * 88}%` }} data-hot={meterL > 0.92 ? 'true' : undefined} />
                   <span>L</span>
                 </div>
                 <div className={styles.meterCol}>
+                  <span className={styles.meterVal} data-show={meterHover ? 'true' : undefined}>
+                    {meterRDb}
+                  </span>
                   <i style={{ height: `${8 + meterR * 88}%` }} data-hot={meterR > 0.92 ? 'true' : undefined} />
                   <span>R</span>
                 </div>
               </div>
             </div>
+            <div className={styles.pluginFoot} data-live={zone ? 'true' : undefined}>
+              {zone === 'gain' && `param "gain" · ${gainText} — automation-safe host binding`}
+              {zone === 'pan' && `param "pan" · ${panText} — automation-safe host binding`}
+              {zone === 'meter' && 'output meter — painted by juce::Graphics at 60fps'}
+              {zone === 'view' && '<View> — Yoga flexbox layout, styled by className'}
+              {zone === 'app' && 'plugin window — render(<App />) mounts your tree'}
+              {zone === null && 'hover any zone to trace it to the code →'}
+            </div>
           </div>
 
           <pre className={styles.code}>
             <code>
-              <span className={styles.kw}>{'import'}</span>
-              {' { render, View, ParamKnob } '}
-              <span className={styles.kw}>{'from'}</span>{' '}
-              <span className={styles.str}>{'"@vsreact/core"'}</span>
-              {';\n\n'}
-              <span className={styles.kw}>{'function'}</span>{' '}
-              <span className={styles.fn}>{'App'}</span>
-              {'() {\n  '}
-              <span className={styles.kw}>{'return'}</span>
-              {' (\n    <'}
-              <span className={styles.tag}>{'View'}</span>{' '}
-              <span className={styles.attr}>{'className'}</span>
-              {'='}
-              <span className={styles.str}>{'"flex-1 items-center justify-center\n                     bg-zinc-950 gap-10 flex-row"'}</span>
-              {'>\n'}
-              <span className={active === 'gain' ? styles.hl : undefined}>
-                {'      <'}
-                <span className={styles.tag}>{'ParamKnob'}</span>{' '}
-                <span className={styles.attr}>{'paramId'}</span>
+              <CodeLine>
+                {kw('import')}
+                {' { render, View, ParamKnob } '}
+                {kw('from')} {str('"@vsreact/core"')};
+              </CodeLine>
+              <CodeLine />
+              <CodeLine hl={zone === 'app'}>
+                {kw('function')} {fn('App')}
+                {'() {'}
+              </CodeLine>
+              <CodeLine>
+                {'  '}
+                {kw('return')}
+                {' ('}
+              </CodeLine>
+              <CodeLine hl={zone === 'view'}>
+                {'    <'}
+                {tag('View')} {attr('className')}
                 {'='}
-                <span className={styles.str}>{'"gain"'}</span>{' '}
-                <span className={styles.attr}>{'size'}</span>
-                {'={88} />'}
-                <em>{active === 'gain' ? `  // ${gainText}` : ''}</em>
-                {'\n'}
-              </span>
-              <span className={active === 'pan' ? styles.hl : undefined}>
+                {str('"flex-1 items-center justify-center')}
+              </CodeLine>
+              <CodeLine hl={zone === 'view'}>
+                {'                     '}
+                {str('bg-zinc-950 gap-10 flex-row"')}
+                {'>'}
+              </CodeLine>
+              <CodeLine hl={zone === 'gain'} live={zone === 'gain' ? gainText : undefined}>
                 {'      <'}
-                <span className={styles.tag}>{'ParamKnob'}</span>{' '}
-                <span className={styles.attr}>{'paramId'}</span>
+                {tag('ParamKnob')} {attr('paramId')}
                 {'='}
-                <span className={styles.str}>{'"pan"'}</span>{' '}
-                <span className={styles.attr}>{'size'}</span>
+                {str('"gain"')} {attr('size')}
                 {'={88} />'}
-                <em>{active === 'pan' ? `   // ${panText}` : ''}</em>
-                {'\n'}
-              </span>
-              {'    </'}
-              <span className={styles.tag}>{'View'}</span>
-              {'>\n  );\n}\n\n'}
-              <span className={styles.fn}>{'render'}</span>
-              {'(<'}
-              <span className={styles.tag}>{'App'}</span>
-              {' />);'}
+              </CodeLine>
+              <CodeLine hl={zone === 'pan'} live={zone === 'pan' ? panText : undefined}>
+                {'      <'}
+                {tag('ParamKnob')} {attr('paramId')}
+                {'='}
+                {str('"pan"')} {attr('size')}
+                {'={88} />'}
+              </CodeLine>
+              <CodeLine hl={zone === 'view'}>
+                {'    </'}
+                {tag('View')}
+                {'>'}
+              </CodeLine>
+              <CodeLine>{'  );'}</CodeLine>
+              <CodeLine>{'}'}</CodeLine>
+              <CodeLine />
+              <CodeLine hl={zone === 'app'}>
+                {fn('render')}
+                {'(<'}
+                {tag('App')}
+                {' />);'}
+              </CodeLine>
             </code>
           </pre>
         </div>
@@ -322,6 +399,9 @@ export default function Home() {
             </article>
           ))}
         </div>
+        <Link className={styles.ledgerDocs} href="/docs">
+          READ THE FULL DOCUMENTATION →
+        </Link>
       </section>
 
       <section className={styles.proof} data-reveal>
@@ -345,8 +425,11 @@ export default function Home() {
           START BUILDING →
         </a>
         <p>
-          VSReacT — N9 Records Technologies · MIT · QuickJS + react-reconciler
-          + Yoga + JUCE ·{' '}
+          VSReacT — N9 Records Technologies · MIT ·{' '}
+          <Link className={styles.footMail} href="/docs">
+            Documentation
+          </Link>{' '}
+          · QuickJS + react-reconciler + Yoga + JUCE ·{' '}
           <a className={styles.footMail} href="mailto:vsreact-support@n9records.com">
             vsreact-support@n9records.com
           </a>

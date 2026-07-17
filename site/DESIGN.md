@@ -28,10 +28,31 @@ respond. The product demonstrates itself in the first five seconds.
 - Changes: SVG arc sweep, tabular-numeral readouts (dB / L-C-R), stereo
   meter with clip-red tips, live-value comments on the highlighted
   `<ParamKnob>` code lines.
+- **Hover zones** — the whole mock is hit-tested like a real plugin,
+  with priority control > meter > canvas > window:
+  - knobs → their `<ParamKnob>` line highlights (+ live value comment),
+  - meter → red frame ignites, per-channel dB readouts appear,
+  - canvas → the `<View>` lines highlight, dashed layout outline shows,
+  - window chrome → `function App()` / `render(<App/>)` highlight, the
+    plugin border ignites.
+  A status footer on the plugin (like a DAW's hint bar) names the hovered
+  zone. The code panel is line-stable: rows are fixed `white-space: pre`
+  divs, so a highlight only ever changes a background — code never
+  reflows, disappears, or gets replaced.
 - Clarifies: "you write this → you get this" — demonstrated, not claimed.
 - Keyboard/touch: full parity (role=slider, aria-valuetext).
 - Reduced motion / no-JS: static composition with default values remains
   complete and truthful.
+
+## /docs
+
+Full production manual at `/docs`, same design contract (same palette,
+Anton/Archivo/JetBrains Mono, red-spined callouts): installation, gain
+quick start, hot reload & shipping, components, styling subset table,
+parameter binding + protocol, events, native messaging, animation, C++
+API, architecture/mutation ops, testing, FAQ, support. Sticky mono TOC
+(chip row under 980px). Reached from the landing header (DOCS), the
+feature ledger, and the footer.
 
 ## Design contract
 

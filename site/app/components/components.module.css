@@ -4856,3 +4856,997 @@
 .geTray .geCell span {
   color: #565d69;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   QUALITY PASS — later rules override earlier ones at equal specificity.
+   METAL is rebuilt as real gear: dark brushed faceplate, machined
+   aluminum + black anodized hardware, amber indicators.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── global presentation polish ────────────────────────────────────── */
+
+.variantRow {
+  gap: 14px;
+}
+
+.tile {
+  border-radius: 12px;
+}
+
+.tilePreview {
+  min-height: 158px;
+  padding: 18px;
+}
+
+.tileLabel {
+  font-size: 8px;
+  letter-spacing: 0.3em;
+}
+
+/* ── METAL: the faceplate ──────────────────────────────────────────── */
+
+.t_metal {
+  --acc: #ffa028;
+  --accText: #241503;
+  --hot: #ff4a1f;
+  --trk: #16181c;
+  --box: #26292e;
+  --tx: #e8eaee;
+  --sub: #8b8f97;
+  --lineEdge: #0b0c0e;
+  --glow: rgba(255, 160, 40, 0.35);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.09), transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, rgba(0, 0, 0, 0.05) 1px 2px, transparent 2px 3px),
+    linear-gradient(180deg, #383c42, #24272c 55%, #1d2024);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.t_metal .tileLabel {
+  color: #9aa0a8;
+}
+
+/* machined aluminum knob: knurled skirt, black anodized cap, amber line */
+.knobMetal {
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.35), transparent 55%),
+    repeating-conic-gradient(#63676e 0deg 3deg, #c6cad1 3deg 6deg);
+  border: 1px solid #08090b;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.55),
+    0 2px 3px rgba(0, 0, 0, 0.8),
+    0 10px 16px rgba(0, 0, 0, 0.55);
+}
+
+.knobMetal i {
+  inset: 16%;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.16), transparent 55%),
+    conic-gradient(from 210deg, #17181b, #2e3238 14%, #131417 32%, #2a2d33 52%, #101114 70%, #26292e 86%, #17181b);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.knobMetal u::after {
+  top: 8%;
+  width: 3px;
+  height: 30%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ffd9a0, var(--acc));
+  box-shadow: 0 0 5px rgba(255, 160, 40, 0.55);
+}
+
+.knobMetal em {
+  width: 9px;
+  height: 9px;
+  background: radial-gradient(circle at 38% 30%, #4a4e55, #1a1c20 70%);
+  border-color: #050607;
+}
+
+.knobMetal em::after {
+  height: 1.4px;
+  background: #6a6f77;
+  transform: rotate(42deg);
+}
+
+.knobMetal em::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 50%;
+  height: 1.4px;
+  margin-top: -0.7px;
+  background: #6a6f77;
+  transform: rotate(-48deg);
+}
+
+/* hardware knob: solid billet with a deep dimple + amber slit */
+.hw_metal s {
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.3), transparent 52%),
+    conic-gradient(from 200deg, #9ba0a8, #e9ebee 15%, #7f848c 33%, #d5d8dc 52%, #6f747c 70%, #dfe1e5 88%, #9ba0a8);
+  border: 1px solid #0a0b0d;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.45),
+    0 2px 3px rgba(0, 0, 0, 0.8),
+    0 12px 18px rgba(0, 0, 0, 0.5);
+}
+
+.hw_metal svg {
+  display: none;
+}
+
+.hw_metal i {
+  inset: 18%;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.12), transparent 60%),
+    radial-gradient(circle, #1d1f23 40%, #101216 88%);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.hw_metal u::after {
+  top: 4%;
+  width: 3px;
+  height: 15%;
+  background: var(--acc);
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.6);
+}
+
+/* console fader: steel slot, black domed cap with a white grip line */
+.fadeMetal::before {
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #050608, #16181c 45%, #24272c);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.fadeMetal b {
+  width: 24px;
+  border-radius: 3px;
+  background:
+    radial-gradient(120% 70% at 50% 18%, rgba(255, 255, 255, 0.22), transparent 48%),
+    linear-gradient(180deg, #34383e, #17191d 52%, #212429);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 3px 5px rgba(0, 0, 0, 0.7),
+    0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+.fadeMetal b i {
+  display: none;
+}
+
+.fadeMetal b::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 50%;
+  height: 2.5px;
+  margin-top: -1.25px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #ffffff, #c9ccd1);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+.fadeMetalV::before {
+  width: 7px;
+  margin: 0 0 0 -3.5px;
+  background: linear-gradient(90deg, #050608, #16181c 45%, #24272c);
+}
+
+.fadeMetalV b {
+  height: 24px;
+  width: auto;
+}
+
+.fadeMetalV b::after {
+  left: 50%;
+  right: auto;
+  top: 3px;
+  bottom: 3px;
+  width: 2.5px;
+  height: auto;
+  margin: 0 0 0 -1.25px;
+  background: linear-gradient(90deg, #ffffff, #c9ccd1);
+}
+
+/* crossfader: same black cap language on a dark ruler strip */
+.xfMetal {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 2px),
+    linear-gradient(180deg, #2b2e34, #1b1d21);
+  border-color: #0a0b0d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 8px rgba(0, 0, 0, 0.45);
+}
+
+.xfMetal u {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0 1px, transparent 1px 9px);
+  top: 5px;
+  height: 4px;
+}
+
+.xfMetal b {
+  background:
+    radial-gradient(120% 70% at 50% 18%, rgba(255, 255, 255, 0.22), transparent 48%),
+    linear-gradient(180deg, #34383e, #17191d 52%, #212429);
+  border: 1px solid #050607;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+.xfMetal b s {
+  width: 2.5px;
+  background: linear-gradient(180deg, #fff, #c9ccd1);
+}
+
+/* bat toggle: chrome lever, threaded collar, on-panel shadow */
+.batToggle s {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.4), transparent 50%),
+    repeating-radial-gradient(circle, #7f848c 0 2px, #c6cad1 2px 4px);
+  border-color: #08090b;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.batToggle i {
+  background: linear-gradient(90deg, #f2f3f5, #a9adb3 45%, #6f747c);
+  border-color: #3a3d43;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+.batToggle i b {
+  background: radial-gradient(circle at 32% 26%, #ffffff, #b9bdc3 45%, #6f747c 85%);
+  border-color: #3a3d43;
+}
+
+.batToggle i b::after {
+  content: '';
+  position: absolute;
+  left: 26%;
+  top: 18%;
+  width: 28%;
+  height: 22%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  filter: blur(0.4px);
+}
+
+/* latching pushbuttons: black caps with a lit amber window */
+.latchBtn {
+  background:
+    radial-gradient(120% 80% at 50% 12%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(180deg, #2e3137, #17191d);
+  border: 1px solid #050607;
+  color: #b6bac1;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 3px 5px rgba(0, 0, 0, 0.65);
+}
+
+.latchDown {
+  background: linear-gradient(180deg, #101216, #1d2024);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+  transform: translateY(1.5px);
+}
+
+.latchBtn i {
+  width: 16px;
+  height: 9px;
+  background: #241503;
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.latchLedOn {
+  background: linear-gradient(180deg, #ffd9a0, var(--acc)) !important;
+  box-shadow: 0 0 10px rgba(255, 160, 40, 0.75) !important;
+}
+
+/* rotary selector: aluminum ring, black cap, amber pointer */
+.rotarySel i {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.35), transparent 52%),
+    repeating-conic-gradient(#63676e 0deg 3deg, #c6cad1 3deg 6deg);
+  border-color: #08090b;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.55), 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+.rotarySel i::after {
+  inset: 22%;
+  background: radial-gradient(circle at 50% 34%, #2a2d33, #131417 80%);
+  border-color: #050607;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.rotarySel u::after {
+  background: var(--acc);
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.6);
+}
+
+.rotarySel span {
+  color: #8b8f97;
+}
+
+/* machined segment block: black backlit windows */
+.machSeg {
+  border-color: #050607;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.machSeg button {
+  background: linear-gradient(180deg, #2e3137, #17191d);
+  border-right-color: #050607;
+  color: #7d828a;
+}
+
+.machSeg .machSegOn {
+  background: linear-gradient(180deg, #171006, #241503);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  color: var(--acc);
+  text-shadow: 0 0 8px rgba(255, 160, 40, 0.6);
+}
+
+/* stepper window (select) */
+.stepSel {
+  border-color: #050607;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.stepSel button {
+  background: linear-gradient(180deg, #2e3137, #17191d);
+  color: #b6bac1;
+}
+
+.stepSel button:active {
+  background: #101216;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.stepSel b {
+  background: #0d0802;
+  border-left-color: #050607;
+  border-right-color: #050607;
+  color: var(--acc);
+  text-shadow: 0 0 8px rgba(255, 160, 40, 0.55);
+}
+
+/* slot meter: steel channel + amber bar + engraved ruler */
+.slotMeter u {
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.32) 0 1px, transparent 1px 10px);
+}
+
+.slotMeter > div {
+  background: linear-gradient(90deg, #050608, #16181c 45%, #24272c);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.slotMeter > div i {
+  background: linear-gradient(180deg, #ffd9a0, var(--acc));
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.5);
+}
+
+/* bars / waveform wells */
+.bars_metal {
+  border: 1px solid #050607;
+  background: #0d0e11;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.bars_metal i {
+  background: linear-gradient(180deg, #ffd9a0, var(--acc));
+}
+
+.wave_metal {
+  border: 1px solid #050607;
+  background: #0d0e11;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.wave_metal i {
+  background: var(--acc);
+}
+
+.wave_metal span {
+  background: rgba(255, 160, 40, 0.25);
+  opacity: 1;
+}
+
+/* hazard progress → machined amber bar */
+.prog_metal {
+  border: 1px solid #050607;
+  background: linear-gradient(180deg, #050608, #16181c);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.prog_metal i {
+  background: repeating-linear-gradient(45deg, var(--acc) 0 7px, #b56a12 7px 14px);
+  box-shadow: 0 0 8px rgba(255, 160, 40, 0.4);
+}
+
+/* radar: aluminum bezel on black glass, amber sweep */
+.radar {
+  border: 5px solid transparent;
+  background:
+    radial-gradient(circle, transparent 0 30%, rgba(255, 160, 40, 0.22) 30.5% 31%, transparent 31.5% 60%, rgba(255, 160, 40, 0.22) 60.5% 61%, transparent 61.5%) padding-box,
+    #0a0c10 padding-box,
+    conic-gradient(from 200deg, #9ba0a8, #e9ebee 18%, #7f848c 40%, #d5d8dc 62%, #6f747c 82%, #9ba0a8) border-box;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.radar i {
+  background: conic-gradient(rgba(255, 160, 40, 0.5), transparent 70deg);
+}
+
+/* momentary buttons */
+.machBtn {
+  background:
+    radial-gradient(120% 80% at 50% 12%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(180deg, #2e3137, #17191d);
+  border: 1px solid #050607;
+  color: #d3d6db;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 3px 5px rgba(0, 0, 0, 0.65);
+}
+
+.machBtn:active {
+  background: #101216;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+}
+
+.machBtn i {
+  background: #241503;
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.machBtnRound {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.35), transparent 52%),
+    conic-gradient(from 200deg, #9ba0a8, #e9ebee 18%, #7f848c 40%, #d5d8dc 62%, #6f747c 82%, #9ba0a8);
+  border: 1px solid #08090b;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* number window + input: backlit readouts in bezels */
+.numMetal {
+  background: #0d0802;
+  border: 1px solid #050607;
+  color: var(--acc);
+  text-shadow: 0 0 8px rgba(255, 160, 40, 0.55);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.in_metal {
+  background: #101216;
+  border: 1px solid #050607;
+  color: #e8eaee;
+  caret-color: var(--acc);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* xy: black glass with etched grid + amber reticle */
+.xyMetal {
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 14px),
+    #0d0e11;
+  border: 2px solid #050607;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.xyMetal b {
+  border-color: var(--acc);
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.45);
+}
+
+.xyMetal em {
+  color: var(--acc);
+}
+
+/* macro radar pad */
+.mpRadar {
+  border: 5px solid transparent;
+  background:
+    radial-gradient(circle, transparent 0 24%, rgba(255, 160, 40, 0.2) 24.5% 25%, transparent 25.5% 49%, rgba(255, 160, 40, 0.2) 49.5% 50%, transparent 50.5% 74%, rgba(255, 160, 40, 0.2) 74.5% 75%, transparent 75.5%) padding-box,
+    #0a0c10 padding-box,
+    conic-gradient(from 200deg, #9ba0a8, #e9ebee 18%, #7f848c 40%, #d5d8dc 62%, #6f747c 82%, #9ba0a8) border-box;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), inset 0 0 26px rgba(0, 0, 0, 0.9);
+}
+
+.mpRadar i {
+  background: conic-gradient(rgba(255, 160, 40, 0.45), transparent 75deg);
+}
+
+.mpRadar b {
+  border-color: var(--acc);
+  box-shadow: 0 0 6px rgba(255, 160, 40, 0.5);
+}
+
+.mpRadar em {
+  color: var(--acc);
+}
+
+/* rack strip: dark faceplate + hex screws */
+.geRack {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 2px),
+    linear-gradient(180deg, #34383e, #202328);
+  border: 1px solid #0a0b0d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.geRack .geCell span {
+  color: #9aa0a8;
+}
+
+.rackScrewTL,
+.rackScrewTR,
+.rackScrewBL,
+.rackScrewBR {
+  background: radial-gradient(circle at 35% 30%, #e9ebee, #7f848c 70%);
+  border-color: #0a0b0d;
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* modal plate: dark rack panel */
+.mMetal {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 2px),
+    linear-gradient(180deg, #34383e, #1d2024);
+  border-color: #0a0b0d;
+}
+
+.mMetal header {
+  color: #d3d6db;
+  border-bottom-color: #0a0b0d;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.mMetal header em {
+  background: radial-gradient(circle at 35% 30%, #e9ebee, #7f848c 70%);
+  border-color: #0a0b0d;
+}
+
+.mMetal > div {
+  background: #101216;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.mMetal p {
+  color: #b6bac1;
+}
+
+/* tooltip: engraved black plate, amber text */
+.tip_metal {
+  border: 1px solid #050607;
+  background: linear-gradient(180deg, #2e3137, #17191d);
+  color: #b6bac1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tip_metal .tip {
+  background: linear-gradient(180deg, #26292e, #131417);
+  border: 1px solid #050607;
+  color: var(--acc);
+  text-shadow: 0 0 6px rgba(255, 160, 40, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 5px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ── PLASTIC: coherent 2000s Luna — silver-blue chrome, candy controls,
+      crafted bevels (1px borders + inner highlights, no mud) ─────────── */
+
+.t_plast {
+  --acc: #35b13c;
+  --accText: #0b3d10;
+  --hot: #ff9b00;
+  --trk: #aeb6c6;
+  --box: #eef1f7;
+  --tx: #23262e;
+  --sub: #5d6470;
+  --lineEdge: #8d97ab;
+  --glow: rgba(53, 177, 60, 0.4);
+  background: linear-gradient(180deg, #f2f4f9, #d5dbe7 70%, #c3cbdb);
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.knobPlast s {
+  background: linear-gradient(180deg, #f7f8fb, #c3cbdb);
+  border: 1px solid #8d97ab;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(35, 38, 46, 0.35);
+}
+
+.knobPlast i {
+  background: radial-gradient(circle at 42% 28%, #9cc6f7, #3f83d6 55%, #1c4f9c);
+  border: 1px solid #16407e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 3px rgba(22, 64, 126, 0.45);
+}
+
+.knobPlast i::before {
+  left: 18%;
+  right: 30%;
+  top: 8%;
+  height: 34%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.08));
+}
+
+.knobPlast u::after {
+  border-top-color: #fffef4;
+}
+
+.fadePlast {
+  border: 1px solid #8d97ab;
+  background: linear-gradient(180deg, #b6becd, #d9dfe9);
+  box-shadow: inset 0 2px 3px rgba(35, 38, 46, 0.35), 0 1px 0 #fff;
+}
+
+.fadePlastFill {
+  background: linear-gradient(180deg, #8ee08f, #35b13c 55%, #1f8a26);
+}
+
+.fadePlast b {
+  border: 1px solid #5d6470;
+  background: linear-gradient(180deg, #ffffff, #d5dbe7);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(35, 38, 46, 0.45);
+}
+
+.rocker {
+  border: 1px solid #5d6470;
+  background: #8d97ab;
+  box-shadow: 0 2px 4px rgba(35, 38, 46, 0.35);
+}
+
+.rocker b {
+  border: none;
+  background: linear-gradient(180deg, #ffffff, #d5dbe7);
+  box-shadow: inset 0 1px 0 #fff, inset -1px 0 0 rgba(93, 100, 112, 0.4);
+}
+
+.rockerDown {
+  background: linear-gradient(180deg, #4cbf53, #23913a) !important;
+  box-shadow: inset 0 2px 4px rgba(11, 61, 16, 0.55) !important;
+  color: #eafbe9 !important;
+}
+
+.xpBtn {
+  border: 1px solid #23913a;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #b8ecb4, #57c25b 45%, #2f9a35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 2px 3px rgba(35, 38, 46, 0.4);
+  color: #0b3d10;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.xpBtn:active {
+  background: linear-gradient(180deg, #2f9a35, #57c25b);
+  box-shadow: inset 0 2px 4px rgba(11, 61, 16, 0.55);
+  transform: translateY(1px);
+  border-style: solid;
+}
+
+.xpBtnGrey {
+  border-color: #7d8595;
+  background: linear-gradient(180deg, #ffffff, #d5dbe7);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(35, 38, 46, 0.35);
+  color: #23262e;
+}
+
+.lcdBox {
+  border: 1px solid #7d8595;
+  background: linear-gradient(180deg, #cfe6b8, #a8cd8e);
+  box-shadow: inset 0 2px 4px rgba(35, 51, 19, 0.4), 0 1px 0 #fff;
+}
+
+.xpProgress {
+  border: 1px solid #8d97ab;
+  background: #fff;
+  box-shadow: inset 0 1px 3px rgba(35, 38, 46, 0.25);
+}
+
+.xpProgress .xpChunk {
+  background: linear-gradient(180deg, #8ee08f, #2f9a35);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.blockMeter {
+  border: 1px solid #8d97ab;
+  background: #b6becd;
+  box-shadow: inset 0 2px 3px rgba(35, 38, 46, 0.35);
+}
+
+.blockMeter .blockLit {
+  background: linear-gradient(180deg, #8ee08f, #2f9a35);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.bars_plast,
+.wave_plast {
+  border: 1px solid #8d97ab;
+  background: #b6becd;
+  box-shadow: inset 0 2px 3px rgba(35, 38, 46, 0.3);
+}
+
+.bars_plast i {
+  border: none;
+  background: linear-gradient(180deg, #8ee08f, #2f9a35);
+}
+
+.xyPlast {
+  border: 1px solid #8d97ab;
+  background: radial-gradient(circle at 42% 30%, #e6ebf4, #b6becd 80%);
+  box-shadow: inset 0 2px 4px rgba(35, 38, 46, 0.3), 0 1px 0 #fff;
+}
+
+.xyPlast b {
+  border: 1px solid #16407e;
+  background: radial-gradient(circle at 38% 30%, #9cc6f7, #3f83d6 60%, #1c4f9c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 3px rgba(22, 64, 126, 0.45);
+}
+
+.mpBubble {
+  border: 1px solid #8d97ab;
+  background: radial-gradient(circle at 42% 28%, #f2f5fa, #c3cbdb 75%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -4px 8px rgba(35, 38, 46, 0.18), 0 3px 6px rgba(35, 38, 46, 0.35);
+}
+
+.mpBubble b {
+  border: 1px solid #16407e;
+  background: radial-gradient(circle at 38% 30%, #9cc6f7, #3f83d6 60%, #1c4f9c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 3px rgba(22, 64, 126, 0.45);
+}
+
+.in_plast {
+  border: 1px solid #8d97ab;
+  box-shadow: inset 0 2px 3px rgba(35, 38, 46, 0.2);
+}
+
+.sel_plast .select {
+  border: 1px solid #8d97ab;
+  background: linear-gradient(180deg, #ffffff, #d5dbe7);
+  box-shadow: inset 0 1px 0 #fff;
+  color: #23262e;
+}
+
+.sel_plast .selectMenu {
+  border: 1px solid #8d97ab;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(35, 38, 46, 0.3);
+}
+
+.mPlast {
+  border: 1px solid #4767a8;
+  background: #eef1f7;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #fff;
+}
+
+.mPlast header {
+  background: linear-gradient(180deg, #7ba2e8, #3765c0 45%, #2853a8);
+  text-shadow: 0 1px 1px rgba(11, 26, 56, 0.7);
+}
+
+.mPlast header button {
+  border: 1px solid #8c1f10;
+  background: radial-gradient(circle at 38% 30%, #ff9d8a, #d94a33 55%, #a52814);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.tip_plast {
+  border: 1px solid #8d97ab;
+  background: linear-gradient(180deg, #ffffff, #d5dbe7);
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.tip_plast .tip {
+  border: 1px solid #8d97ab;
+  background: #fffef2;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px rgba(35, 38, 46, 0.3);
+}
+
+.tip_plast .tip::before {
+  border-bottom-color: #8d97ab;
+}
+
+.geTray {
+  border: 1px solid #8d97ab;
+  background: linear-gradient(180deg, #f2f4f9, #cfd6e3);
+  box-shadow: inset 0 1px 0 #fff, 0 3px 6px rgba(35, 38, 46, 0.3);
+}
+
+/* ── VINTAGE: warm hi-fi — enamel panel, walnut bakelite, baked labels ─ */
+
+.t_vint {
+  --acc: #a8481f;
+  --accText: #f7efdc;
+  --hot: #7c2810;
+  --trk: #c9b58c;
+  --box: #ecdfc2;
+  --tx: #3f3120;
+  --sub: #82705a;
+  --lineEdge: #a08a60;
+  --glow: rgba(168, 72, 31, 0.3);
+  background:
+    repeating-linear-gradient(90deg, rgba(63, 49, 32, 0.028) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #f2e7cd, #e0d1ac 70%, #d5c49a);
+  box-shadow: inset 0 1px 0 rgba(255, 251, 240, 0.85), inset 0 -1px 0 rgba(63, 49, 32, 0.25);
+}
+
+.knobVint i {
+  background:
+    radial-gradient(circle at 40% 26%, rgba(255, 235, 200, 0.22), transparent 46%),
+    radial-gradient(circle at 42% 32%, #4e3a27, #1f150c 76%);
+  border: 1.5px solid #140d07;
+  box-shadow: 0 4px 7px rgba(40, 28, 16, 0.55), inset 0 -2px 3px rgba(0, 0, 0, 0.5);
+}
+
+.knobVint i::after {
+  background: linear-gradient(180deg, #3c2c1d, #191009);
+  box-shadow: 0 1px 2px rgba(20, 13, 7, 0.6);
+}
+
+.knobVint svg line {
+  stroke: #7a6647;
+  stroke-width: 2;
+}
+
+.plateToggle,
+.gePanel {
+  border: 1px solid #a08a60;
+  box-shadow: inset 0 1px 0 rgba(255, 251, 240, 0.8), 0 3px 6px rgba(63, 49, 32, 0.28);
+}
+
+.plateToggle i {
+  background:
+    radial-gradient(circle at 40% 26%, rgba(255, 235, 200, 0.2), transparent 50%),
+    radial-gradient(circle at 42% 32%, #4e3a27, #1f150c 80%);
+  border-color: #140d07;
+  box-shadow: 0 2px 4px rgba(40, 28, 16, 0.55);
+}
+
+.typeKeys button,
+.typeAction {
+  border: 1.5px solid #82705a;
+  background:
+    radial-gradient(circle at 40% 26%, rgba(255, 235, 200, 0.2), transparent 46%),
+    radial-gradient(circle at 42% 32%, #4e3a27, #1f150c 80%);
+  box-shadow: 0 4px 0 #140d07, inset 0 1px 1px rgba(255, 235, 200, 0.12);
+  color: #f0e4c8;
+}
+
+.typeActionAlt {
+  background:
+    radial-gradient(circle at 40% 26%, rgba(255, 220, 190, 0.22), transparent 46%),
+    radial-gradient(circle at 42% 32%, #85351a, #3f150a 82%);
+}
+
+.pianoKey {
+  background: linear-gradient(180deg, #faf3e0, #e2d3ad);
+  border-color: #a08a60;
+  box-shadow: inset 0 1px 0 #fffbf0;
+}
+
+.pianoDown {
+  background: linear-gradient(180deg, #e0d1ac, #cbb98d);
+  box-shadow: inset 0 2px 3px rgba(63, 49, 32, 0.35);
+}
+
+.fadeVint i {
+  background: #2e2214;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 251, 240, 0.6);
+}
+
+.fadeVint b {
+  background: linear-gradient(180deg, #faf3e0, #ddcda6);
+  border: 1px solid #82705a;
+  box-shadow: inset 0 1px 0 #fffbf0, 0 3px 5px rgba(40, 28, 16, 0.4);
+}
+
+.vu {
+  background:
+    radial-gradient(120% 100% at 50% 0%, #fdf7e6, #efe3c5 70%);
+  border: 2px solid #82705a;
+  box-shadow: inset 0 0 12px rgba(63, 49, 32, 0.18), 0 3px 6px rgba(63, 49, 32, 0.3);
+}
+
+.progWheel i {
+  background:
+    repeating-conic-gradient(rgba(20, 13, 7, 0.5) 0deg 6deg, transparent 6deg 24deg),
+    radial-gradient(circle at 40% 26%, rgba(255, 235, 200, 0.18), transparent 46%),
+    radial-gradient(circle at 42% 32%, #4e3a27, #1f150c 78%);
+  border-color: #140d07;
+}
+
+.plotter,
+.scopeVint,
+.xyVint,
+.mpChart {
+  background:
+    repeating-linear-gradient(0deg, rgba(160, 138, 96, 0.32) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(160, 138, 96, 0.32) 0 1px, transparent 1px 10px),
+    radial-gradient(130% 110% at 50% 0%, #faf3e0, #ecdfc2 80%);
+  border: 2px solid #a08a60;
+  box-shadow: inset 0 0 10px rgba(63, 49, 32, 0.14);
+}
+
+.mpChart {
+  background:
+    repeating-radial-gradient(circle, transparent 0 12px, rgba(160, 138, 96, 0.38) 12px 13px),
+    radial-gradient(130% 110% at 50% 0%, #faf3e0, #ecdfc2 80%);
+}
+
+.mVint {
+  background: radial-gradient(140% 120% at 50% 0%, #faf3e0, #eee0c0 85%);
+  border-color: #82705a;
+  outline-color: #f2e7cd;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 0 14px rgba(63, 49, 32, 0.12);
+}
+
+.tip_vint .tip {
+  background: linear-gradient(180deg, #eedfb4, #e0cd9c);
+  box-shadow: 0 3px 6px rgba(63, 49, 32, 0.4), inset 0 1px 0 rgba(255, 251, 240, 0.7);
+}
+
+.reelProgress i {
+  border-color: #82705a;
+  box-shadow: 0 2px 4px rgba(40, 28, 16, 0.4);
+}
+
+.pilotLamp i {
+  border-color: #82705a;
+}
+
+/* ── INSTRUMENT / STANDARD / NEON polish ──────────────────────────── */
+
+.t_inst {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 34px rgba(0, 0, 0, 0.45);
+}
+
+.t_std {
+  --lineEdge: #c9cdd6;
+  background: linear-gradient(180deg, #f8f9fb, #eef0f4);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(28, 31, 38, 0.05);
+}
+
+.t_std .tileLabel {
+  color: #9aa0ab;
+}
+
+.t_neon {
+  box-shadow: inset 0 0 40px rgba(25, 230, 255, 0.05), inset 0 1px 0 rgba(25, 230, 255, 0.12);
+}
+
+.t_neon .tileLabel {
+  color: #2f6a78;
+}
+
+.knobNeon i {
+  border-radius: 3px;
+}
+
+.knob i {
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.fadeStd b,
+.xfStd b,
+.mpClean b,
+.xyStd b {
+  box-shadow: 0 1px 3px rgba(28, 31, 38, 0.35), inset 0 1px 0 #fff;
+}

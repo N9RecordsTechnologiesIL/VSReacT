@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.0.2 — 2026-07-17
+
+Proper package build — `@vsreact/core` now works with every bundler, not
+just Bun.
+
+- Ships compiled ESM + TypeScript declarations in `dist/` (built with
+  `tsc`, `jsx: react-jsx`). `exports` map serves `dist` to
+  webpack/vite/esbuild-class tools and live TS source to Bun (the `bun`
+  condition), so monorepo hot-reload workflows keep working untouched.
+- `@types/react` moved to dependencies — TypeScript consumers get working
+  types with zero extra installs.
+- Release workflow builds `dist/` before packing/publishing and skips the
+  registry step when the version is already published.
+- npm listing metadata (description, keywords, homepage) now live on the
+  package page.
+
 ## 0.0.1 — 2026-07-17
 
 First public release.

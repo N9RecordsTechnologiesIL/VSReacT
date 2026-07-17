@@ -15,6 +15,14 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install workspace
+        run: bun install
+
+      - name: Build dist (compiled ESM + .d.ts)
+        working-directory: vsreact/js
+        run: bun run build:dist
 
       - name: Pack @vsreact/core
         working-directory: vsreact/js
@@ -29,6 +37,11 @@ jobs:
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ]; then
             echo "NPM_TOKEN secret not set — skipping registry publish."
+            exit 0
+          fi
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@vsreact/core@$VERSION" version >/dev/null 2>&1; then
+            echo "@vsreact/core@$VERSION already on the registry — skipping."
             exit 0
           fi
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"

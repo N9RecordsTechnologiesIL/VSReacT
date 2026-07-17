@@ -83,7 +83,10 @@ if (isHosted) {
   };
 
   g.performance ??= { now: () => Date.now() } as Performance;
-  g.process ??= { env: { NODE_ENV: "production" } } as unknown as typeof process;
+  // Typed loosely on purpose: the dist build has no Node/Bun types, and the
+  // shim only exists for libraries that probe NODE_ENV.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  g.process ??= { env: { NODE_ENV: "production" } } as any;
   g.self ??= g as unknown as Window & typeof globalThis;
   g.global ??= g;
 }

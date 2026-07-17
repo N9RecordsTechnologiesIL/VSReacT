@@ -11,3 +11,7 @@ node_modules/
 build*/
 dist/
 *.tsbuildinfo
+
+# built package artifacts
+vsreact/js/dist/
+vsreact/js/*.tgz

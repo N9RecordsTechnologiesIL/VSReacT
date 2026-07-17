@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import styles from './docs.module.css'
 import { Sidebar } from './Sidebar'
+import { GitHubIcon } from '../GitHubIcon'
 import { REPO } from '../variants/content'
 import { VERSION } from '../version'
 
@@ -40,8 +41,8 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           <a className={styles.headLink} href="mailto:vsreact-support@n9records.com">
             SUPPORT
           </a>
-          <a className={styles.headCta} href={REPO}>
-            GITHUB
+          <a className={styles.ghBtn} href={REPO} aria-label="VSReacT on GitHub">
+            <GitHubIcon size={19} />
           </a>
         </nav>
       </header>

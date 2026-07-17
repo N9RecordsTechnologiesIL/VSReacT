@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/logos/logo-text.jpeg',
+        url: '/logos/logo-text-red.png',
         width: 1024,
         height: 1024,
         alt: 'VSReacT — a React atom with a waveform through its core',

@@ -17,6 +17,7 @@ import {
 } from 'react'
 import Link from 'next/link'
 import styles from './page.module.css'
+import { GitHubIcon } from './GitHubIcon'
 import { REPO, STASH, TAGLINE, LEDE, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
 import { VERSION } from './version'
 
@@ -182,23 +183,86 @@ function CodeLine({
   )
 }
 
-// The hero signal traces the contour of the headline block — up the left
-// edge, along the tops of both lines, down past "VST." — with jitter like
-// a live scope. Coordinates are the title wrapper's box (1000×300).
-const OUTLINE =
-  'M 0 300 L -5 258 L 5 212 L -4 164 L 5 116 L -5 64 L 4 22 L 0 -6 ' +
-  'L 88 -12 L 176 -2 L 266 -11 L 356 -3 L 444 -12 L 532 -4 L 614 -10 ' +
-  'L 636 -4 L 630 38 L 642 84 L 633 126 L 640 143 ' +
-  'L 706 137 L 788 146 L 868 135 L 944 144 L 1000 138 ' +
-  'L 1006 178 L 996 224 L 1006 266 L 1000 300'
+/**
+ * The hero signal: one continuous EKG line that enters from the left edge
+ * of the screen at the headline's baseline, rises up and AROUND the two
+ * text lines (never crossing them — geometry is measured from the real
+ * rendered spans), steps down past "VST.", and exits right. Flat runs with
+ * a few sharp pulse spikes, like a heart monitor.
+ */
+function useHeroSignal(
+  wrapRef: React.RefObject<HTMLDivElement | null>,
+  l1Ref: React.RefObject<HTMLSpanElement | null>,
+  l2Ref: React.RefObject<HTMLSpanElement | null>,
+) {
+  const [d, setD] = useState<string | null>(null)
 
-// Flat EKG tails running out from the headline's baseline corners.
-const TAIL_L = 'M 0 40 L 500 40 L 516 40 L 528 12 L 540 54 L 552 40 L 600 40'
-const TAIL_R = 'M 0 40 L 48 40 L 60 8 L 72 56 L 84 40 L 600 40'
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const l1 = l1Ref.current
+    const l2 = l2Ref.current
+    if (!wrap || !l1 || !l2) return
+
+    const compute = () => {
+      const W = wrap.offsetWidth
+      const H = wrap.offsetHeight
+      if (W === 0 || H === 0) return
+      const r1 = l1.offsetLeft + l1.offsetWidth // right edge of "Write React."
+      const t2 = l2.offsetTop // top of "Ship native VST."
+      const rect = wrap.getBoundingClientRect()
+
+      const p = Math.min(26, Math.max(14, W * 0.035)) // breathing room around glyphs
+      const yTop = -p
+      const yStep = Math.max(t2 - p * 0.55, yTop + 24) // shelf above line 2
+      const xStep = Math.min(r1 + p, W - 30) // corner after "React."
+      const yBase = H + p * 0.55 // the EKG baseline under everything
+      const tailL = Math.max(rect.left, 0) + p + 40 // out to the viewport edge
+      const tailR = Math.max(window.innerWidth - rect.right, 0) + p + 40
+
+      const spike = (x: number, y: number, s = 16) =>
+        `L ${x} ${y} L ${x + 8} ${y - s} L ${x + 16} ${y + s * 0.62} L ${x + 24} ${y}`
+
+      const parts = [
+        `M ${-tailL} ${yBase}`,
+        spike(-tailL * 0.55 - p, yBase, 12),
+        `L ${-p} ${yBase}`,
+        `L ${-p} ${yTop}`,
+        spike(Math.max(40, r1 * 0.34), yTop),
+        `L ${xStep} ${yTop}`,
+        `L ${xStep} ${yStep}`,
+      ]
+      if (W + p - xStep > 110) parts.push(spike(xStep + (W - xStep) * 0.42, yStep, 12))
+      parts.push(
+        `L ${W + p} ${yStep}`,
+        `L ${W + p} ${yBase}`,
+        spike(W + p + tailR * 0.4, yBase, 12),
+        `L ${W + tailR} ${yBase}`,
+      )
+      setD(parts.join(' '))
+    }
+
+    compute()
+    const ro = new ResizeObserver(compute)
+    ro.observe(wrap)
+    ro.observe(l1)
+    ro.observe(l2)
+    window.addEventListener('resize', compute)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', compute)
+    }
+  }, [wrapRef, l1Ref, l2Ref])
+
+  return d
+}
 
 export default function Home() {
   const [gain, setGain] = useState(GAIN_DEFAULT)
   const [pan, setPan] = useState(PAN_DEFAULT)
+  const heroWrapRef = useRef<HTMLDivElement>(null)
+  const heroL1Ref = useRef<HTMLSpanElement>(null)
+  const heroL2Ref = useRef<HTMLSpanElement>(null)
+  const heroSignal = useHeroSignal(heroWrapRef, heroL1Ref, heroL2Ref)
   const [knobZone, setKnobZone] = useState<'gain' | 'pan' | null>(null)
   const [titleHover, setTitleHover] = useState(false)
   const [badgeHover, setBadgeHover] = useState(false)
@@ -264,66 +328,47 @@ export default function Home() {
         <a className={styles.verChip} href={`${REPO}/releases`}>
           v{VERSION}
         </a>
-        <p className={styles.claim}>React in. Native VST out. No webview.</p>
         <nav className={styles.headNav}>
           <Link className={styles.headLink} href="/docs">
             DOCS
           </Link>
-          <a className={styles.headCta} href={REPO}>
-            GET IT ON GITHUB
+          <a className={styles.ghBtn} href={REPO} aria-label="VSReacT on GitHub">
+            <GitHubIcon size={20} />
           </a>
         </nav>
       </header>
 
       <section className={styles.hero}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logos/logo-red.png" alt="" className={styles.heroLogo} aria-hidden="true" />
+        <img src="/logos/logo-text-red.png" alt="" className={styles.heroLogo} aria-hidden="true" />
 
         <div className={styles.heroInner}>
           <span className={`${styles.heroKicker} ${styles.rise}`}>{TAGLINE.toUpperCase()}</span>
-          <div className={`${styles.heroTitleWrap} ${styles.rise} ${styles.d1}`}>
-            <svg
-              className={styles.heroOutline}
-              viewBox="0 0 1000 300"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d={OUTLINE} pathLength={1000} className={styles.heroOutlineGhost} />
-              <path d={OUTLINE} pathLength={1000} className={styles.heroOutlineLive} />
-            </svg>
-            <svg
-              className={`${styles.heroTail} ${styles.heroTailL}`}
-              viewBox="0 0 600 44"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d={TAIL_L} pathLength={600} />
-            </svg>
-            <svg
-              className={`${styles.heroTail} ${styles.heroTailR}`}
-              viewBox="0 0 600 44"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d={TAIL_R} pathLength={600} />
-            </svg>
+          <div className={`${styles.heroTitleWrap} ${styles.rise} ${styles.d1}`} ref={heroWrapRef}>
+            {heroSignal ? (
+              <svg className={styles.heroOutline} aria-hidden="true" focusable="false">
+                <path d={heroSignal} pathLength={1000} className={styles.heroOutlineGhost} />
+                <path d={heroSignal} pathLength={1000} className={styles.heroOutlineLive} />
+              </svg>
+            ) : null}
             <h1 className={styles.heroTitle}>
-              Write React.
+              <span className={styles.heroLine} ref={heroL1Ref}>
+                Write React.
+              </span>
               <br />
-              Ship <span>native</span> VST.
+              <span className={styles.heroLine} ref={heroL2Ref}>
+                Ship <span className={styles.heroRed}>native</span> VST.
+              </span>
             </h1>
           </div>
           <p className={`${styles.heroLede} ${styles.rise} ${styles.d2}`}>{LEDE}</p>
           <div className={`${styles.heroCtas} ${styles.rise} ${styles.d2}`}>
-            <a className={styles.heroBtn} href={REPO}>
-              GET IT ON GITHUB
-            </a>
-            <Link className={styles.heroBtnGhost} href="/docs">
+            <Link className={styles.heroBtn} href="/docs">
               READ THE DOCS
             </Link>
+            <a className={styles.heroBtnIcon} href={REPO} aria-label="VSReacT on GitHub">
+              <GitHubIcon size={22} />
+            </a>
           </div>
           <p className={`${styles.heroSpecs} ${styles.rise} ${styles.d3}`}>
             NO WEBVIEW · QUICKJS ES2023 · YOGA FLEXBOX · JUCE::GRAPHICS · WINDOWS · MACOS · LINUX
@@ -440,7 +485,7 @@ export default function Home() {
               </CodeLine>
               <CodeLine>
                 {'  '}
-                {kw('from')} {str('"@vsreact/core"')};
+                {kw('from')} {str('"vsreact"')};
               </CodeLine>
               <CodeLine />
               <CodeLine hl={zone === 'app'}>
@@ -605,21 +650,20 @@ export default function Home() {
             <a className={styles.proofCta} href={STASH}>
               OPEN STASHTRACK ↗
             </a>
-            <span className={styles.proofPlatforms}>WINDOWS · MACOS · LINUX</span>
           </div>
         </div>
       </section>
 
       <footer className={styles.foot}>
-        <a className={styles.footCta} href={REPO}>
+        <Link className={styles.footCta} href="/docs">
           START BUILDING →
-        </a>
+        </Link>
         <p>
           VSReacT — N9 Records Technologies · MIT ·{' '}
           <Link className={styles.footMail} href="/docs">
             Documentation
           </Link>{' '}
-          · QuickJS + react-reconciler + Yoga + JUCE ·{' '}
+          ·{' '}
           <a className={styles.footMail} href="mailto:vsreact-support@n9records.com">
             vsreact-support@n9records.com
           </a>

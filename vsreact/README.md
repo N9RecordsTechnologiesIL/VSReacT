@@ -4,7 +4,7 @@ Write native JUCE plugin UIs in modern React + TypeScript — no webview, no
 LookAndFeel fights, no janky workarounds.
 
 ```tsx
-import { render, View, Text, native } from "@vsreact/core";
+import { render, View, Text, native } from "vsreact";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -97,7 +97,7 @@ root = std::make_unique<vsreact::RootView> (std::move (options), std::move (regi
 addAndMakeVisible (*root);
 ```
 
-JS app: depend on `@vsreact/core` (js/ in this repo), bundle with Bun as an
+JS app: depend on `vsreact` (js/ in this repo), bundle with Bun as an
 IIFE (`js/build.ts` shows how), production builds embed the bundle via
 `juce_add_binary_data` and `RootOptions::bundleSource`.
 
@@ -106,7 +106,7 @@ IIFE (`js/build.ts` shows how), production builds embed the bundle via
 - `module/vsreact/` — the JUCE module: QuickJS runtime, bridge, shadow tree,
   Yoga adapter, painter, hit-testing, TextInput host, native registry,
   RootView, error overlay.
-- `js/` — `@vsreact/core`: reconciler host config, primitives, tailwind
+- `js/` — `vsreact`: reconciler host config, primitives, tailwind
   resolver, runtime shims, native messaging.
 - `third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
 - `examples/gain/` — a real gain/pan plugin: APVTS-bound React knobs.

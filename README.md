@@ -23,7 +23,7 @@
 ---
 
 ```tsx
-import { render, View, ParamKnob } from "@vsreact/core";
+import { render, View, ParamKnob } from "vsreact";
 
 function App() {
   return (
@@ -83,11 +83,10 @@ audio software: the framework owns every pixel, so beautiful is the default.
 
 Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framework/JUCE), and [Bun](https://bun.sh) (or any Node package manager).
 
-**The UI package** — straight from the latest release (registry publish coming; same artifact):
+**The UI package:**
 
 ```bash
-bun add https://github.com/N9RecordsTechnologiesIL/VSReacT/releases/latest/download/vsreact-core.tgz
-# or: npm install / yarn add / pnpm add — same URL
+bun add vsreact    # or: npm install vsreact / yarn add vsreact / pnpm add vsreact
 ```
 
 **The native module** — CMake fetches it, pinned to a tag (place after JUCE is added):
@@ -148,7 +147,7 @@ checkout nests inside this repository as `StashTrack/` (its own git repo).
 
 - `vsreact/module/` — the JUCE module: QuickJS runtime, bridge, shadow tree,
   Yoga adapter, painter, hit-testing, TextInput host, ParameterBridge, RootView.
-- `vsreact/js/` — `@vsreact/core`: reconciler host config, primitives,
+- `vsreact/js/` — `vsreact`: reconciler host config, primitives,
   tailwind resolver, `useParameter`, `Knob`/`Slider`, `useTween`, runtime shims.
 - `vsreact/examples/gain/` — the two-knob example plugin.
 - `vsreact/third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).

@@ -1,6 +1,5 @@
-# Tag vX.Y.Z → GitHub release carrying the @vsreact/core tarball
-# (versioned + stable asset names), plus an npm-registry publish once an
-# NPM_TOKEN secret is configured.
+# Tag vX.Y.Z → publish the `vsreact` package to the npm registry and
+# create a GitHub release carrying the tarball (versioned + stable names).
 
 name: release
 
@@ -17,13 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pack @vsreact/core
+      - name: Pack vsreact
         working-directory: vsreact/js
         run: |
           npm pack
-          cp vsreact-core-*.tgz vsreact-core.tgz
+          cp vsreact-[0-9]*.tgz vsreact.tgz
 
-      - name: Publish to npm (skipped until NPM_TOKEN is configured)
+      - name: Publish to npm
         working-directory: vsreact/js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -41,12 +40,12 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             --title "VSReacT $GITHUB_REF_NAME" \
-            --notes "## @vsreact/core $GITHUB_REF_NAME
+            --notes "## vsreact $GITHUB_REF_NAME
 
-          Install the UI package straight from this release:
+          Install the UI package:
 
           \`\`\`sh
-          bun add https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/vsreact-core.tgz
+          bun add vsreact   # or npm install / yarn add / pnpm add
           \`\`\`
 
           Fetch the native JUCE module with CMake:
@@ -61,5 +60,5 @@ jobs:
           \`\`\`
 
           Docs: https://vsreact.n9records.com/docs" \
-            vsreact/js/vsreact-core-*.tgz \
-            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)"
+            vsreact/js/vsreact-[0-9]*.tgz \
+            "vsreact/js/vsreact.tgz#vsreact.tgz (stable name — latest)"

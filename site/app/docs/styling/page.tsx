@@ -102,7 +102,7 @@ export default function Page() {
         Register your palette once and use semantic names everywhere — the resolver expands
         them like any other color:
       </p>
-      <Code title="theme.ts">{`import { configureTheme } from "@vsreact/core";
+      <Code title="theme.ts">{`import { configureTheme } from "vsreact";
 
 configureTheme({
   colors: {

@@ -122,10 +122,6 @@
   color: var(--ink);
 }
 
-.claim {
-  font-size: 14px;
-  color: var(--dim);
-}
 
 .headNav {
   margin-left: auto;
@@ -149,20 +145,21 @@
   border-color: var(--red);
 }
 
-.headCta {
-  font-family: var(--font-jb), monospace;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  font-weight: 600;
-  color: var(--ink);
-  background: var(--porcelain);
-  padding: 11px 20px;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+.ghBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--porcelain);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.headCta:hover {
-  background: var(--red);
-  color: var(--porcelain);
+.ghBtn:hover {
+  border-color: var(--red);
+  color: var(--red);
   transform: translateY(-1px);
 }
 
@@ -206,7 +203,7 @@
 .heroTitleWrap {
   position: relative;
   display: inline-block;
-  margin: 10px 0 6px;
+  margin: 30px 0 34px;
 }
 
 .heroOutline {
@@ -242,37 +239,6 @@
   to { stroke-dashoffset: -1000; }
 }
 
-.heroTail {
-  position: absolute;
-  top: calc(100% - 40px);
-  height: 44px;
-  width: 48vw;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.heroTail path {
-  fill: none;
-  stroke: rgba(255, 46, 46, 0.55);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 6px rgba(255, 46, 46, 0.35));
-  stroke-dasharray: 30 170; /* pathLength=600 → seamless */
-  animation: tailFlow 9s linear infinite;
-}
-
-@keyframes tailFlow {
-  to { stroke-dashoffset: -600; }
-}
-
-.heroTailL {
-  right: 100%;
-}
-
-.heroTailR {
-  left: 100%;
-}
 
 .heroKicker {
   display: block;
@@ -292,7 +258,11 @@
   letter-spacing: 0.005em;
 }
 
-.heroTitle span {
+.heroLine {
+  display: inline-block;
+}
+
+.heroRed {
   color: var(--red);
 }
 
@@ -329,18 +299,18 @@
   transform: translateY(-1px);
 }
 
-.heroBtnGhost {
-  font-family: var(--font-jb), monospace;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  font-weight: 600;
+.heroBtnIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 49px;
+  height: 49px;
   color: var(--porcelain);
   border: 1px solid var(--edge);
-  padding: 14px 26px;
   transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.heroBtnGhost:hover {
+.heroBtnIcon:hover {
   border-color: var(--red);
   color: var(--red);
   transform: translateY(-1px);
@@ -962,12 +932,6 @@
   background: var(--red);
 }
 
-.proofPlatforms {
-  font-family: var(--font-jb), monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  color: var(--dim);
-}
 
 /* footer */
 

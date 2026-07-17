@@ -23,7 +23,7 @@ export default function Page() {
         every DAW, on every OS. No webview.
       </p>
 
-      <Code title="the whole UI of examples/gain">{`import { render, View, ParamKnob } from "@vsreact/core";
+      <Code title="the whole UI of examples/gain">{`import { render, View, ParamKnob } from "vsreact";
 
 function App() {
   return (
@@ -74,12 +74,12 @@ render(<App />);`}</Code>
         </li>
       </ol>
       <p>
-        Two packages make up the framework. <code>@vsreact/core</code> is the TypeScript side:
-        primitives, the Tailwind-style class resolver, parameter hooks, controls, and
-        animation. <code>vsreact</code> is a JUCE module: the QuickJS runtime, shadow tree,
-        painter, hit-testing, text-input host, and the <code>RootView</code> component you
-        drop into your plugin editor. The deep dive lives in{' '}
-        <Link href="/docs/architecture">Architecture</Link>.
+        Two halves make up the framework. The <code>vsreact</code> npm package is the
+        TypeScript side: primitives, the Tailwind-style class resolver, parameter hooks,
+        controls, and animation. The <code>vsreact</code> JUCE module is the native side:
+        the QuickJS runtime, shadow tree, painter, hit-testing, text-input host, and the{' '}
+        <code>RootView</code> component you drop into your plugin editor. The deep dive
+        lives in <Link href="/docs/architecture">Architecture</Link>.
       </p>
 
       <h2 id="highlights">Key features</h2>

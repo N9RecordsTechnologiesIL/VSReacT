@@ -42,6 +42,7 @@ END_JUCE_MODULE_DECLARATION
 #include "source/NativeRegistry.h"
 #include "source/TextInputHost.h"
 #include "source/ParameterBridge.h"
+#include "source/PostHogBridge.h"
 #include "source/ErrorOverlay.h"
 #include "source/RootView.h"
 

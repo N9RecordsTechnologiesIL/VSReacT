@@ -163,6 +163,19 @@ export const DOCS: DocPage[] = [
     keywords: 'native call on events bridge sendnativeevent usenativeevent usedebounced debounce messaging json',
   },
   {
+    slug: 'posthog',
+    title: 'PostHog analytics',
+    group: 'AUDIO & NATIVE',
+    headings: [
+      ['install', 'Install'],
+      ['cpp', 'C++ wiring'],
+      ['js', 'Capture from React'],
+      ['api', 'The client API'],
+    ],
+    keywords:
+      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount useposthogparameters bridge consent',
+  },
+  {
     slug: 'cpp-api',
     title: 'C++ API',
     group: 'AUDIO & NATIVE',

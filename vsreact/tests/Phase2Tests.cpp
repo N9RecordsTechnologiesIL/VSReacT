@@ -282,6 +282,94 @@ public:
 static WheelAndDoubleClickTests wheelAndDoubleClickTests;
 
 //==============================================================================
+class PostHogBridgeTests final : public juce::UnitTest
+{
+public:
+    PostHogBridgeTests() : juce::UnitTest ("vsreact::PostHogBridge") {}
+
+    void runTest() override
+    {
+        const auto stateFile = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                                   .getChildFile ("vsreact-posthog-test-id.txt");
+        stateFile.deleteFile();
+
+        beginTest ("posthog:config returns a persistent distinct id + host");
+        {
+            vsreact::PostHogBridge::Options options;
+            options.apiKey = "phc_test";
+            options.host = "https://eu.i.posthog.com";
+            options.stateFile = stateFile;
+
+            juce::String firstId;
+
+            {
+                vsreact::PostHogBridge bridge (options);
+                const auto config = bridge.handleNativeCall ("posthog:config", juce::var());
+                expect (config.has_value());
+                firstId = (*config)["distinctId"].toString();
+                expect (firstId.isNotEmpty());
+                expectEquals ((*config)["host"].toString(), juce::String ("https://eu.i.posthog.com"));
+            }
+
+            vsreact::PostHogBridge second (options);
+            expectEquals (second.getDistinctId(), firstId); // persisted across instances
+        }
+
+        beginTest ("posthog:send batches events into one wrapped POST");
+        {
+            vsreact::PostHogBridge::Options options;
+            options.apiKey = "phc_test";
+            options.host = "https://eu.i.posthog.com";
+
+            vsreact::PostHogBridge bridge (options);
+
+            juce::StringArray urls;
+            juce::var lastBody;
+
+            bridge.setTransport ([&] (const juce::String& url, const juce::String& body) -> bool
+            {
+                urls.add (url);
+                lastBody = juce::JSON::parse (body);
+                return true;
+            });
+
+            const auto makeEvent = [] (const char* name)
+            {
+                auto* event = new juce::DynamicObject();
+                event->setProperty ("event", name);
+                return juce::var (event);
+            };
+
+            juce::Array<juce::var> batch;
+            batch.add (makeEvent ("plugin_opened"));
+            batch.add (makeEvent ("parameter_changed"));
+
+            auto* args = new juce::DynamicObject();
+            args->setProperty ("batch", batch);
+
+            const auto result = bridge.handleNativeCall ("posthog:send", juce::var (args));
+            expect (result.has_value());
+
+            bridge.flushSynchronously();
+
+            expectEquals (urls.size(), 1);
+            expectEquals (urls[0], juce::String ("https://eu.i.posthog.com/batch/"));
+            expectEquals (lastBody["api_key"].toString(), juce::String ("phc_test"));
+            expectEquals (lastBody["batch"].getArray()->size(), 2);
+            expectEquals ((*lastBody["batch"].getArray())[0]["event"].toString(),
+                          juce::String ("plugin_opened"));
+
+            // non-posthog calls pass through
+            expect (! bridge.handleNativeCall ("param:get", juce::var()).has_value());
+        }
+
+        stateFile.deleteFile();
+    }
+};
+
+static PostHogBridgeTests postHogBridgeTests;
+
+//==============================================================================
 namespace
 {
     struct BridgeTestProcessor final : juce::AudioProcessor

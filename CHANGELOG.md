@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.0.9 — 2026-07-17
+
+PostHog analytics inside your plugin.
+
+### New package: `@vsreact/posthog` 0.0.1
+
+- **`posthog`** client — posthog-js-shaped API (`init`, `capture`,
+  `identify`, `register`, `set`, `reset`, `flush`) that batches in JS
+  (flush at 10 events / 10s) and delivers through the native bridge.
+  Every event carries `distinct_id`, `$session_id`, and lib metadata.
+- **`usePostHogParameters()`** — the one-liner for plugin usage
+  analytics: every host parameter change becomes one debounced
+  `parameter_changed {parameter_id, value, text}` event per parameter.
+- **`useCaptureOnMount(event)`** for panel/screen views, `usePostHog()`.
+
+### Core 0.0.9 — native side
+
+- **`vsreact::PostHogBridge`** — chain it in `onNativeCall` like the
+  ParameterBridge. Answers `posthog:config` (persistent anonymous
+  distinct id via an optional `stateFile`, host) and `posthog:send`
+  (queues batches, posts `{api_key, batch}` to `{host}/batch/` on a
+  background thread via `juce::URL`). The API key stays in C++. Test
+  transport + synchronous-flush hooks included; covered by C++ tests.
+- Release workflow now builds and publishes both packages; CI tests both.
+- No other core changes — JS core API identical to 0.0.8.
+
 ## 0.0.8 — 2026-07-17
 
 - **`@vsreact/core/components`** subpath export — the whole component

@@ -1,0 +1,119 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import styles from '../docs.module.css'
+import { Code, Crumbs, Note, Pager } from '../ui'
+import { PmTabs } from '../Tabs'
+
+export const metadata: Metadata = {
+  title: 'PostHog analytics',
+  description:
+    'Product analytics inside your plugin: capture from the React UI, delivered over HTTPS by the native PostHogBridge — which knobs users touch, which panels they open, which presets they load.',
+}
+
+export default function Page() {
+  return (
+    <article className={styles.article}>
+      <Crumbs slug="posthog" />
+      <h1>PostHog analytics</h1>
+      <p className={styles.lead}>
+        Know what your users actually do with your plugin — which knobs they touch, which
+        panels they open, which presets they load. <code>@vsreact/posthog</code> captures
+        from the React side and the native <code>PostHogBridge</code> delivers over HTTPS
+        (QuickJS has no network; C++ owns delivery, off the message thread).
+      </p>
+
+      <h2 id="install">Install</h2>
+      <PmTabs
+        commands={{
+          bun: 'bun add @vsreact/posthog',
+          npm: 'npm install @vsreact/posthog',
+          yarn: 'yarn add @vsreact/posthog',
+          pnpm: 'pnpm add @vsreact/posthog',
+        }}
+      />
+
+      <h2 id="cpp">C++ wiring</h2>
+      <p>
+        Construct a <code>PostHogBridge</code> with your project API key and chain it in{' '}
+        <code>onNativeCall</code>, exactly like the ParameterBridge. The key lives in C++ —
+        the JS bundle never sees it.
+      </p>
+      <Code title="PluginEditor.cpp">{`vsreact::PostHogBridge::Options analytics;
+analytics.apiKey = "phc_...";                             // your project key
+analytics.host = "https://eu.i.posthog.com";              // or us / self-hosted
+analytics.stateFile = appDataDir.getChildFile ("ph-id");  // persistent anonymous id
+
+posthog = std::make_unique<vsreact::PostHogBridge> (analytics);
+
+options.onNativeCall = [this] (const juce::String& name, const juce::var& args) -> juce::var
+{
+    if (auto handled = posthog->handleNativeCall (name, args)) return *handled;
+    if (auto handled = bridge.handleNativeCall (name, args))   return *handled;
+    return {};
+};`}</Code>
+      <ul>
+        <li>
+          Batches post to <code>{'{host}'}/batch/</code> on a background thread — never the
+          audio or message thread.
+        </li>
+        <li>
+          <code>stateFile</code> persists the anonymous distinct id across sessions; leave
+          it empty for a fresh id per instance.
+        </li>
+      </ul>
+
+      <h2 id="js">Capture from React</h2>
+      <Code title="ui/src/main.tsx">{`import { render, GenericEditor } from "@vsreact/core";
+import { posthog, usePostHogParameters, useCaptureOnMount } from "@vsreact/posthog";
+
+posthog.init({ defaultProperties: { plugin_version: "1.2.0" } });
+
+function App() {
+  usePostHogParameters();          // every knob tweak, debounced per parameter
+  useCaptureOnMount("plugin_opened");
+
+  return <GenericEditor />;
+}
+
+render(<App />);`}</Code>
+      <p>
+        <code>usePostHogParameters()</code> is the flagship: it subscribes to every host
+        parameter change and captures one <code>parameter_changed</code> event per parameter
+        after the user settles (debounced, default 800ms) — usage analytics for your whole
+        control surface in one line.
+      </p>
+
+      <h2 id="api">The client API</h2>
+      <Code title="TSX">{`posthog.capture("preset_loaded", { preset: "Warm Tape" });
+posthog.register({ daw: hostName });          // stamped on every event
+posthog.identify("user-123", { plan: "pro" }); // tie to a known user
+posthog.set({ favourite_mode: "TUBE" });       // person properties
+posthog.flush();                               // force-send now
+posthog.reset();                               // fresh anonymous identity`}</Code>
+      <ul>
+        <li>
+          Events queue in JS and flush at 10 events or 10 seconds (tune with{' '}
+          <code>init({'{flushAt, flushIntervalMs}'})</code>).
+        </li>
+        <li>
+          Every event carries <code>distinct_id</code>, <code>$session_id</code>, and lib
+          metadata automatically.
+        </li>
+      </ul>
+
+      <Note>
+        <strong>Respect your users:</strong> ship analytics behind a consent toggle in your
+        settings panel, and say what you collect. A <code>&lt;ParamToggle&gt;</code> wired to
+        a &quot;share usage data&quot; flag that gates <code>posthog.init()</code> is the
+        pattern.
+      </Note>
+
+      <p>
+        Full messaging model in <Link href="/docs/native-messaging">Native messaging</Link>;
+        the bridge type in the <Link href="/docs/cpp-api">C++ API</Link>.
+      </p>
+
+      <Pager current="posthog" />
+    </article>
+  )
+}

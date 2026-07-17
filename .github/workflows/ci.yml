@@ -17,6 +17,10 @@ jobs:
         working-directory: vsreact/js
       - run: bun test
         working-directory: vsreact/js
+      - run: bunx tsc --noEmit
+        working-directory: vsreact/js-posthog
+      - run: bun test
+        working-directory: vsreact/js-posthog
 
   native:
     name: C++ module (${{ matrix.os }})

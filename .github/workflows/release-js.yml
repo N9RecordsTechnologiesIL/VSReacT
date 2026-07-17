@@ -30,8 +30,14 @@ jobs:
           npm pack
           cp vsreact-core-[0-9]*.tgz vsreact-core.tgz
 
+      - name: Build + pack @vsreact/posthog
+        working-directory: vsreact/js-posthog
+        run: |
+          bun run build:dist
+          npm pack
+          cp vsreact-posthog-[0-9]*.tgz vsreact-posthog.tgz
+
       - name: Publish to npm
-        working-directory: vsreact/js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -39,13 +45,16 @@ jobs:
             echo "NPM_TOKEN secret not set — skipping registry publish."
             exit 0
           fi
-          VERSION=$(node -p "require('./package.json').version")
-          if npm view "@vsreact/core@$VERSION" version >/dev/null 2>&1; then
-            echo "@vsreact/core@$VERSION already on the registry — skipping."
-            exit 0
-          fi
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          npm publish --access public
+          for dir in vsreact/js vsreact/js-posthog; do
+            NAME=$(node -p "require('./$dir/package.json').name")
+            VERSION=$(node -p "require('./$dir/package.json').version")
+            if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+              echo "$NAME@$VERSION already on the registry — skipping."
+            else
+              (cd "$dir" && npm publish --access public)
+            fi
+          done
 
       - name: Create GitHub release
         env:
@@ -74,4 +83,6 @@ jobs:
 
           Docs: https://vsreact.n9records.com/docs" \
             vsreact/js/vsreact-core-[0-9]*.tgz \
-            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)"
+            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)" \
+            vsreact/js-posthog/vsreact-posthog-[0-9]*.tgz \
+            "vsreact/js-posthog/vsreact-posthog.tgz#vsreact-posthog.tgz (stable name — latest)"

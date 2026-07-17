@@ -104,6 +104,19 @@ std::optional<juce::var> handleNativeCall (const juce::String& name,
         <Link href="/docs/parameters">Audio parameters</Link>.
       </p>
 
+      <h2 id="posthogbridge">vsreact::PostHogBridge</h2>
+      <Code title="signature">{`struct Options { juce::String apiKey, host; juce::File stateFile; };
+explicit PostHogBridge (Options options);
+
+std::optional<juce::var> handleNativeCall (const juce::String& name,
+                                           const juce::var& args);`}</Code>
+      <p>
+        The native half of <code>@vsreact/posthog</code>: answers{' '}
+        <code>posthog:config</code> / <code>posthog:send</code> and posts event batches to
+        PostHog on a background thread. Chain before or after the ParameterBridge — see{' '}
+        <Link href="/docs/posthog">PostHog analytics</Link>.
+      </p>
+
       <h2 id="nativeregistry">vsreact::NativeRegistry</h2>
       <Code title="signature">{`using Factory = std::function<std::unique_ptr<juce::Component>()>;
 

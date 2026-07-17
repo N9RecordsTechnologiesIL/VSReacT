@@ -1,27 +1,24 @@
 {
-  "name": "@vsreact/core",
-  "version": "0.0.9",
-  "description": "Write React. Ship native VST. A React renderer for JUCE audio plugins — QuickJS + Yoga + juce::Graphics, no webview.",
+  "name": "@vsreact/posthog",
+  "version": "0.0.1",
+  "description": "PostHog analytics for VSReacT plugins — capture from your React UI, delivered over HTTPS by the native PostHogBridge.",
   "keywords": [
-    "react",
+    "posthog",
+    "analytics",
+    "vsreact",
     "juce",
     "vst",
-    "vst3",
     "audio-plugin",
-    "renderer",
-    "quickjs",
-    "yoga",
-    "native",
-    "daw"
+    "telemetry"
   ],
   "type": "module",
   "license": "MIT",
-  "homepage": "https://vsreact.n9records.com",
+  "homepage": "https://vsreact.n9records.com/docs/posthog",
   "bugs": "https://github.com/N9RecordsTechnologiesIL/VSReacT/issues",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/N9RecordsTechnologiesIL/VSReacT.git",
-    "directory": "vsreact/js"
+    "directory": "vsreact/js-posthog"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,34 +28,27 @@
       "bun": "./src/index.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    },
-    "./components": {
-      "types": "./dist/components.d.ts",
-      "bun": "./src/components.ts",
-      "import": "./dist/components.js",
-      "default": "./dist/components.js"
     }
   },
   "files": [
     "dist",
-    "src",
-    "build.ts"
+    "src"
   ],
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "build": "bun run build.ts",
     "build:dist": "tsc -p tsconfig.build.json",
     "prepublishOnly": "bun run build:dist"
   },
-  "dependencies": {
-    "@types/react": "^18.3.3",
-    "react": "18.3.1",
-    "react-reconciler": "0.29.2"
+  "peerDependencies": {
+    "@vsreact/core": ">=0.0.8",
+    "react": "^18.0.0"
   },
   "devDependencies": {
-    "@types/react-reconciler": "0.28.8",
+    "@vsreact/core": "workspace:*",
+    "@types/react": "^18.3.3",
     "bun-types": "^1.3.14",
+    "react": "18.3.1",
     "typescript": "^5.5.0"
   }
 }

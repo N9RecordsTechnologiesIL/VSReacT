@@ -16,6 +16,7 @@
 #include "source/HitTest.cpp"
 #include "source/RootView.cpp"
 #include "source/ParameterBridge.cpp"
+#include "source/PostHogBridge.cpp"
 
 #include <quickjs.h>
 

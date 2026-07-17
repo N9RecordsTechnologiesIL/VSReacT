@@ -126,6 +126,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: 14vh 4vw 0;
+  overscroll-behavior: contain; /* wheel over the backdrop must not scroll the page */
 }
 
 .searchModal {

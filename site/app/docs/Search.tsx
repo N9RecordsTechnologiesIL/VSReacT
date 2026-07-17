@@ -5,6 +5,7 @@
 // the index ships with the bundle, no server needed.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import styles from './docs.module.css'
 import { DOCS, hrefFor } from './nav'
@@ -126,14 +127,18 @@ export function Search() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, close, go])
 
-  // Own the focus + lock page scroll while open.
+  // Own the focus + lock page scroll (html AND body — the sidebar has its
+  // own scroller, but nothing behind the modal should move) while open.
   useEffect(() => {
     if (!open) return
-    const previous = document.body.style.overflow
+    const previousBody = document.body.style.overflow
+    const previousHtml = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
     requestAnimationFrame(() => inputRef.current?.focus())
     return () => {
-      document.body.style.overflow = previous
+      document.body.style.overflow = previousBody
+      document.documentElement.style.overflow = previousHtml
     }
   }, [open])
 
@@ -158,7 +163,12 @@ export function Search() {
         <kbd>CTRL K</kbd>
       </button>
 
-      {open ? (
+      {/* Portal to <body>: the header's backdrop-filter makes it the
+          containing block for position:fixed, which would trap the
+          overlay inside the top bar — clicks outside would never reach
+          the backdrop and the page would keep scrolling underneath. */}
+      {open
+        ? createPortal(
         <div className={styles.searchOverlay} onMouseDown={close} role="presentation">
           <div
             className={styles.searchModal}
@@ -211,8 +221,10 @@ export function Search() {
               ) : null}
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+          document.body,
+        )
+        : null}
     </>
   )
 }

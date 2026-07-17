@@ -642,6 +642,58 @@ export default function Home() {
         </Link>
       </section>
 
+      <section className={styles.data} data-reveal>
+        <div className={styles.dataPanel}>
+          <div className={styles.dataCopy}>
+            <span className={styles.dataTag}>IN A WORLD OF DATA</span>
+            <h2 className={styles.dataTitle}>
+              PostHog, <span>native.</span>
+            </h2>
+            <p>
+              Your plugin ships into a world of data — so know which knobs they touch, which
+              panels they open, which presets they load. <code>@vsreact/posthog</code>{' '}
+              captures from your React UI and the native bridge delivers over HTTPS, off the
+              audio thread. The API key never enters the JS bundle.
+            </p>
+            <pre className={styles.dataCode}>
+              <code>
+                <span className={styles.kw}>import</span>
+                {' { usePostHogParameters } '}
+                <span className={styles.kw}>from</span>{' '}
+                <span className={styles.str}>"@vsreact/posthog"</span>;{'\n\n'}
+                <span className={styles.fn}>usePostHogParameters</span>
+                {'();  '}
+                <em className={styles.live}>{'// every knob your users touch'}</em>
+              </code>
+            </pre>
+            <Link className={styles.dataCta} href="/docs/posthog">
+              WIRE UP ANALYTICS →
+            </Link>
+          </div>
+          <div className={styles.dataFeed} aria-hidden="true">
+            <span className={styles.dataFeedHead}>
+              <i /> LIVE EVENTS
+            </span>
+            <div>
+              <b>parameter_changed</b>
+              <span>gain · +2.4 dB</span>
+            </div>
+            <div>
+              <b>preset_loaded</b>
+              <span>&quot;Warm Tape&quot;</span>
+            </div>
+            <div>
+              <b>parameter_changed</b>
+              <span>cutoff · 1.2 kHz</span>
+            </div>
+            <div>
+              <b>plugin_opened</b>
+              <span>$session · 9f2c…</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.proof} data-reveal>
         <div className={styles.proofPanel}>
           <span className={styles.proofTag}>SHIPPING — NOT A DEMO</span>

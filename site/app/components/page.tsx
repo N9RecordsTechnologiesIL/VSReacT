@@ -25,8 +25,8 @@ const THEMES: Array<[key: string, label: string]> = [
   ['inst', 'INSTRUMENT'],
   ['metal', 'METAL'],
   ['std', 'STANDARD'],
-  ['glass', 'GLASS'],
-  ['carbon', 'CARBON'],
+  ['glass', 'ETHER'],
+  ['carbon', 'EMBER'],
   ['neon', 'NEON'],
 ]
 
@@ -1819,7 +1819,7 @@ export default function ComponentsPage() {
         </h1>
         <p>
           Each strip below is <strong>one component</strong> with one shared value — drag any
-          skin and they all move. Instrument, metal, standard, glass, carbon, neon: same
+          skin and they all move. Instrument, metal, standard, ether, ember, neon: same
           API, different props and theme tokens. In your DAW, <code>juce::Graphics</code>{' '}
           paints the same geometry natively.
         </p>
@@ -1842,7 +1842,7 @@ export default function ComponentsPage() {
 
             <Family
               title="MacroPad"
-              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a frosted lightfield, a telemetry grid, a starfield — one drag drives them all."
+              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a particle void, a contour field, a starfield — one drag drives them all."
               imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
               docs="/docs/components#controls"
             >
@@ -1865,7 +1865,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Knob"
-              blurb="Six shapes of the same control: arc dial, machined billet cap, flat gauge, frosted halo puck, tick-scale racer, LED segment ring — one shared value."
+              blurb="Six shapes of the same control: arc dial, machined billet cap, flat gauge, hairline gradient ring, tick-scale ember, LED segment ring — one shared value."
               imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
               docs="/docs/parameters#controls"
             >
@@ -2086,7 +2086,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Tooltip"
-              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, frosted card, telemetry chip, terminal readout."
+              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, black-glass card, ember chip, terminal readout."
               imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
               docs="/docs/components#controls"
             >
@@ -2095,7 +2095,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Modal"
-              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a frosted glass sheet, a carbon telemetry panel, a scanlined terminal."
+              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a black-glass sheet, an ember telemetry panel, a scanlined terminal."
               imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
               docs="/docs/components#controls"
             >
@@ -2110,7 +2110,7 @@ export default function ComponentsPage() {
 
             <Family
               title="GenericEditor"
-              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, a frosted deck, a carbon rack, a glowing console."
+              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, an ether deck, an ember rack, a glowing console."
               imports={`render(<GenericEditor />)   // that's the whole editor`}
               docs="/docs/parameters#generic"
             >
@@ -2182,7 +2182,7 @@ export default function ComponentsPage() {
             <div className={`${styles.mBase} ${styles.mGlass}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
               <i aria-hidden="true" />
               <h4>About</h4>
-              <p>A frosted sheet — real backdrop blur, a specular top edge, light bleeding through from behind.</p>
+              <p>A sheet of black glass — hairline gradient edge, light from the void behind.</p>
               <button type="button" onClick={() => setModalOpen(null)}>
                 Close
               </button>
@@ -2194,7 +2194,7 @@ export default function ComponentsPage() {
                 <i />
                 SYSTEM / ABOUT
               </header>
-              <p>Woven carbon panel, volt accents, telemetry footer.</p>
+              <p>Ember panel — contour field, heat-gradient header, telemetry footer.</p>
               <footer>
                 <span>TEMP 42°</span>
                 <span>LOAD 07%</span>

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.8 — 2026-07-17
+
+- **`@vsreact/core/components`** subpath export — the whole component
+  kit importable on its own (`import { Knob, Select, Meter } from
+  "@vsreact/core/components"`). Same exports as the root; exists for
+  readability and as the boundary line if the kit ever becomes its own
+  package. Everything still ships in the one `@vsreact/core` install.
+
 ## 0.0.7 — 2026-07-17
 
 Visualizers, the hooks toolbox, and Button. JS-only — the native module

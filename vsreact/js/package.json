@@ -1,6 +1,6 @@
 {
   "name": "@vsreact/core",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Write React. Ship native VST. A React renderer for JUCE audio plugins — QuickJS + Yoga + juce::Graphics, no webview.",
   "keywords": [
     "react",
@@ -31,6 +31,12 @@
       "bun": "./src/index.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "bun": "./src/components.ts",
+      "import": "./dist/components.js",
+      "default": "./dist/components.js"
     }
   },
   "files": [

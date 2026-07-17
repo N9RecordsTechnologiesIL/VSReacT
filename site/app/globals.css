@@ -1,14 +1,4 @@
-:root {
-  --bg: #050705;
-  --panel: #0c110b;
-  --accent: #c6f135;
-  --text: #eff3e6;
-  --muted: #76806b;
-  --line: #222b1d;
-  --font-display: var(--font-grotesk), 'Space Grotesk', sans-serif;
-  --font-micro: var(--font-mono), 'JetBrains Mono', monospace;
-  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* Neutral reset only — every theme lives in its variant's CSS module. */
 
 * {
   box-sizing: border-box;
@@ -16,21 +6,9 @@
   padding: 0;
 }
 
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  font-family: system-ui, sans-serif;
 }
 
 a {
@@ -38,21 +16,15 @@ a {
   text-decoration: none;
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-@media (pointer: fine) {
-  body[data-custom-cursor='true'],
-  body[data-custom-cursor='true'] a,
-  body[data-custom-cursor='true'] button {
-    cursor: none;
-  }
+button {
+  font: inherit;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid currentColor;
   outline-offset: 3px;
-  border-radius: 4px;
 }

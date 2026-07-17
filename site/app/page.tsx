@@ -1,269 +1,356 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import styles from './page.module.css'
+// THE INSTRUMENT — vsreact.n9records.com
+// Thesis: proof, not promise. The hero is a working plugin UI: drag the
+// knobs (pointer/touch/wheel/keyboard), and the readouts, stereo meter,
+// and the actual 14 lines of code react live.
+
 import {
-  Cursor,
-  Magnetic,
-  OpStream,
-  useMotionReady,
-  useReveal,
-} from './components/experience'
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type WheelEvent,
+} from 'react'
+import styles from './page.module.css'
+import { REPO, STASH, STEPS, FEATURES, SHOWCASE_BODY } from './variants/content'
 
-const REPO_URL = 'https://github.com/N9RecordsTechnologiesIL/VSReacT'
-const STASHTRACK_URL = 'https://stashtrack.n9records.com'
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
-const pipeline: Array<[string, string, string]> = [
-  ['01', 'YOUR TSX', 'Hooks, effects, components — React 18, unmodified.'],
-  ['02', 'QUICKJS', 'The bundle runs in an embedded ES2023 engine. ~1MB, no webview.'],
-  ['03', 'RECONCILER', 'A custom host config streams JSON mutation ops over a C bridge.'],
-  ['04', 'YOGA', 'The C++ shadow tree lays out with real flexbox — the RN engine.'],
-  ['05', 'JUCE::GRAPHICS', 'Every pixel painted natively. Arcs, shadows, text, 60fps.'],
-]
+const GAIN_DEFAULT = 10 / 11 // 0.0 dB on the -60..+6 range
+const PAN_DEFAULT = 0.5 // centre
 
-const features: Array<[string, string]> = [
-  ['TAILWIND-STYLE CLASSES', 'className="flex-1 bg-zinc-950 rounded-xl hover:bg-lime-300" — resolved in JS, painted in C++.'],
-  ['APVTS PARAMETERS', 'useParameter(id) binds two-way to the host with automation-safe gestures. ParamKnob is one line.'],
-  ['HOT RELOAD IN THE DAW', 'Save your TSX, rebuild the bundle, the plugin remounts in ~100ms. FL Studio stays open.'],
-  ['REAL TEXT INPUT', 'A chrome-stripped juce::TextEditor positioned by Yoga: real caret, selection, IME.'],
-  ['NATIVE ESCAPE HATCH', '<NativeView nativeId="waveform"> mounts any juce::Component inside the React layout.'],
-  ['DRAG, SCROLL, ANIMATE', 'Drag gestures, wheel-scroll containers, and a useTween API with spring-ish easings.'],
-]
-
-const codeSample = `import { render, View, ParamKnob } from "@vsreact/core";
-
-function App() {
-  return (
-    <View className="flex-1 items-center justify-center
-                     bg-zinc-950 gap-10 flex-row">
-      <ParamKnob paramId="gain" size={88} />
-      <ParamKnob paramId="pan" size={88} />
-    </View>
-  );
+function arcPath(value: number): string {
+  // 270° sweep from -135° (0) to +135° (1); 0° is 12 o'clock.
+  const start = (-135 * Math.PI) / 180
+  const end = ((-135 + 270 * clamp01(value)) * Math.PI) / 180
+  const r = 40
+  const x0 = 50 + r * Math.sin(start)
+  const y0 = 50 - r * Math.cos(start)
+  const x1 = 50 + r * Math.sin(end)
+  const y1 = 50 - r * Math.cos(end)
+  const large = 270 * clamp01(value) > 180 ? 1 : 0
+  return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`
 }
 
-render(<App />);   // that's the whole plugin UI`
+function Knob({
+  label,
+  value,
+  text,
+  defaultValue,
+  onChange,
+  onActive,
+}: {
+  label: string
+  value: number
+  text: string
+  defaultValue: number
+  onChange: (v: number) => void
+  onActive: (active: boolean) => void
+}) {
+  const start = useRef({ y: 0, v: 0 })
 
-export default function Home() {
-  const ready = useMotionReady()
-  useReveal(ready)
+  const onPointerDown = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      e.currentTarget.setPointerCapture(e.pointerId)
+      start.current = { y: e.clientY, v: value }
+      onActive(true)
+    },
+    [value, onActive],
+  )
 
-  const heroRef = useRef<HTMLElement>(null)
-  const pipelineRef = useRef<HTMLDivElement>(null)
-  const railRef = useRef<HTMLDivElement>(null)
+  const onPointerMove = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.hasPointerCapture(e.pointerId)) return
+      onChange(clamp01(start.current.v - (e.clientY - start.current.y) * 0.005))
+    },
+    [onChange],
+  )
 
-  useEffect(() => {
-    if (!ready || !heroRef.current) return
+  const onPointerUp = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+      onActive(false)
+    },
+    [onActive],
+  )
 
-    const lines = heroRef.current.querySelectorAll(`.${styles.titleLine}`)
-    const tl = gsap.timeline()
-    tl.from(lines, { y: 150, opacity: 0, duration: 1.3, stagger: 0.1, ease: 'power4.out' })
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const step =
+        e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 0.02
+        : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -0.02
+        : 0
+      if (step !== 0) {
+        e.preventDefault()
+        onChange(clamp01(value + step))
+      } else if (e.key === 'Home') onChange(0)
+      else if (e.key === 'End') onChange(1)
+      else if (e.key === '0' || e.key === 'Backspace') onChange(defaultValue)
+    },
+    [value, onChange, defaultValue],
+  )
 
-    return () => {
-      tl.kill()
-    }
-  }, [ready])
+  const onWheel = useCallback(
+    (e: WheelEvent<HTMLDivElement>) => {
+      onChange(clamp01(value - Math.sign(e.deltaY) * 0.03))
+    },
+    [value, onChange],
+  )
 
-  // Pinned horizontal pipeline (desktop only).
-  useEffect(() => {
-    if (!ready || !pipelineRef.current || !railRef.current) return
-    if (window.matchMedia('(max-width: 767px)').matches) return
-
-    const rail = railRef.current
-    const distance = () => rail.scrollWidth - window.innerWidth
-
-    const tween = gsap.to(rail, {
-      x: () => -distance(),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: pipelineRef.current,
-        pin: true,
-        scrub: 1,
-        end: () => '+=' + distance(),
-        invalidateOnRefresh: true,
-      },
-    })
-
-    return () => {
-      tween.scrollTrigger?.kill()
-      tween.kill()
-    }
-  }, [ready])
+  const angle = -135 + 270 * clamp01(value)
 
   return (
-    <main className={styles.page} id="top">
-      <a className={styles.skipLink} href="#pipeline">
-        Skip to content
-      </a>
+    <div className={styles.knobGroup}>
+      <div
+        className={styles.knob}
+        role="slider"
+        tabIndex={0}
+        aria-label={`${label} — drag, scroll, or use arrow keys; double-click resets`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(value * 100)}
+        aria-valuetext={text}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onKeyDown={onKeyDown}
+        onWheel={onWheel}
+        onDoubleClick={() => onChange(defaultValue)}
+        onMouseEnter={() => onActive(true)}
+        onMouseLeave={() => onActive(false)}
+        onFocus={() => onActive(true)}
+        onBlur={() => onActive(false)}
+      >
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d={arcPath(1)} className={styles.arcTrack} />
+          <path d={arcPath(value)} className={styles.arcValue} />
+        </svg>
+        <i className={styles.cap} style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+      </div>
+      <span className={styles.knobValue}>{text}</span>
+      <span className={styles.knobLabel}>{label}</span>
+    </div>
+  )
+}
 
-      <Cursor />
-      <OpStream />
+/** Adds .in to sections as they enter the viewport (reveal motion). */
+function useReveal() {
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-      <header className={styles.nav}>
-        <a href="#top" className={styles.brand}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/logo-no-text.jpeg" alt="" width={30} height={30} />
-          <span>VSReacT</span>
-        </a>
-        <nav className={styles.navLinks}>
-          <a href="#pipeline">Pipeline</a>
-          <a href="#code">Code</a>
-          <a href="#built">Built with it</a>
-        </nav>
-        <a className={styles.navCta} href={REPO_URL} data-hover>
-          GITHUB ↗
+    const targets = document.querySelectorAll('[data-reveal]')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(styles.in)
+            observer.unobserve(entry.target)
+          }
+        }
+      },
+      { threshold: 0.18 },
+    )
+
+    targets.forEach((t) => observer.observe(t))
+    return () => observer.disconnect()
+  }, [])
+}
+
+export default function Home() {
+  const [gain, setGain] = useState(GAIN_DEFAULT)
+  const [pan, setPan] = useState(PAN_DEFAULT)
+  const [active, setActive] = useState<'gain' | 'pan' | null>(null)
+  useReveal()
+
+  const gainDb = -60 + gain * 66
+  const gainText = `${gainDb >= 0 ? '+' : ''}${gainDb.toFixed(1)} dB`
+  const panPos = pan * 2 - 1
+  const panText =
+    Math.abs(panPos) < 0.02 ? 'C' : panPos < 0 ? `L ${Math.round(-panPos * 100)}` : `R ${Math.round(panPos * 100)}`
+
+  const level = clamp01((gainDb + 60) / 66)
+  const meterL = clamp01(level * (panPos <= 0 ? 1 : 1 - panPos * 0.85))
+  const meterR = clamp01(level * (panPos >= 0 ? 1 : 1 + panPos * 0.85))
+
+  return (
+    <main className={styles.page}>
+      <header className={styles.head}>
+        <span className={styles.mark} aria-label="VSReacT">
+          <b>VS</b>
+          <svg viewBox="0 0 100 100" className={styles.markAtom} aria-hidden="true">
+            <ellipse cx="50" cy="50" rx="46" ry="17" />
+            <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(60 50 50)" />
+            <ellipse cx="50" cy="50" rx="46" ry="17" transform="rotate(-60 50 50)" />
+            <circle cx="50" cy="50" r="9" className={styles.markCore} />
+          </svg>
+          <b>T</b>
+        </span>
+        <p className={styles.claim}>React in. Native VST out. No webview.</p>
+        <a className={styles.headCta} href={REPO}>
+          GET IT ON GITHUB
         </a>
       </header>
 
-      <section ref={heroRef} className={styles.hero}>
-        <p className={styles.microLabel}>A REACT RENDERER FOR JUCE AUDIO PLUGINS</p>
-        <h1 className={styles.title}>
-          <span className={styles.titleLine}>WRITE REACT.</span>
-          <span className={styles.titleLine}>
-            SHIP <em>NATIVE</em> VST.
-          </span>
+      <section className={styles.stage}>
+        <h1 className={`${styles.thesis} ${styles.rise}`}>
+          This UI is React.<span> Drag it.</span>
         </h1>
-        <p className={styles.lede}>
-          Your TSX runs inside the plugin. A custom reconciler streams the tree
-          to C++, Yoga computes flexbox, juce::Graphics paints every pixel.
-          There is no webview on this page&apos;s subject.
+        <p className={`${styles.thesisSub} ${styles.rise} ${styles.d1}`}>
+          The window below is the exact component tree from{' '}
+          <code>examples/gain</code> — in your DAW, VSReacT paints it with
+          juce::Graphics. Here, the same React runs in your browser. Grab a
+          knob. Scroll it. Use arrow keys. Watch the code.
         </p>
-        <div className={styles.actions}>
-          <Magnetic>
-            <a className={styles.primaryButton} href={REPO_URL} data-hover>
-              GET THE FRAMEWORK
-            </a>
-          </Magnetic>
-          <a className={styles.ghostButton} href="#pipeline" data-hover>
-            HOW IT WORKS
-          </a>
-        </div>
-        <p className={styles.heroHint} aria-hidden="true">
-          ops in · pixels out — watch the stream behind this text
-        </p>
-      </section>
 
-      <section id="pipeline" ref={pipelineRef} className={styles.pipeline}>
-        <div className={styles.pipelineHead}>
-          <h2 className={styles.sectionStatement} data-reveal>
-            One tree,
-            <br />
-            five stations.
-          </h2>
-        </div>
-        <div ref={railRef} className={styles.rail}>
-          {pipeline.map(([n, title, body]) => (
-            <article className={styles.station} key={n}>
-              <span className={styles.stationIndex}>{n}</span>
-              <h3>{title}</h3>
-              <p>{body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="code" className={styles.code}>
-        <div className={styles.codeCopy} data-reveal>
-          <span className={styles.microLabel}>THE WHOLE API FITS IN YOUR HEAD</span>
-          <h2 className={styles.sectionTitle}>A two-knob plugin is fourteen lines.</h2>
-          <p>
-            ParamKnob binds to your AudioProcessorValueTreeState through an
-            automation-safe bridge. The arc is painted by the engine — stroke,
-            not texture. Drag it in the DAW and the host records it.
-          </p>
-        </div>
-        <div className={styles.codePanel} data-reveal>
-          <div className={styles.codeBar}>
-            <span />
-            <span />
-            <span className={styles.codeTitle}>GainExample / ui / main.tsx</span>
+        <div className={`${styles.bench} ${styles.rise} ${styles.d2}`}>
+          <div className={styles.plugin}>
+            <div className={styles.pluginBar}>
+              <i aria-hidden="true" />
+              <span>VSReacT Gain — examples/gain</span>
+              <em>NATIVE</em>
+            </div>
+            <div className={styles.pluginBody}>
+              <div className={styles.knobs}>
+                <Knob
+                  label="GAIN"
+                  value={gain}
+                  text={gainText}
+                  defaultValue={GAIN_DEFAULT}
+                  onChange={setGain}
+                  onActive={(a) => setActive(a ? 'gain' : null)}
+                />
+                <Knob
+                  label="PAN"
+                  value={pan}
+                  text={panText}
+                  defaultValue={PAN_DEFAULT}
+                  onChange={setPan}
+                  onActive={(a) => setActive(a ? 'pan' : null)}
+                />
+              </div>
+              <div className={styles.meter} aria-hidden="true">
+                <div className={styles.meterCol}>
+                  <i style={{ height: `${8 + meterL * 88}%` }} data-hot={meterL > 0.92 ? 'true' : undefined} />
+                  <span>L</span>
+                </div>
+                <div className={styles.meterCol}>
+                  <i style={{ height: `${8 + meterR * 88}%` }} data-hot={meterR > 0.92 ? 'true' : undefined} />
+                  <span>R</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <pre>
-            <code>{codeSample}</code>
+
+          <pre className={styles.code}>
+            <code>
+              <span className={styles.kw}>{'import'}</span>
+              {' { render, View, ParamKnob } '}
+              <span className={styles.kw}>{'from'}</span>{' '}
+              <span className={styles.str}>{'"@vsreact/core"'}</span>
+              {';\n\n'}
+              <span className={styles.kw}>{'function'}</span>{' '}
+              <span className={styles.fn}>{'App'}</span>
+              {'() {\n  '}
+              <span className={styles.kw}>{'return'}</span>
+              {' (\n    <'}
+              <span className={styles.tag}>{'View'}</span>{' '}
+              <span className={styles.attr}>{'className'}</span>
+              {'='}
+              <span className={styles.str}>{'"flex-1 items-center justify-center\n                     bg-zinc-950 gap-10 flex-row"'}</span>
+              {'>\n'}
+              <span className={active === 'gain' ? styles.hl : undefined}>
+                {'      <'}
+                <span className={styles.tag}>{'ParamKnob'}</span>{' '}
+                <span className={styles.attr}>{'paramId'}</span>
+                {'='}
+                <span className={styles.str}>{'"gain"'}</span>{' '}
+                <span className={styles.attr}>{'size'}</span>
+                {'={88} />'}
+                <em>{active === 'gain' ? `  // ${gainText}` : ''}</em>
+                {'\n'}
+              </span>
+              <span className={active === 'pan' ? styles.hl : undefined}>
+                {'      <'}
+                <span className={styles.tag}>{'ParamKnob'}</span>{' '}
+                <span className={styles.attr}>{'paramId'}</span>
+                {'='}
+                <span className={styles.str}>{'"pan"'}</span>{' '}
+                <span className={styles.attr}>{'size'}</span>
+                {'={88} />'}
+                <em>{active === 'pan' ? `   // ${panText}` : ''}</em>
+                {'\n'}
+              </span>
+              {'    </'}
+              <span className={styles.tag}>{'View'}</span>
+              {'>\n  );\n}\n\n'}
+              <span className={styles.fn}>{'render'}</span>
+              {'(<'}
+              <span className={styles.tag}>{'App'}</span>
+              {' />);'}
+            </code>
           </pre>
         </div>
+        <p className={`${styles.benchNote} ${styles.rise} ${styles.d3}`}>
+          14 lines. Automation-safe host binding included. The arc you just
+          dragged is a painted stroke — in the plugin, C++ paints it at 60fps.
+        </p>
       </section>
 
-      <section className={styles.features}>
-        <h2 className={styles.sectionStatement} data-reveal>
-          Everything a plugin
-          <br />
-          UI actually needs.
-        </h2>
-        <div className={styles.featureFlow}>
-          {features.map(([title, body], index) => (
-            <article
-              className={styles.feature}
-              key={title}
-              data-reveal
-              style={{ marginLeft: `${(index % 3) * 6}vw` }}
-            >
-              <span className={styles.microAccent}>{title}</span>
+      <section className={styles.signal} data-reveal>
+        <h2 className={styles.sectionTitle}>How your tree becomes pixels</h2>
+        <ol className={styles.signalRow}>
+          {STEPS.map(([n, name, detail]) => (
+            <li key={n}>
+              <span className={styles.signalNum}>{n}</span>
+              <strong>{name}</strong>
+              <p>{detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className={styles.ledger} data-reveal>
+        <h2 className={styles.sectionTitle}>The rest of the toolkit</h2>
+        <div className={styles.ledgerGrid}>
+          {FEATURES.map(([title, body]) => (
+            <article key={title}>
+              <strong>{title}</strong>
               <p>{body}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section id="built" className={styles.built}>
-        <h2 className={styles.sectionTitle} data-reveal>
-          Built with VSReacT
-        </h2>
-        <div className={styles.builtGrid}>
-          <a className={styles.builtCard} href={STASHTRACK_URL} data-reveal data-hover>
-            <span className={styles.microLabel}>STASHTRACK — N9 RECORDS</span>
-            <h3>A full production VST3, UI entirely in React.</h3>
-            <p>
-              URL sampling, live download progress, preview playback, an
-              animated stash drawer — splash screen to scroll containers, every
-              pixel is the engine. Windows, macOS, Linux.
-            </p>
-            <span className={styles.builtLink}>stashtrack.n9records.com ↗</span>
+      <section className={styles.proof} data-reveal>
+        <div className={styles.proofPanel}>
+          <span className={styles.proofTag}>SHIPPING — NOT A DEMO</span>
+          <a className={styles.proofTitle} href={STASH}>
+            StashTrack runs its whole UI on this.
           </a>
-          <a
-            className={styles.builtCard}
-            href={`${REPO_URL}/tree/main/vsreact/examples/gain`}
-            data-reveal
-            data-hover
-          >
-            <span className={styles.microLabel}>GAIN — EXAMPLES/</span>
-            <h3>The fourteen-line plugin above, ready to build.</h3>
-            <p>
-              Two APVTS-bound knobs, automation-safe gestures, hot reload.
-              Clone it as the starting point for your own instrument.
-            </p>
-            <span className={styles.builtLink}>examples/gain ↗</span>
-          </a>
-        </div>
-      </section>
-
-      <section className={styles.finalCta}>
-        <h2 className={styles.ctaTitle} data-reveal>
-          NO MORE
-          <br />
-          JANKY VSTs.
-        </h2>
-        <div className={styles.actions} data-reveal>
-          <Magnetic>
-            <a className={styles.primaryButton} href={REPO_URL} data-hover>
-              STAR IT ON GITHUB
+          <p>{SHOWCASE_BODY}</p>
+          <div className={styles.proofRow}>
+            <a className={styles.proofCta} href={STASH}>
+              OPEN STASHTRACK ↗
             </a>
-          </Magnetic>
-          <a className={styles.ghostButton} href={STASHTRACK_URL} data-hover>
-            SEE IT SHIPPING
-          </a>
+            <span className={styles.proofPlatforms}>WINDOWS · MACOS · LINUX</span>
+          </div>
         </div>
       </section>
 
-      <footer className={styles.footer}>
-        <div className={styles.footerBrand}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/logo-no-text.jpeg" alt="" width={24} height={24} />
-          <span>VSReacT — N9 Records Technologies</span>
-        </div>
-        <p>QuickJS · react-reconciler · Yoga · JUCE. MIT-spirited, MIT-licensed module.</p>
+      <footer className={styles.foot}>
+        <a className={styles.footCta} href={REPO}>
+          START BUILDING →
+        </a>
+        <p>
+          VSReacT — N9 Records Technologies · MIT · QuickJS + react-reconciler
+          + Yoga + JUCE ·{' '}
+          <a className={styles.footMail} href="mailto:vsreact-support@n9records.com">
+            vsreact-support@n9records.com
+          </a>
+        </p>
       </footer>
     </main>
   )

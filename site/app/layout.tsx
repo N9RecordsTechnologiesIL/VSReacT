@@ -1,28 +1,23 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Anton, Archivo, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const grotesk = Space_Grotesk({
-  variable: '--font-grotesk',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
-const mono = JetBrains_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
-  display: 'swap',
-})
+const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], display: 'swap' })
+const anton = Anton({ variable: '--font-anton', subsets: ['latin'], weight: '400', display: 'swap' })
+const jbMono = JetBrains_Mono({ variable: '--font-jb', subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vsreact.n9records.com'),
-  title: 'VSReacT — Write React. Ship native VST.',
+  title: 'VSReacT — This UI is React. Drag it.',
   description:
-    'VSReacT is a React renderer for JUCE audio plugins: your TSX runs in an embedded QuickJS engine, a custom reconciler streams the tree to C++, Yoga lays it out, and juce::Graphics paints every pixel. No webview.',
+    'VSReacT is a React renderer for JUCE audio plugins: your TSX runs in an embedded QuickJS engine, a custom reconciler streams the tree to C++, Yoga lays it out, juce::Graphics paints every pixel. No webview.',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'VSReacT',
+    title: 'VSReacT — Write React. Ship native VST.',
     description:
-      'A React renderer for JUCE plugins — hooks, tailwind-style classes, APVTS-bound knobs, hot reload in the DAW. No webview.',
+      'A React renderer for JUCE plugins — hooks, utility classes, APVTS-bound knobs, hot reload in the DAW. No webview. Try the live demo.',
+    url: 'https://vsreact.n9records.com',
+    siteName: 'VSReacT',
     type: 'website',
     images: [
       {
@@ -33,18 +28,22 @@ export const metadata: Metadata = {
       },
     ],
   },
+  icons: {
+    icon: '/logos/logo-no-text.jpeg',
+    apple: '/logos/logo-no-text.jpeg',
+  },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#050705',
+  themeColor: '#0b0b0a',
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${grotesk.variable} ${mono.variable}`}>
+    <html lang="en" className={`${archivo.variable} ${anton.variable} ${jbMono.variable}`}>
       <body>{children}</body>
     </html>
   )

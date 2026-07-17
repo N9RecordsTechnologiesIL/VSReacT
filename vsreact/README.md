@@ -3,8 +3,12 @@
 Write native JUCE plugin UIs in modern React + TypeScript — no webview, no
 LookAndFeel fights, no janky workarounds.
 
+Full documentation: **[vsreact.n9records.com/docs](https://vsreact.n9records.com/docs)** ·
+UI package: **[`@vsreact/core` on npm](https://www.npmjs.com/package/@vsreact/core)**
+
 ```tsx
-import { render, View, Text, native } from "@vsreact/core";
+import { useState } from "react";
+import { render, View, Text } from "@vsreact/core";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -71,10 +75,22 @@ bubbling, hover/active/focus restyling, and cursors.
 
 ## Using it in a plugin
 
-CMake (after adding JUCE):
+JS side:
+
+```bash
+bun add @vsreact/core   # or npm install / yarn add / pnpm add
+```
+
+CMake (after adding JUCE) — FetchContent, or `add_subdirectory` if vendored:
 
 ```cmake
-add_subdirectory(path/to/vsreact vsreact-build)
+include(FetchContent)
+FetchContent_Declare(vsreact
+    GIT_REPOSITORY https://github.com/N9RecordsTechnologiesIL/VSReacT.git
+    GIT_TAG        v0.0.1
+    SOURCE_SUBDIR  vsreact)
+FetchContent_MakeAvailable(vsreact)
+
 target_link_libraries(MyPlugin PRIVATE vsreact)
 ```
 
@@ -97,16 +113,17 @@ root = std::make_unique<vsreact::RootView> (std::move (options), std::move (regi
 addAndMakeVisible (*root);
 ```
 
-JS app: depend on `vsreact` (js/ in this repo), bundle with Bun as an
-IIFE (`js/build.ts` shows how), production builds embed the bundle via
-`juce_add_binary_data` and `RootOptions::bundleSource`.
+JS app: depend on `@vsreact/core` (published on npm; source at `js/` in
+this repo), bundle with Bun as an IIFE (`js/build.ts` shows how),
+production builds embed the bundle via `juce_add_binary_data` and
+`RootOptions::bundleSource`.
 
 ## Layout
 
 - `module/vsreact/` — the JUCE module: QuickJS runtime, bridge, shadow tree,
   Yoga adapter, painter, hit-testing, TextInput host, native registry,
   RootView, error overlay.
-- `js/` — `vsreact`: reconciler host config, primitives, tailwind
+- `js/` — `@vsreact/core`: reconciler host config, primitives, tailwind
   resolver, runtime shims, native messaging.
 - `third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
 - `examples/gain/` — a real gain/pan plugin: APVTS-bound React knobs.

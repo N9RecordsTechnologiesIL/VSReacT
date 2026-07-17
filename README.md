@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logos/logo-text.jpeg" alt="VSReacT — a React atom with a waveform through its core" width="420" />
+  <img src="logos/logo-text-red.png" alt="VSReacT — a React atom with a waveform through its core" width="420" />
 </p>
 
 <h1 align="center">VSReacT</h1>
@@ -10,14 +10,17 @@
 </p>
 
 <p align="center">
-  <a href="https://vsreact.n9records.com"><strong>vsreact.n9records.com</strong></a>
+  <a href="https://vsreact.n9records.com"><strong>vsreact.n9records.com</strong></a> ·
+  <a href="https://vsreact.n9records.com/docs"><strong>docs</strong></a> ·
+  <a href="https://www.npmjs.com/package/@vsreact/core"><strong>npm</strong></a>
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/@vsreact/core"><img alt="npm" src="https://img.shields.io/npm/v/%40vsreact%2Fcore?style=flat-square&label=%40vsreact%2Fcore&labelColor=0B0B0A&color=FF2E2E"></a>
   <a href="https://github.com/N9RecordsTechnologiesIL/VSReacT/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/N9RecordsTechnologiesIL/VSReacT/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="React 18" src="https://img.shields.io/badge/React-18-C6F135?style=flat-square&labelColor=050705">
-  <img alt="JUCE 8" src="https://img.shields.io/badge/JUCE-8-C6F135?style=flat-square&labelColor=050705">
-  <img alt="Windows | macOS | Linux" src="https://img.shields.io/badge/Windows%20·%20macOS%20·%20Linux-native-C6F135?style=flat-square&labelColor=050705">
+  <img alt="React 18" src="https://img.shields.io/badge/React-18-FF2E2E?style=flat-square&labelColor=0B0B0A">
+  <img alt="JUCE 8" src="https://img.shields.io/badge/JUCE-8-FF2E2E?style=flat-square&labelColor=0B0B0A">
+  <img alt="Windows | macOS | Linux" src="https://img.shields.io/badge/Windows%20·%20macOS%20·%20Linux-native-FF2E2E?style=flat-square&labelColor=0B0B0A">
 </p>
 
 ---
@@ -167,8 +170,11 @@ cmake --build ci/build --config Release && ctest --test-dir ci/build -C Release
 ## Links & support
 
 - Website: [vsreact.n9records.com](https://vsreact.n9records.com)
+- Documentation: [vsreact.n9records.com/docs](https://vsreact.n9records.com/docs)
+- npm: [npmjs.com/package/@vsreact/core](https://www.npmjs.com/package/@vsreact/core)
 - Issues: [github.com/N9RecordsTechnologiesIL/VSReacT/issues](https://github.com/N9RecordsTechnologiesIL/VSReacT/issues)
 - Contact: [vsreact-support@n9records.com](mailto:vsreact-support@n9records.com)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## License
 

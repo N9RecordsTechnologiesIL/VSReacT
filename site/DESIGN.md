@@ -46,24 +46,34 @@ respond. The product demonstrates itself in the first five seconds.
 
 ## Hero
 
-Monumental claim ("WRITE REACT. / SHIP NATIVE VST.") with the signal
-literally tracing the headline: a jittered red contour path hugs the two
-text lines (SVG scaled to the title wrapper, `pathLength`-normalized
-dash pulse orbiting it), with flat EKG tails running out both sides from
-the baseline corners. The real brand logo (hue-shifted lime → signal
-red, `mix-blend-mode: screen` so its ground melts into the ink) sits
-large on the right. Version chip (`v0.0.1`) beside the mark links to
-releases; favicon/apple icon are the red logo via `app/icon.png`.
+Monumental claim ("WRITE REACT. / SHIP NATIVE VST.") with one continuous
+EKG signal line tracing the headline: it enters from the viewport's left
+edge at the baseline, climbs up and AROUND both text lines, steps down
+after "React.", shelves over "VST.", and exits right — flat runs with a
+few sharp heart-monitor spikes. The path geometry is MEASURED from the
+real rendered line spans (`offsetLeft/Width` + ResizeObserver, padding
+around the glyph boxes), so it can never cross the text at any viewport.
+`pathLength`-normalized dash pulse travels the line; static ghost under
+reduced-motion. The brand TEXT logo (hue-shifted lime → signal red,
+`mix-blend-mode: screen`) sits large on the right. Version chip
+(`v0.0.1`, from `app/version.ts`) beside the mark links to releases;
+GitHub is an icon-only button (header, hero, docs). Favicon/apple icon
+are the red mark via `app/icon.png`/`apple-icon.png`; OG image is the
+red text logo.
 
 ## /docs
 
-Full production manual at `/docs`, same design contract (same palette,
-Anton/Archivo/JetBrains Mono, red-spined callouts): installation, gain
-quick start, hot reload & shipping, components, styling subset table,
-parameter binding + protocol, events, native messaging, animation, C++
-API, architecture/mutation ops, testing, FAQ, support. Sticky mono TOC
-(chip row under 980px). Reached from the landing header (DOCS), the
-feature ledger, and the footer.
+Full production manual at `/docs` as a real multi-page docs site
+(Colyseus-style; no right-hand page TOC): sticky top bar (mark → home,
+DOCS chip, version chip, HOME/SUPPORT links, GitHub icon button),
+grouped left sidebar with active state (OVERVIEW / GETTING STARTED /
+UI REFERENCE / AUDIO & NATIVE / INTERNALS / PROJECT — nav registry in
+`docs/nav.ts`), 16 pages with prev/next pagers. Same design contract
+(palette, Anton/Archivo/JetBrains Mono, red-spined callouts).
+Installation leads with bun/npm/yarn/pnpm tabs (`bun add @vsreact/core`)
+plus one CMake FetchContent block. Sidebar collapses to chip rows under
+980px. Reached from the landing header (DOCS), hero CTA, the feature
+ledger, and the footer (START BUILDING →).
 
 ## Design contract
 

@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.0.4 — 2026-07-17
+
+The one-line editor, meters, and utilities.
+
+### The one-line editor
+
+- **`render(<GenericEditor />)` is a complete plugin UI** — one knob per
+  APVTS parameter, laid out in rows (`columns`, `size`, colors
+  configurable).
+- **`useParameterList()`** — enumerates every host parameter
+  (`{id, name, label, value, text}`), for building your own generic UIs.
+- Native side: `ParameterBridge` now answers **`param:list`**
+  (backward-compatible addition — the only C++ change).
+
+### Meters
+
+- **`<Meter>`** — natively painted level meter with a hot zone and a
+  peak-hold line that holds, then falls. Vertical or horizontal; feed it
+  0..1 values (typically pushed from C++ via `useNativeEvent`).
+- **`usePeakHold(value, {holdMs, decayPerSecond})`** and the pure
+  **`peakHoldStep`** stepper are exported for custom metering.
+
+### Utilities
+
+- **`useDebounced(value, delayMs)`** — debounce chatty inputs before they
+  become native calls.
+- Negative spacing utilities (`-mt-2`, `-mx-[10]`, `-top-4`,
+  `-left-1/2`) — documented, hardened for percentages, and tested.
+
+### Docs
+
+- **Search** — Ctrl+K / ⌘K quick-switcher over every docs page and
+  section, keyboard-first, fully static.
+
 ## 0.0.3 — 2026-07-17
 
 SDK expansion — new controls, springs, and the full color palette.

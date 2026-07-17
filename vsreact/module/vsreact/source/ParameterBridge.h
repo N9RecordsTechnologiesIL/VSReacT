@@ -17,6 +17,7 @@ namespace vsreact
         events to JS listeners (the useParameter hook).
 
     JS protocol (all values normalized 0..1):
+      call  param:list {}           -> [{id, name, label, value, text}, …]
       call  param:get {id}          -> {value, text, name, label}
       call  param:set {id, value}      (wrap in param:begin/param:end for
       call  param:begin {id}            automation-safe gestures)

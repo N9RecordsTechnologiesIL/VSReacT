@@ -43,7 +43,8 @@ export default function Page() {
               <code>w-* h-*</code> <code>size-*</code> (width + height together){' '}
               <code>min-w-* max-h-*</code> <code>p-* px-* pt-*</code> <code>m-* mx-* mt-*</code>{' '}
               <code>gap-* gap-x-* gap-y-*</code> — 4px scale, fractions (<code>w-1/2</code>),{' '}
-              <code>w-full</code>, arbitrary <code>w-[220]</code>
+              <code>w-full</code>, arbitrary <code>w-[220]</code>, negatives{' '}
+              <code>-mt-2 -left-1/2</code>
             </td>
           </tr>
           <tr>

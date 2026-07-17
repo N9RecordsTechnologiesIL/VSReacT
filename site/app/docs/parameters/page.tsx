@@ -69,6 +69,25 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
         host parameters — UI zoom, tab selection, list filters.
       </p>
 
+      <h2 id="generic">The one-line editor</h2>
+      <p>
+        <code>useParameterList()</code> enumerates every parameter in the APVTS (via{' '}
+        <code>param:list</code>), which makes a complete, working editor exactly one line:
+      </p>
+      <Code title="ui/src/main.tsx — an entire plugin UI">{`import { render, GenericEditor } from "@vsreact/core";
+
+render(<GenericEditor />);`}</Code>
+      <p>
+        <code>&lt;GenericEditor columns? size? trackColor? valueColor? /&gt;</code> lays out
+        one <code>ParamKnob</code> per parameter in rows — the fastest path from a processor
+        to a usable UI, and a solid starting point you can replace control by control. For
+        custom generic UIs, build on the hook directly:
+      </p>
+      <Code title="TSX">{`const params = useParameterList();
+// [{ id, name, label, value, text }, …] — one entry per APVTS parameter
+
+return params.map((p) => <ParamSlider key={p.id} paramId={p.id} />);`}</Code>
+
       <h2 id="wiring">C++ wiring</h2>
       <Code title="PluginEditor.h / .cpp">{`vsreact::ParameterBridge bridge { processor.apvts };
 
@@ -98,6 +117,15 @@ bridge.attach (*root);`}</Code>
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>
+              <code>param:list</code>
+            </td>
+            <td>
+              <code>{'{}'}</code> → <code>{'[{id, name, label, value, text}, …]'}</code>
+            </td>
+            <td>JS → C++ (enumeration)</td>
+          </tr>
           <tr>
             <td>
               <code>param:get</code>

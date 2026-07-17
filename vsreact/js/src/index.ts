@@ -13,21 +13,22 @@ export type {
 } from "./primitives";
 export { render, unmount } from "./render";
 export { native } from "./native";
-export { useNativeEvent } from "./hooks";
+export { useNativeEvent, useDebounced } from "./hooks";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
 export { cx } from "./cx";
 export type { ClassValue } from "./cx";
 export { useTween, useSpring, springStep, lerp, Easing } from "./animation";
 export type { TweenOptions, SpringOptions, EasingFn } from "./animation";
-export { useParameter } from "./parameters";
-export type { ParameterState, ParameterHandle } from "./parameters";
+export { useParameter, useParameterList } from "./parameters";
+export type { ParameterState, ParameterHandle, ParameterInfo } from "./parameters";
 export {
   Knob,
   Slider,
   Toggle,
   XYPad,
   Segmented,
+  GenericEditor,
   ParamKnob,
   ParamSlider,
   ParamToggle,
@@ -41,10 +42,13 @@ export type {
   ToggleProps,
   XYPadProps,
   SegmentedProps,
+  GenericEditorProps,
   ParamKnobProps,
   ParamSliderProps,
   ParamToggleProps,
   ParamXYPadProps,
   ParamSegmentedProps,
 } from "./controls";
+export { Meter, usePeakHold, peakHoldStep } from "./meter";
+export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
 export type { DragEventPayload } from "./primitives";

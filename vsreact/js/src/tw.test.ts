@@ -137,3 +137,15 @@ describe("tw 0.0.3 additions", () => {
     expect(tw("text-6xl").style.fontSize).toBe(60);
   });
 });
+
+describe("negative spacing", () => {
+  test("negative margins and offsets", () => {
+    expect(tw("-mt-2").style).toEqual({ marginTop: -8 });
+    expect(tw("-mx-[10]").style).toEqual({ marginLeft: -10, marginRight: -10 });
+    expect(tw("-top-4").style).toEqual({ top: -16 });
+  });
+
+  test("negative percentages", () => {
+    expect(tw("-left-1/2").style).toEqual({ left: "-50%" });
+  });
+});

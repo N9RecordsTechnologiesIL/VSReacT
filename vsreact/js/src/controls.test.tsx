@@ -129,3 +129,65 @@ describe("Segmented", () => {
     expect(set?.args).toEqual({ id: "shape", value: 0 });
   });
 });
+
+describe("GenericEditor", () => {
+  test("renders one knob per parameter from param:list", () => {
+    (globalThis as Record<string, any>).__vsreact_nativeCall = (name: string, argsJson: string) => {
+      const args = JSON.parse(argsJson);
+      nativeCalls.push({ name, args });
+      if (name === "param:list")
+        return JSON.stringify([
+          { id: "gain", name: "Gain", label: "dB", value: 0.5, text: "0.0 dB" },
+          { id: "pan", name: "Pan", label: "", value: 0.5, text: "C" },
+          { id: "mix", name: "Mix", label: "%", value: 1, text: "100%" },
+        ]);
+      if (name === "param:get") return JSON.stringify(paramGetResult);
+      return "null";
+    };
+
+    const { GenericEditor } = require("./index");
+    render(<GenericEditor columns={2} size={64} />);
+
+    expect(nativeCalls.some((c) => c.name === "param:list")).toBe(true);
+    const arcs = opsNamed("setProps").filter((op: any) => op[2]?.style?.arcValueEnd !== undefined);
+    expect(arcs.length).toBe(3);
+    expect(nativeCalls.filter((c) => c.name === "param:get").length).toBe(3);
+  });
+
+  test("empty parameter list renders no knobs and doesn't crash", () => {
+    (globalThis as Record<string, any>).__vsreact_nativeCall = (name: string) => {
+      if (name === "param:list") return JSON.stringify([]);
+      return "null";
+    };
+
+    const { GenericEditor } = require("./index");
+    render(<GenericEditor />);
+    const arcs = opsNamed("setProps").filter((op: any) => op[2]?.style?.arcValueEnd !== undefined);
+    expect(arcs.length).toBe(0);
+  });
+});
+
+describe("Meter", () => {
+  test("fill splits at the hot zone and peak line renders", () => {
+    const { Meter } = require("./index");
+    render(<Meter value={0.95} length={100} hotFrom={0.85} peak />);
+
+    // main fill capped at the hot boundary
+    const fill = opsNamed("setProps").find((op: any) => op[2]?.style?.height === 85);
+    expect(fill).toBeDefined();
+    // hot overflow segment: ~(0.95 - 0.85) * 100 tall, anchored at 85
+    const hot: any = opsNamed("setProps").find((op: any) => op[2]?.style?.bottom === 85);
+    expect(hot).toBeDefined();
+    expect(hot[2].style.height).toBeCloseTo(10);
+  });
+
+  test("below the hot zone there is no hot segment", () => {
+    const { Meter } = require("./index");
+    render(<Meter value={0.5} length={100} hotFrom={0.85} peak={false} />);
+
+    const fill = opsNamed("setProps").find((op: any) => op[2]?.style?.height === 50);
+    expect(fill).toBeDefined();
+    const hot = opsNamed("setProps").find((op: any) => op[2]?.style?.bottom === 85);
+    expect(hot).toBeUndefined();
+  });
+});

@@ -42,6 +42,25 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
     if (! name.startsWith ("param:"))
         return std::nullopt;
 
+    if (name == "param:list")
+    {
+        juce::Array<juce::var> list;
+
+        for (const auto& id : parameterIds)
+            if (auto* parameter = apvts.getParameter (id))
+            {
+                auto* entry = new juce::DynamicObject();
+                entry->setProperty ("id", id);
+                entry->setProperty ("name", parameter->getName (64));
+                entry->setProperty ("label", parameter->getLabel());
+                entry->setProperty ("value", parameter->getValue());
+                entry->setProperty ("text", parameter->getCurrentValueAsText());
+                list.add (juce::var (entry));
+            }
+
+        return juce::var (list);
+    }
+
     auto* parameter = apvts.getParameter (args["id"].toString());
 
     if (parameter == nullptr)

@@ -170,12 +170,35 @@ export default function Page() {
             <td>Exclusive choices</td>
             <td>A row of options — oscillator shapes, filter modes.</td>
           </tr>
+          <tr>
+            <td>
+              <code>&lt;Meter&gt;</code>
+            </td>
+            <td>Levels</td>
+            <td>
+              Hot zone + peak-hold line with decay; feed it 0..1 values (typically pushed
+              from C++ via <code>useNativeEvent</code>).
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;GenericEditor&gt;</code>
+            </td>
+            <td>Whole plugins</td>
+            <td>One knob per APVTS parameter — a complete UI in one line.</td>
+          </tr>
         </tbody>
       </table>
       <Code title="TSX">{`<Toggle on={bypassed} label="BYPASS" onChange={setBypassed} />
 <Slider vertical height={140} value={mix} onChange={setMix} />
 <XYPad x={cutoff} y={resonance} onChange={(x, y) => { setCutoff(x); setResonance(y); }} />
-<Segmented options={["SINE", "SAW", "SQR"]} index={shape} onChange={setShape} />`}</Code>
+<Segmented options={["SINE", "SAW", "SQR"]} index={shape} onChange={setShape} />
+
+function OutputMeter() {
+  const [level, setLevel] = useState(0);
+  useNativeEvent("meter", (m) => setLevel(m.level));
+  return <Meter value={level} length={140} label="OUT" />;
+}`}</Code>
 
       <h2 id="nativeview">&lt;NativeView nativeId&gt;</h2>
       <p>

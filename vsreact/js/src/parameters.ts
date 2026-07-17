@@ -17,6 +17,36 @@ export interface ParameterHandle extends ParameterState {
   end: () => void;
 }
 
+export interface ParameterInfo {
+  id: string;
+  name: string;
+  label: string;
+  /** Normalized 0..1 snapshot at mount — use useParameter(id) for live values. */
+  value: number;
+  text: string;
+}
+
+/**
+ * Enumerates every APVTS parameter (via param:list) once at mount — the
+ * host's parameter set is fixed for the plugin's lifetime. Powers
+ * <GenericEditor/> and any auto-generated UI.
+ */
+export function useParameterList(): ParameterInfo[] {
+  const [list] = useState<ParameterInfo[]>(() => {
+    const result = native.call("param:list");
+    if (!Array.isArray(result)) return [];
+    return result.map((entry) => ({
+      id: String(entry?.id ?? ""),
+      name: String(entry?.name ?? entry?.id ?? ""),
+      label: String(entry?.label ?? ""),
+      value: Number(entry?.value ?? 0),
+      text: String(entry?.text ?? ""),
+    }));
+  });
+
+  return list;
+}
+
 export function useParameter(id: string): ParameterHandle {
   const [state, setState] = useState<ParameterState>(() => {
     const initial = native.call("param:get", { id });

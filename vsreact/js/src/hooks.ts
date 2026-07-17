@@ -1,6 +1,6 @@
 // Convenience hooks over the native bridge.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { native } from "./native";
 
 /**
@@ -15,4 +15,22 @@ export function useNativeEvent(name: string, handler: (payload: any) => void): v
   handlerRef.current = handler;
 
   useEffect(() => native.on(name, (payload) => handlerRef.current(payload)), [name]);
+}
+
+/**
+ * The value, but only after it has stopped changing for `delayMs` —
+ * classic input debouncing for expensive native calls:
+ *
+ *   const query = useDebounced(text, 250);
+ *   useEffect(() => { native.call("library:search", { query }); }, [query]);
+ */
+export function useDebounced<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
+  }, [value, delayMs]);
+
+  return debounced;
 }

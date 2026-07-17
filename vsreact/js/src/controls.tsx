@@ -4,7 +4,7 @@
 
 import { useRef } from "react";
 import { View, Text } from "./primitives";
-import { useParameter } from "./parameters";
+import { useParameter, useParameterList } from "./parameters";
 import { useSpring } from "./animation";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -523,5 +523,44 @@ export function ParamSegmented({ paramId, options, label, ...rest }: ParamSegmen
       }}
       {...rest}
     />
+  );
+}
+
+// ── GenericEditor ──────────────────────────────────────────────────────
+
+export interface GenericEditorProps {
+  /** Knobs per row. Default 4. */
+  columns?: number;
+  /** Knob diameter. Default 72. */
+  size?: number;
+  trackColor?: string;
+  valueColor?: string;
+}
+
+/** The zero-effort editor: one knob per APVTS parameter, laid out in
+    rows. `render(<GenericEditor />)` is a complete, working plugin UI. */
+export function GenericEditor({ columns = 4, size = 72, trackColor, valueColor }: GenericEditorProps) {
+  const params = useParameterList();
+
+  const rows: (typeof params)[] = [];
+  for (let i = 0; i < params.length; i += Math.max(1, columns))
+    rows.push(params.slice(i, i + Math.max(1, columns)));
+
+  return (
+    <View className="flex-1 flex-col items-center justify-center gap-6 p-4">
+      {rows.map((row, index) => (
+        <View key={index} className="flex-row gap-7">
+          {row.map((param) => (
+            <ParamKnob
+              key={param.id}
+              paramId={param.id}
+              size={size}
+              trackColor={trackColor}
+              valueColor={valueColor}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
   );
 }

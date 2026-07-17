@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import styles from './docs.module.css'
 import { Sidebar } from './Sidebar'
+import { Search } from './Search'
 import { GitHubIcon } from '../GitHubIcon'
 import { REPO } from '../variants/content'
 import { VERSION } from '../version'
@@ -34,6 +35,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
         <a className={styles.ver} href={`${REPO}/releases`}>
           v{VERSION}
         </a>
+        <Search />
         <nav className={styles.headNav}>
           <Link className={styles.headLink} href="/">
             HOME

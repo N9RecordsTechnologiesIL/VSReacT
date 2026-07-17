@@ -169,7 +169,12 @@ function resolveClass(cls: string): Style | undefined {
   const negative = cls.startsWith("-");
   const body = negative ? cls.slice(1) : cls;
 
-  const negate = (v: StyleValue): StyleValue => (negative && typeof v === "number" ? -v : v);
+  const negate = (v: StyleValue): StyleValue => {
+    if (!negative) return v;
+    if (typeof v === "number") return -v;
+    if (typeof v === "string" && v.endsWith("%")) return `-${v}`;
+    return v;
+  };
 
   const known = staticClasses[body];
   if (known && !negative) return known;

@@ -71,6 +71,11 @@ juce::MessageManager::callAsync ([this, ratio]
           <strong>Marshal to the message thread</strong> before calling{' '}
           <code>sendNativeEvent</code> from workers or the audio thread.
         </li>
+        <li>
+          <strong>Debounce chatty inputs</strong> with <code>useDebounced</code> before they
+          become native calls: <code>const q = useDebounced(text, 250)</code> then call in an
+          effect keyed on <code>q</code>.
+        </li>
       </ul>
       <Note>
         StashTrack drives its whole download pipeline this way: a{' '}

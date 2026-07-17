@@ -298,6 +298,23 @@ public:
             expectWithinAbsoluteError (static_cast<float> (static_cast<double> (lastPayload["value"])), 0.8f, 1.0e-5f);
         }
 
+        beginTest ("param:list enumerates every parameter in order");
+        {
+            const auto result = bridge.handleNativeCall ("param:list", juce::var());
+            expect (result.has_value());
+
+            auto* list = result->getArray();
+            expect (list != nullptr);
+            expectEquals (list->size(), 2);
+
+            expectEquals ((*list)[0]["id"].toString(), juce::String ("gain"));
+            expectEquals ((*list)[0]["name"].toString(), juce::String ("Gain"));
+            expectEquals ((*list)[1]["id"].toString(), juce::String ("pan"));
+            expect ((*list)[0].hasProperty ("value"));
+            expect ((*list)[0].hasProperty ("text"));
+            expect ((*list)[0].hasProperty ("label"));
+        }
+
         beginTest ("gestures and unknown calls");
         {
             expect (bridge.handleNativeCall ("param:begin", makeArgs ({ { "id", "pan" } })).has_value());

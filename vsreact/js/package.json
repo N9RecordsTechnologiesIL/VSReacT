@@ -1,6 +1,6 @@
 {
   "name": "@vsreact/core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Write React. Ship native VST. A React renderer for JUCE audio plugins — QuickJS + Yoga + juce::Graphics, no webview.",
   "keywords": [
     "react",
@@ -20,7 +20,7 @@
   "bugs": "https://github.com/N9RecordsTechnologiesIL/VSReacT/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/N9RecordsTechnologiesIL/VSReacT.git",
+    "url": "git+https://github.com/N9RecordsTechnologiesIL/VSReacT.git",
     "directory": "vsreact/js"
   },
   "main": "dist/index.js",

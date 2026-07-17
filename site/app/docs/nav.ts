@@ -84,7 +84,7 @@ export const DOCS: DocPage[] = [
       ['nativeview', '<NativeView>'],
     ],
     keywords:
-      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar native escape hatch',
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum native escape hatch',
   },
   {
     slug: 'styling',
@@ -124,6 +124,19 @@ export const DOCS: DocPage[] = [
       ['timers', 'Timers'],
     ],
     keywords: 'tween spring easing lerp motion animate transition stiffness damping settimeout setinterval',
+  },
+  {
+    slug: 'hooks',
+    title: 'Hooks & utilities',
+    group: 'UI REFERENCE',
+    headings: [
+      ['state', 'State & timing'],
+      ['pointer', 'Pointer & layout'],
+      ['audio', 'Audio data'],
+      ['bridge', 'Native bridge'],
+    ],
+    keywords:
+      'usetoggle useprevious usedebounced usethrottled useinterval usehover userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer',
   },
   {
     slug: 'parameters',

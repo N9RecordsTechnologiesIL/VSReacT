@@ -204,6 +204,34 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;Button&gt;</code>
+            </td>
+            <td>Actions</td>
+            <td>
+              solid / outline / ghost variants, three sizes, hover/active baked in.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Bars&gt;</code>
+            </td>
+            <td>Spectra</td>
+            <td>
+              Bottom-anchored bar visualizer with a hot zone — one bar per array entry.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;Waveform&gt;</code>
+            </td>
+            <td>Waveforms &amp; envelopes</td>
+            <td>
+              Centre-mirrored bars; pair with <code>useRollingBuffer</code> for scrolling
+              history.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Tooltip&gt;</code>
             </td>
             <td>Hover help</td>

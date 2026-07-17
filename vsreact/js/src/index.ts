@@ -13,10 +13,23 @@ export type {
 } from "./primitives";
 export { render, unmount } from "./render";
 export { native } from "./native";
-export { useNativeEvent, useDebounced, useLayoutRect } from "./hooks";
+export {
+  useNativeEvent,
+  useDebounced,
+  useThrottled,
+  usePrevious,
+  useToggle,
+  useInterval,
+  useHover,
+  useLayoutRect,
+} from "./hooks";
 export { useOverlay, OverlayLayer } from "./overlay";
 export { Tooltip, Modal } from "./popover";
 export type { TooltipProps, ModalProps } from "./popover";
+export { Button } from "./button";
+export type { ButtonProps } from "./button";
+export { Bars, Waveform, useRollingBuffer, pushRolling } from "./visualizers";
+export type { BarsProps, WaveformProps } from "./visualizers";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
 export { cx } from "./cx";

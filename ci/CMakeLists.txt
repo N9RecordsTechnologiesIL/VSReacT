@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(VSReacTCI VERSION 0.0.6)
+project(VSReacTCI VERSION 0.0.7)
 
 enable_testing()
 

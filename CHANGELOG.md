@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.0.7 — 2026-07-17
+
+Visualizers, the hooks toolbox, and Button. JS-only — the native module
+is unchanged from 0.0.6.
+
+### Audio visualizers
+
+- **`<Bars values>`** — bottom-anchored bar display with a hot zone:
+  spectrum analyzers, band meters.
+- **`<Waveform values>`** — centre-mirrored bars with an optional centre
+  line: waveform overviews, envelope history.
+- **`useRollingBuffer(value, length?)`** — a fixed rolling window of a
+  live scalar; three lines from a meter event to a scrolling envelope
+  display. Pure `pushRolling` stepper exported.
+
+### Hooks toolbox (usehooks-style, plugin-tuned)
+
+- `useToggle`, `usePrevious`, `useInterval` (host-scheduler,
+  pause with null), `useThrottled` (complements `useDebounced`),
+  `useHover`.
+
+### Button
+
+- **`<Button label onClick>`** — solid / outline / ghost variants, three
+  sizes, hover/active states baked in via native style variants.
+
+### Site
+
+- New **/components** page — the component library, live: every control
+  rendered as an interactive web twin with its import line, linked from
+  the header and docs.
+
 ## 0.0.6 — 2026-07-17
 
 The DAW-feel update — the mouse conventions plugin hands expect, plus the

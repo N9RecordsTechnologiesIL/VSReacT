@@ -332,6 +332,9 @@ export default function Home() {
           <Link className={styles.headLink} href="/docs">
             DOCS
           </Link>
+          <Link className={styles.headLink} href="/components">
+            COMPONENTS
+          </Link>
           <a className={styles.ghBtn} href={REPO} aria-label="VSReacT on GitHub">
             <GitHubIcon size={20} />
           </a>

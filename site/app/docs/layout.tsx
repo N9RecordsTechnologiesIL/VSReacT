@@ -40,6 +40,9 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           <Link className={styles.headLink} href="/">
             HOME
           </Link>
+          <Link className={styles.headLink} href="/components">
+            COMPONENTS
+          </Link>
           <a className={styles.headLink} href="mailto:vsreact-support@n9records.com">
             SUPPORT
           </a>

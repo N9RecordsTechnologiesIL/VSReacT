@@ -46,3 +46,74 @@ export function useDebounced<T>(value: T, delayMs: number): T {
 
   return debounced;
 }
+
+/** The value, updated at most once per `intervalMs` (leading + trailing). */
+export function useThrottled<T>(value: T, intervalMs: number): T {
+  const [throttled, setThrottled] = useState(value);
+  const lastRun = useRef(0);
+
+  useEffect(() => {
+    const now = Date.now();
+    const elapsed = now - lastRun.current;
+
+    if (elapsed >= intervalMs) {
+      lastRun.current = now;
+      setThrottled(value);
+      return;
+    }
+
+    const id = setTimeout(() => {
+      lastRun.current = Date.now();
+      setThrottled(value);
+    }, intervalMs - elapsed);
+    return () => clearTimeout(id);
+  }, [value, intervalMs]);
+
+  return throttled;
+}
+
+/** The value from the previous render — undefined on the first one. */
+export function usePrevious<T>(value: T): T | undefined {
+  const previous = useRef<T | undefined>(undefined);
+
+  useEffect(() => {
+    previous.current = value;
+  }, [value]);
+
+  return previous.current;
+}
+
+/** Boolean state with a stable toggle — bypass buttons, panels, A/B. */
+export function useToggle(initial = false): [boolean, () => void, (next: boolean) => void] {
+  const [on, setOn] = useState(initial);
+  const toggle = useRef(() => setOn((v) => !v)).current;
+  return [on, toggle, setOn];
+}
+
+/** A declarative interval on the host scheduler; null pauses it. The
+    callback stays fresh without restarting the timer. */
+export function useInterval(callback: () => void, intervalMs: number | null): void {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  useEffect(() => {
+    if (intervalMs === null) return;
+    const id = setInterval(() => callbackRef.current(), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+}
+
+/** Hover state + the props that drive it:
+    `const [hovered, hoverProps] = useHover(); <View {...hoverProps}>` */
+export function useHover(): [
+  boolean,
+  { onMouseEnter: () => void; onMouseLeave: () => void },
+] {
+  const [hovered, setHovered] = useState(false);
+  const props = useRef({
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+  }).current;
+
+  return [hovered, props];
+}

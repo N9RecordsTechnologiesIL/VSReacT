@@ -433,3 +433,112 @@ describe("Tooltip + Modal", () => {
     expect(closed).toEqual([1]);
   });
 });
+
+describe("0.0.7 — Button, visualizers, hooks", () => {
+  test("Button: click fires; disabled renders no listener; variants style", () => {
+    const { Button } = require("./index");
+    const seen: number[] = [];
+    render(<Button label="APPLY" onClick={() => seen.push(1)} accentColor="#FF2E2E" />);
+
+    dispatch({ kind: "event", nodeId: nodeWithListener("click"), type: "click" });
+    expect(seen).toEqual([1]);
+
+    // solid: filled with the accent
+    const solid: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.backgroundColor === "#FF2E2E",
+    );
+    expect(solid).toBeDefined();
+    expect(solid[2].hoverStyle).toBeDefined();
+
+    unmount();
+    batches.length = 0;
+    render(<Button label="X" disabled onClick={() => seen.push(2)} />);
+    expect(opsNamed("setProps").some((op: any) => op[2]?.listeners?.includes("click"))).toBe(false);
+
+    unmount();
+    batches.length = 0;
+    render(<Button label="Y" variant="outline" onClick={() => {}} accentColor="#FF2E2E" />);
+    const outline: any = opsNamed("setProps").find(
+      (op: any) => op[2]?.style?.borderColor === "#FF2E2E",
+    );
+    expect(outline).toBeDefined();
+    expect(outline[2].style.borderWidth).toBe(1);
+  });
+
+  test("Bars: one bar per value, hot bars switch color, heights scale", () => {
+    const { Bars } = require("./index");
+    render(<Bars values={[0.5, 0.9]} height={60} hotFrom={0.85} color="#AAA111" hotColor="#FF0000" />);
+
+    const bars = opsNamed("setProps").filter(
+      (op: any) => op[2]?.style?.backgroundColor === "#AAA111" || op[2]?.style?.backgroundColor === "#FF0000",
+    );
+    expect(bars.length).toBe(2);
+    const cold: any = bars.find((op: any) => op[2].style.backgroundColor === "#AAA111");
+    const hot: any = bars.find((op: any) => op[2].style.backgroundColor === "#FF0000");
+    expect(cold[2].style.height).toBeCloseTo(0.5 * 56);
+    expect(hot[2].style.height).toBeCloseTo(0.9 * 56);
+  });
+
+  test("Waveform: bars mirror around centre with |value| heights", () => {
+    const { Waveform } = require("./index");
+    render(<Waveform values={[-1, 0.5]} height={60} color="#AAA111" centerLine={false} />);
+
+    const bars = opsNamed("setProps")
+      .filter((op: any) => op[2]?.style?.backgroundColor === "#AAA111")
+      .map((op: any) => op[2].style.height);
+    expect(bars).toHaveLength(2);
+    expect(Math.max(...bars)).toBeCloseTo(56);
+    expect(Math.min(...bars)).toBeCloseTo(28);
+  });
+
+  test("pushRolling keeps a fixed window, newest last", () => {
+    const { pushRolling } = require("./index");
+    expect(pushRolling([1, 2, 3], 4, 3)).toEqual([2, 3, 4]);
+    expect(pushRolling([], 7, 3)).toEqual([0, 0, 7]);
+    expect(pushRolling([1, 2, 3, 4, 5], 6, 3)).toEqual([4, 5, 6]);
+  });
+
+  test("useToggle + useHover drive a probe component", () => {
+    const { useToggle, useHover, View: V, Text: T } = require("./index");
+
+    function Probe() {
+      const [on, toggle] = useToggle(false);
+      const [hovered, hoverProps] = useHover();
+      return (
+        <V onClick={toggle} {...hoverProps}>
+          <T>{`${on ? "ON" : "OFF"}:${hovered ? "HOV" : "OUT"}`}</T>
+        </V>
+      );
+    }
+
+    render(<Probe />);
+    const id = nodeWithListener("click");
+
+    dispatch({ kind: "event", nodeId: id, type: "click" });
+    dispatch({ kind: "event", nodeId: id, type: "mouseenter" });
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "ON:HOV")).toBe(true);
+
+    dispatch({ kind: "event", nodeId: id, type: "mouseleave" });
+    expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "ON:OUT")).toBe(true);
+  });
+
+  test("usePrevious reports the last-render value", () => {
+    const { usePrevious, View: V, Text: T } = require("./index");
+    const values: Array<string> = [];
+
+    function Probe({ n }: { n: number }) {
+      const prev = usePrevious(n);
+      values.push(`${prev}->${n}`);
+      return (
+        <V>
+          <T>{n}</T>
+        </V>
+      );
+    }
+
+    render(<Probe n={1} />);
+    render(<Probe n={2} />);
+    expect(values[0]).toBe("undefined->1");
+    expect(values.at(-1)).toBe("1->2");
+  });
+});

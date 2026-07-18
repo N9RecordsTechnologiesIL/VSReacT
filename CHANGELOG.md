@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.0.15 — 2026-07-18
+
+The DSP-display tier — the EQ curve and the ring meter. JS-only;
+native module unchanged from 0.0.9.
+
+### New components
+
+- **`<EQCurve>`** — the display every EQ plugin wants: the real summed
+  biquad response (RBJ cookbook — peak, shelves, passes, notch,
+  bandpass) drawn as a center-anchored fill, with one draggable node
+  per band (x = frequency on a 20 Hz–20 kHz log scale, y = gain) and
+  the wheel adjusting Q inside a begin/end gesture. The pure math is
+  exported: `biquadMagnitudeDb`, `eqResponseDb`, `eqXToHz`/`eqHzToX`.
+- **`<RingMeter>`** — a circular level meter on the native arc keys:
+  hot zone above `hotFrom`, optional center readout via `format` —
+  channel-strip rings, macro amounts, gain-reduction dials.
+
+### `@vsreact/posthog` 0.0.5
+
+- **`screen(name)` / `useScreen(name)`** — PostHog screen analytics
+  for plugin panels: `$screen { $screen_name }` on mount.
+- **`shutdown()`** — editor teardown: flush everything, then go
+  silent; captures after shutdown are dropped.
+- **`init({ propertyDenylist })`** — a mechanical strip-list for
+  sensitive keys (paths, emails), applied before `beforeSend`.
+
+### Site
+
+- Gallery: EQCurve and RingMeter families in all eight worlds.
+
 ## 0.0.14 — 2026-07-18
 
 The workspace tier — structure for multi-page plugin UIs. JS-only;

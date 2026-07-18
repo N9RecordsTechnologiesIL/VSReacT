@@ -143,6 +143,12 @@ render(
           <code>useCaptureOnMount</code>, stamped with <code>duration_ms</code>.
         </li>
         <li>
+          <code>useScreen(name)</code> / <code>posthog.screen(name)</code> — panel views as{' '}
+          <code>$screen</code> events for PostHog screen analytics;{' '}
+          <code>posthog.shutdown()</code> flushes and goes silent at editor teardown;{' '}
+          <code>init({'{propertyDenylist}'})</code> strips sensitive keys mechanically.
+        </li>
+        <li>
           <code>posthog.optOut()</code> / <code>optIn()</code> / <code>optedOut</code> — the
           consent switch: opting out drops new events and discards the unsent queue;{' '}
           <code>init({'{optOut}'})</code> starts disabled. <code>unregister(key)</code> and{' '}

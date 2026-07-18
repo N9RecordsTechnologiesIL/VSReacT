@@ -37,8 +37,10 @@ export type {
   ParamSegmentedProps,
   ParamSelectProps,
 } from "./controls";
-export { Meter, usePeakHold, peakHoldStep } from "./meter";
-export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
+export { Meter, RingMeter, usePeakHold, peakHoldStep } from "./meter";
+export type { MeterProps, RingMeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
+export { EQCurve } from "./eq";
+export type { EQCurveProps, EQBand, FilterType } from "./eq";
 export { Bars, Waveform, useRollingBuffer, pushRolling } from "./visualizers";
 export type { BarsProps, WaveformProps } from "./visualizers";
 export { Button } from "./button";

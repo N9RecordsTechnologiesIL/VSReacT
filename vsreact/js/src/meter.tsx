@@ -177,3 +177,84 @@ export function Meter({
     </View>
   );
 }
+
+export interface RingMeterProps {
+  /** Level 0..1. */
+  value: number;
+  /** Diameter. Default 64. */
+  size?: number;
+  thickness?: number;
+  /** Where the arc turns hot, 0..1. Default 0.85; 1 disables. */
+  hotFrom?: number;
+  trackColor?: string;
+  color?: string;
+  hotColor?: string;
+  /** Center readout. Default: none. */
+  format?: (value: number) => string;
+  label?: string;
+}
+
+/** A circular level meter on the native arc keys — channel-strip level
+    rings, macro amounts, gain-reduction dials. */
+export function RingMeter({
+  value,
+  size = 64,
+  thickness,
+  hotFrom = 0.85,
+  trackColor = "#FFFFFF14",
+  color = "#C6F135",
+  hotColor = "#FF4545",
+  format,
+  label,
+}: RingMeterProps) {
+  const level = clamp01(value);
+  const hot = clamp01(hotFrom);
+  const arcThickness = thickness ?? Math.max(3, size * 0.09);
+  const START = -135;
+  const SWEEP = 270;
+
+  const ring = (
+    <View className="relative items-center justify-center" style={{ width: size, height: size }}>
+      <View
+        className="absolute inset-0"
+        style={{
+          arcTrackColor: trackColor,
+          arcColor: color,
+          arcStart: START,
+          arcEnd: START + SWEEP,
+          arcValueStart: START,
+          arcValueEnd: START + SWEEP * Math.min(level, hot),
+          arcThickness,
+        }}
+      />
+      {level > hot ? (
+        <View
+          className="absolute inset-0"
+          style={{
+            arcTrackColor: "#00000000",
+            arcColor: hotColor,
+            arcStart: START,
+            arcEnd: START + SWEEP,
+            arcValueStart: START + SWEEP * hot,
+            arcValueEnd: START + SWEEP * level,
+            arcThickness,
+          }}
+        />
+      ) : null}
+      {format !== undefined ? (
+        <Text className="text-[11] font-bold" style={{ color: level > hot ? hotColor : color }}>
+          {format(level)}
+        </Text>
+      ) : null}
+    </View>
+  );
+
+  if (label === undefined) return ring;
+
+  return (
+    <View className="items-center gap-2">
+      {ring}
+      <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>
+    </View>
+  );
+}

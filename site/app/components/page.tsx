@@ -1796,6 +1796,75 @@ function AdsrTwin({ theme = 'inst' }: { theme?: string }) {
   )
 }
 
+function EqTwin({ theme = 'inst' }: { theme?: string }) {
+  const [bands, setBands] = useState([
+    { x: 0.22, gain: 4.5, w: 0.14 },
+    { x: 0.62, gain: -6, w: 0.09 },
+  ])
+  const W = 208
+  const H = 84
+  const RANGE = 12
+
+  const dbAt = (x: number) =>
+    bands.reduce((sum, b) => sum + b.gain * Math.exp(-(((x - b.x) / b.w) ** 2)), 0)
+  const yOf = (db: number) => (0.5 - Math.max(-RANGE, Math.min(RANGE, db)) / (RANGE * 2)) * (H - 8) + 4
+
+  const drag0 = useDrag((dx, dy) =>
+    setBands((bs) =>
+      bs.map((b, i) =>
+        i === 0
+          ? { ...b, x: clamp01(b.x + dx / W), gain: Math.max(-RANGE, Math.min(RANGE, b.gain - (dy / (H - 8)) * RANGE * 2)) }
+          : b,
+      ),
+    ),
+  )
+  const drag1 = useDrag((dx, dy) =>
+    setBands((bs) =>
+      bs.map((b, i) =>
+        i === 1
+          ? { ...b, x: clamp01(b.x + dx / W), gain: Math.max(-RANGE, Math.min(RANGE, b.gain - (dy / (H - 8)) * RANGE * 2)) }
+          : b,
+      ),
+    ),
+  )
+  const drags = [drag0, drag1]
+
+  return (
+    <div className={`${styles.eq} ${styles[`eq_${theme}`] ?? ''}`} style={{ width: W, height: H }}>
+      <u />
+      {Array.from({ length: 36 }, (_, i) => {
+        const db = dbAt((i + 0.5) / 36)
+        const h = Math.max(1, (Math.abs(db) / (RANGE * 2)) * (H - 8))
+        return (
+          <i
+            key={i}
+            style={{ left: (i / 36) * W + 1, width: W / 36 - 1.5, top: db >= 0 ? H / 2 - h : H / 2, height: h }}
+          />
+        )
+      })}
+      {bands.map((b, i) => (
+        <b key={i} style={{ left: b.x * W - 8, top: yOf(b.gain) - 8 }} {...drags[i]} />
+      ))}
+    </div>
+  )
+}
+
+function RingTwin({ theme = 'inst', level }: { theme?: string; level: number }) {
+  const v = clamp01(level)
+  const deg = v * 270
+
+  return (
+    <div className={`${styles.ring} ${styles[`ring_${theme}`] ?? ''}`}>
+      <i
+        style={{
+          background: `conic-gradient(from 225deg, var(--acc) ${deg}deg, rgba(255,255,255,0.09) ${deg}deg 270deg, transparent 270deg 360deg)`,
+        }}
+      />
+      <em>{Math.round(v * 100)}</em>
+    </div>
+  )
+}
+
 function TabsTwin({ theme = 'inst' }: { theme?: string }) {
   const [tab, setTab] = useState(0)
   const labels = ['MAIN', 'FX', 'MOD']
@@ -2598,6 +2667,24 @@ export default function ComponentsPage() {
               docs="/docs/hooks#audio"
             >
               <AllThemes render={(t) => <WaveTwin theme={t} values={wave} />} />
+            </Family>
+
+            <Family
+              title="EQCurve"
+              blurb="The real summed biquad response — drag a band node for freq/gain, wheel for Q."
+              imports={`<EQCurve bands={bands} onChange={setBand} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <EqTwin theme={t} />} />
+            </Family>
+
+            <Family
+              title="RingMeter"
+              blurb="A circular level meter on the native arc keys — hot zone, optional center readout."
+              imports={`<RingMeter value={level} format={formatPercent} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <RingTwin theme={t} level={meterLevel} />} />
             </Family>
 
             <Family

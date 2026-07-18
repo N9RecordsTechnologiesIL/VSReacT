@@ -84,7 +84,7 @@ export const DOCS: DocPage[] = [
       ['nativeview', '<NativeView>'],
     ],
     keywords:
-      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse native escape hatch',
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse eqcurve eq curve biquad filter response peak shelf lowpass highpass notch q ringmeter ring circular native escape hatch',
   },
   {
     slug: 'styling',
@@ -175,7 +175,7 @@ export const DOCS: DocPage[] = [
       ['errors', 'Error tracking & sessions'],
     ],
     keywords:
-      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy alias setonce group groups groupidentify beforesend scrub sanitize debug time timeend duration stopwatch samplerate sampling maxqueuesize queue bridge',
+      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy alias setonce group groups groupidentify beforesend scrub sanitize debug time timeend duration stopwatch samplerate sampling maxqueuesize queue screen usescreen shutdown teardown denylist propertydenylist bridge',
   },
   {
     slug: 'cpp-api',

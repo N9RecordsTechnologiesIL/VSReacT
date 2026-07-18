@@ -6,6 +6,7 @@ export {
   useCaptureOnMount,
   useCaptureOnUnmount,
   useEditorSession,
+  useScreen,
   usePostHogParameters,
 } from "./hooks";
 export type { PostHogParametersOptions, EditorSessionOptions } from "./hooks";

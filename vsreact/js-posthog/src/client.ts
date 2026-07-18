@@ -25,6 +25,9 @@ export interface PostHogInitOptions {
   /** Queue cap — oldest events drop first if the bridge stops draining
       (a misconfigured native side shouldn't grow memory). Default 1000. */
   maxQueueSize?: number;
+  /** Property keys stripped from every event before `beforeSend` runs —
+      a mechanical denylist for paths, emails, project names. */
+  propertyDenylist?: string[];
 }
 
 export interface PostHogEvent {
@@ -34,7 +37,7 @@ export interface PostHogEvent {
 }
 
 const LIB = "@vsreact/posthog";
-const LIB_VERSION = "0.0.4";
+const LIB_VERSION = "0.0.5";
 
 function uuid(): string {
   // RFC4122-ish v4 — good enough for anonymous ids inside a plugin.
@@ -61,6 +64,8 @@ export class PostHogClient {
   private sampledOut = false;
   private maxQueueSize = 1000;
   private timings: Map<string, number> = new Map();
+  private propertyDenylist: string[] = [];
+  private isShutDown = false;
 
   /** Pulls the persistent distinct id from the native PostHogBridge and
       starts a session. Safe to call once at app start. */
@@ -70,6 +75,8 @@ export class PostHogClient {
     this.isOptedOut = options.optOut ?? false;
     this.beforeSend = options.beforeSend ?? null;
     this.maxQueueSize = options.maxQueueSize ?? 1000;
+    this.propertyDenylist = options.propertyDenylist ?? [];
+    this.isShutDown = false;
     this.sampleRate = Math.min(1, Math.max(0, options.sampleRate ?? 1));
     this.sampledOut = this.sampleRate < 1 && Math.random() >= this.sampleRate;
     if (this.isDebug && this.sampledOut) console.log("[posthog] session sampled out");
@@ -142,8 +149,23 @@ export class PostHogClient {
     this.capture(name, { duration_ms: Date.now() - startedAt, ...properties });
   }
 
+  /** Captures a `$screen` event — PostHog's screen analytics for the
+      plugin's panels: `posthog.screen("Settings")`. */
+  screen(name: string, properties: Record<string, unknown> = {}): void {
+    this.capture("$screen", { $screen_name: name, ...properties });
+  }
+
+  /** Editor teardown: flushes everything queued, then goes silent —
+      captures after shutdown are dropped (call from your unmount path
+      after the last events are in). */
+  shutdown(): void {
+    this.flush();
+    this.isShutDown = true;
+    this.timings.clear();
+  }
+
   capture(event: string, properties: Record<string, unknown> = {}): void {
-    if (this.isOptedOut || this.sampledOut) return;
+    if (this.isOptedOut || this.sampledOut || this.isShutDown) return;
     if (!this.initialised) this.init();
 
     let entry: PostHogEvent | null = {
@@ -160,6 +182,8 @@ export class PostHogClient {
       },
       timestamp: new Date().toISOString(),
     };
+
+    for (const key of this.propertyDenylist) delete entry.properties[key];
 
     if (this.beforeSend !== null) {
       entry = this.beforeSend(entry);

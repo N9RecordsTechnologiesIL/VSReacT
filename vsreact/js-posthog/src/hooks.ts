@@ -37,6 +37,16 @@ export function useCaptureOnUnmount(event: string, properties?: Record<string, u
   }, []);
 }
 
+/** Registers a panel as a PostHog screen: captures `$screen
+    { $screen_name: name }` on mount — panel navigation lights up in
+    PostHog's screen analytics. */
+export function useScreen(name: string, properties?: Record<string, unknown>): void {
+  useEffect(() => {
+    posthog.screen(name, properties);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name]);
+}
+
 export interface EditorSessionOptions {
   /** Default "editor_session_start". */
   startEvent?: string;

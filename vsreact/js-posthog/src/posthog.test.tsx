@@ -17,6 +17,7 @@ import {
   useCaptureOnMount,
   useCaptureOnUnmount,
   useEditorSession,
+  useScreen,
   usePostHogParameters,
   PostHogErrorBoundary,
 } from "./index";
@@ -226,6 +227,49 @@ describe("posthog client", () => {
     expect(events.map((e: any) => e.event)).toEqual(["two", "three", "four"]);
   });
 
+  test("screen captures $screen with the panel name", () => {
+    posthog.screen("Settings", { tab: "eq" });
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect(event.event).toBe("$screen");
+    expect(event.properties.$screen_name).toBe("Settings");
+    expect(event.properties.tab).toBe("eq");
+  });
+
+  test("propertyDenylist strips keys before beforeSend sees them", () => {
+    const seenByBeforeSend: string[] = [];
+    posthog.init({
+      flushAt: 10,
+      flushIntervalMs: 60_000,
+      propertyDenylist: ["project_path"],
+      beforeSend: (event) => {
+        seenByBeforeSend.push(...Object.keys(event.properties));
+        return event;
+      },
+    });
+    nativeCalls.length = 0;
+
+    posthog.capture("saved", { project_path: "C:/secret/mix.flp", ok: true });
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect("project_path" in event.properties).toBe(false);
+    expect(event.properties.ok).toBe(true);
+    expect(seenByBeforeSend).not.toContain("project_path");
+  });
+
+  test("shutdown flushes, then drops all later captures", () => {
+    posthog.capture("last_words");
+    posthog.shutdown();
+    expect(sends()).toHaveLength(1); // the shutdown flush
+
+    posthog.capture("from_beyond");
+    posthog.flush();
+    const events = sends().flatMap((s) => s.args.batch);
+    expect(events.map((e: any) => e.event)).toEqual(["last_words"]);
+  });
+
   test("getSessionId is stable within a session", () => {
     const a = posthog.getSessionId();
     posthog.capture("x");
@@ -323,6 +367,24 @@ describe("posthog hooks", () => {
     expect(exception).toBeDefined();
     expect(exception.properties.$exception_list[0].value).toBe("render exploded");
     expect(exception.properties.area).toBe("main");
+  });
+
+  test("useScreen registers the panel on mount", async () => {
+    function Panel() {
+      useScreen("Compressor", { variant: "pro" });
+      return <View />;
+    }
+
+    render(<Panel />);
+    await new Promise((r) => setTimeout(r, 0));
+    posthog.flush();
+
+    const screens = sends()
+      .flatMap((s) => s.args.batch)
+      .filter((e: any) => e.event === "$screen");
+    expect(screens).toHaveLength(1);
+    expect(screens[0].properties.$screen_name).toBe("Compressor");
+    expect(screens[0].properties.variant).toBe("pro");
   });
 
   test("usePostHogParameters debounces per parameter", async () => {

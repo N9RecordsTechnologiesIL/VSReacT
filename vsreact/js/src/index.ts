@@ -70,8 +70,10 @@ export type {
   ParamSegmentedProps,
   ParamSelectProps,
 } from "./controls";
-export { Meter, usePeakHold, peakHoldStep } from "./meter";
-export type { MeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
+export { Meter, RingMeter, usePeakHold, peakHoldStep } from "./meter";
+export type { MeterProps, RingMeterProps, PeakHoldOptions, PeakHoldState } from "./meter";
+export { EQCurve, biquadMagnitudeDb, eqResponseDb, eqXToHz, eqHzToX } from "./eq";
+export type { EQCurveProps, EQBand, FilterType } from "./eq";
 export {
   NumberBox,
   Checkbox,

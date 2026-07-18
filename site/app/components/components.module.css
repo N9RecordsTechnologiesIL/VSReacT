@@ -13061,3 +13061,195 @@
   border-left: 1px dashed rgba(234, 243, 255, 0.45);
   opacity: 1;
 }
+
+/* ══ DSP-display families — EQCurve + RingMeter twins ══ */
+
+/* — EQ curve: center-anchored response columns + band nodes — */
+.eq {
+  position: relative;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.eq u {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.16);
+  pointer-events: none;
+}
+
+.eq i {
+  position: absolute;
+  border-radius: 1px;
+  background: var(--acc);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.eq b {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 2;
+}
+
+.eq b::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #f2f4f6;
+  border: 1px solid rgba(0, 0, 0, 0.65);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.eq_std {
+  background: #e9eaee;
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.eq_std u {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.eq_std i {
+  opacity: 0.5;
+}
+
+/* STEEL — black-glass analyzer window in the chrome bezel */
+.eq_steel {
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #040505, #101214);
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.95),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 3px 7px rgba(15, 17, 20, 0.35);
+}
+
+.eq_steel u {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.eq_steel i {
+  opacity: 0.8;
+  background: linear-gradient(180deg, #ff5a44, #c81e14 60%, #8f1109);
+}
+
+.eq_steel b::after {
+  background: linear-gradient(180deg, #eef0f3, #c3c6cc 55%, #9ba0a7);
+  border-color: #33363c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 3px rgba(10, 12, 15, 0.6);
+}
+
+.eq_bp {
+  border-radius: 0;
+  background: rgba(10, 37, 89, 0.3);
+  border: 1px solid rgba(234, 243, 255, 0.6);
+}
+
+.eq_bp u {
+  background: rgba(234, 243, 255, 0.5);
+}
+
+.eq_bp i {
+  opacity: 0.6;
+  background: #eaf3ff;
+  border-radius: 0;
+}
+
+.eq_bp b::after {
+  background: #0f3170;
+  border: 1px solid rgba(234, 243, 255, 0.9);
+  box-shadow: none;
+}
+
+.eq_neon i {
+  opacity: 0.7;
+  box-shadow: 0 0 7px var(--acc);
+}
+
+.eq_glass {
+  background: rgba(8, 6, 18, 0.75);
+  border-color: rgba(160, 125, 255, 0.3);
+}
+
+.eq_carbon i {
+  opacity: 0.65;
+  background: linear-gradient(180deg, #ffb36b, #ff8c3b 55%, #b4581d);
+}
+
+/* — ring meter: 270° conic arc + center readout — */
+.ring {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6.5px));
+}
+
+.ring em {
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--acc);
+}
+
+/* STANDARD — soft track on the light card */
+.ring_std i {
+  filter: none;
+}
+
+/* STEEL — recessed dial well behind the arc, red readout */
+.ring_steel {
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #17191d, #060708 72%);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 0 2.5px #d0d3d8,
+    0 0 0 4px #7e838a;
+}
+
+.ring_steel em {
+  color: #ff5a44;
+  text-shadow: 0 0 7px rgba(229, 48, 28, 0.55);
+}
+
+/* BLUEPRINT — drafting ring */
+.ring_bp {
+  border-radius: 50%;
+  border: 1px dashed rgba(234, 243, 255, 0.45);
+}
+
+.ring_bp em {
+  color: #eaf3ff;
+}
+
+/* NEON — glowing arc */
+.ring_neon i {
+  filter: drop-shadow(0 0 6px var(--acc));
+}

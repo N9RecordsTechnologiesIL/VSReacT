@@ -326,6 +326,26 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;EQCurve&gt;</code>
+            </td>
+            <td>Filters</td>
+            <td>
+              The real summed biquad response (RBJ cookbook) with a draggable node per band —
+              drag for freq/gain, wheel for Q. Pure math exported.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;RingMeter&gt;</code>
+            </td>
+            <td>Levels</td>
+            <td>
+              A circular level meter on the native arc keys: hot zone, optional center
+              readout via <code>format</code>.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Button&gt;</code>
             </td>
             <td>Actions</td>

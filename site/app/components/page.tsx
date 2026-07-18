@@ -347,6 +347,9 @@ function SliderTwin({
         style={vertical ? { height: length } : { width: length }}
         {...h}
       >
+        <em>+12</em>
+        <em>0</em>
+        <em>-12</em>
         <b style={vertical ? { bottom: `calc(${value * 100}% - 19px)` } : { left: `calc(${value * 100}% - 19px)` }}>
           <i aria-hidden="true" />
         </b>
@@ -512,10 +515,12 @@ function CrossfaderTwin({
   if (theme === 'steel') {
     return (
       <div className={`${styles.xfade} ${styles.xfSteel}`} {...h}>
+        <span>DRY</span>
         <u aria-hidden="true" />
         <b style={{ left: 3 + value * TRAVEL }}>
           <i aria-hidden="true" />
         </b>
+        <span className={styles.xfadeEnd}>WET</span>
       </div>
     )
   }
@@ -589,12 +594,12 @@ function ToggleTwin({
   on: boolean
   onChange: (v: boolean) => void
 }) {
-  // STEEL — panel toggle switch: recessed collar, polished bat lever that
-  // throws left/right, engraved captions
+  // STEEL — rack bypass button: machined bevel frame, black well, square
+  // amber lamp that ignites when engaged (MIXED RACK reference)
   if (theme === 'steel') {
     return (
       <div className={styles.steelTogWrap}>
-        <em className={!on ? styles.steelTogSide : ''}>OFF</em>
+        <em className={on ? styles.steelTogSide : ''}>BYPASS</em>
         <button
           type="button"
           className={styles.steelTog}
@@ -602,9 +607,8 @@ function ToggleTwin({
           aria-pressed={on}
         >
           <s aria-hidden="true" />
-          <i style={{ transform: `rotate(${on ? 26 : -26}deg)` }} aria-hidden="true" />
+          <i aria-hidden="true" />
         </button>
-        <em className={on ? styles.steelTogSide : ''}>ON</em>
       </div>
     )
   }

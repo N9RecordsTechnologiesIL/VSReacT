@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.0.19 — 2026-07-19
+
+Web-parity round: the CSS features whose absence forced DirtyDelay to
+pre-bake its UI as sprites now render natively, and the parameter layer
+can no longer be poisoned by malformed traffic.
+
+### Native (`vsreact` module)
+
+- **Gradient backgrounds** — `gradientType: "linear" | "radial" | "conic"`
+  with `gradientFrom/Via/To` shorthands or a full `gradientStops` array,
+  `gradientAngle` in CSS degrees (0 = up, clockwise). Linear spans the
+  rect's projection exactly like CSS; radial is a farthest-corner
+  ellipse; conic is software-rendered once and cached per size + spec.
+- **Inset shadows** — `insetShadowColor/Radius/OffsetX/OffsetY`
+  (CSS `box-shadow: inset`): glass vignettes without a baked overlay.
+- **Glyph-shaped text shadows** — `textShadowColor/Radius/OffsetX/OffsetY`
+  on `<Text>`: LED/glow text without the rectangular halo the node
+  shadow gives.
+- **Transforms** — `rotate` (degrees), `scale`, `translateX/Y` about the
+  frame centre, children inherit. Paint-time only: layout and hit
+  rectangles stay untransformed (documented) — knob pointers and radial
+  ticks are now one rotated `<View>` instead of impossible.
+- **Per-side borders** — `borderTop/Right/Bottom/LeftWidth` (drawn as
+  square strips; corner radii ignored per side).
+- `shadowOffsetX` joins the existing outer-shadow keys.
+- **NaN can no longer poison a parameter**: `param:set` drops non-finite
+  values (jlimit passed NaN straight through to
+  `setValueNotifyingHost` — garbage text, stuck UI until the next
+  honest set).
+
+### `@vsreact/core` 0.0.19
+
+- Tailwind classes for all of the above: `bg-gradient-to-*`,
+  `bg-gradient-radial/conic`, `from-*` / `via-*` / `to-*`,
+  `shadow-inner`, `rotate-*` / `-rotate-*` / `rotate-[n]`, `scale-*` /
+  `scale-[f]`, `translate-x/y-*` (spacing scale + arbitrary + negative),
+  per-side `border-t` / `border-b-2` / `border-l-[3]`.
+- `useParameter` hardening: `set(NaN)` is dropped before the native
+  call; a param event with a missing `text` keeps the previous text; a
+  non-finite `value` keeps the previous value. New test suite covers the
+  malformed-traffic cases.
+- 128 tests.
+
 ## 0.0.18 — 2026-07-19
 
 The dogfood release: everything here came out of building

@@ -166,6 +166,137 @@ public:
             expect (approx (arcPixel (R"(, "arcCap": "butt")"), juce::Colours::black, 40));
         }
 
+        beginTest ("linear gradient runs top to bottom");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "gradientType": "linear", "gradientAngle": 180,
+                    "gradientFrom": "#ff0000", "gradientTo": "#0000ff"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 3), juce::Colour (0xffff0000), 24));
+            expect (approx (image.getPixelAt (50, 96), juce::Colour (0xff0000ff), 24));
+        }
+
+        beginTest ("radial gradient is centre-out");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "gradientType": "radial",
+                    "gradientFrom": "#ff0000", "gradientTo": "#0000ff"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 50), juce::Colour (0xffff0000), 24));
+            expect (image.getPixelAt (2, 2).getBlue() > image.getPixelAt (2, 2).getRed());
+        }
+
+        beginTest ("conic gradient sweeps clockwise from up");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "gradientType": "conic",
+                    "gradientFrom": "#ff0000", "gradientTo": "#0000ff"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            // Just clockwise of 12 o'clock ≈ the first stop; just counter-
+            // clockwise ≈ the last.
+            expect (image.getPixelAt (55, 6).getRed() > 200);
+            expect (image.getPixelAt (45, 6).getBlue() > 200);
+        }
+
+        beginTest ("per-side border paints only its edge");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "borderTopWidth": 6, "borderColor": "#00ff00"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 2), juce::Colour (0xff00ff00)));
+            expect (approx (image.getPixelAt (2, 50), juce::Colours::black));
+            expect (approx (image.getPixelAt (50, 97), juce::Colours::black));
+        }
+
+        beginTest ("rotate transforms the node and its children");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%", "rotate": 90}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 40,
+                                            "width": 20, "height": 20, "backgroundColor": "#ff0000"}}],
+                ["appendChild", 1, 2]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 10), juce::Colour (0xffff0000), 24));
+            expect (approx (image.getPixelAt (10, 50), juce::Colours::black, 24));
+        }
+
+        beginTest ("inset shadow darkens the rim, not the middle");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "backgroundColor": "#ffffff",
+                    "insetShadowColor": "#000000ff", "insetShadowRadius": 10}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+            expect (image.getPixelAt (50, 1).getBrightness() + 0.15f
+                    < image.getPixelAt (50, 50).getBrightness());
+        }
+
+        beginTest ("textShadow glows around the glyphs");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "text"],
+                ["setProps", 2, {"style": {"fontSize": 40, "color": "#ffffff",
+                                            "textShadowColor": "#ff0000", "textShadowRadius": 7}}],
+                ["create", 3, "rawtext"],
+                ["setText", 3, "XXXX"],
+                ["appendChild", 2, 3],
+                ["appendChild", 1, 2]
+            ])");
+
+            const auto image = renderTree (tree, 200, 100);
+
+            int reddish = 0;
+
+            for (int y = 0; y < 100; ++y)
+                for (int x = 0; x < 200; ++x)
+                {
+                    const auto pixel = image.getPixelAt (x, y);
+                    if (pixel.getRed() > 90 && pixel.getGreen() < 60 && pixel.getBlue() < 60)
+                        ++reddish;
+                }
+
+            expect (reddish > 40);
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

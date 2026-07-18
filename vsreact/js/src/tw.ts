@@ -79,6 +79,21 @@ const staticClasses: Record<string, Style> = {
   "shadow-md": { shadowColor: "#00000066", shadowRadius: 8, shadowOffsetY: 2 },
   "shadow-lg": { shadowColor: "#00000066", shadowRadius: 12, shadowOffsetY: 4 },
   "shadow-xl": { shadowColor: "#00000066", shadowRadius: 20, shadowOffsetY: 8 },
+  "shadow-inner": { insetShadowColor: "#0000000D", insetShadowRadius: 4, insetShadowOffsetY: 2 },
+  "border-t": { borderTopWidth: 1 },
+  "border-r": { borderRightWidth: 1 },
+  "border-b": { borderBottomWidth: 1 },
+  "border-l": { borderLeftWidth: 1 },
+  "bg-gradient-to-t": { gradientType: "linear", gradientAngle: 0 },
+  "bg-gradient-to-tr": { gradientType: "linear", gradientAngle: 45 },
+  "bg-gradient-to-r": { gradientType: "linear", gradientAngle: 90 },
+  "bg-gradient-to-br": { gradientType: "linear", gradientAngle: 135 },
+  "bg-gradient-to-b": { gradientType: "linear", gradientAngle: 180 },
+  "bg-gradient-to-bl": { gradientType: "linear", gradientAngle: 225 },
+  "bg-gradient-to-l": { gradientType: "linear", gradientAngle: 270 },
+  "bg-gradient-to-tl": { gradientType: "linear", gradientAngle: 315 },
+  "bg-gradient-radial": { gradientType: "radial" },
+  "bg-gradient-conic": { gradientType: "conic" },
 };
 
 const textSizes: Record<string, number> = {
@@ -136,6 +151,8 @@ const lengthKeys: Record<string, string[]> = {
   "inset-x": ["left", "right"],
   "inset-y": ["top", "bottom"],
   basis: ["flexBasis"],
+  "translate-x": ["translateX"],
+  "translate-y": ["translateY"],
 };
 
 const warned = new Set<string>();
@@ -223,6 +240,32 @@ function resolveClass(cls: string): Style | undefined {
       const color = resolveColor(rest);
       return color !== undefined ? { backgroundColor: color } : undefined;
     }
+    case "from": {
+      const color = resolveColor(rest);
+      return color !== undefined ? { gradientFrom: color } : undefined;
+    }
+    case "via": {
+      const color = resolveColor(rest);
+      return color !== undefined ? { gradientVia: color } : undefined;
+    }
+    case "to": {
+      const color = resolveColor(rest);
+      return color !== undefined ? { gradientTo: color } : undefined;
+    }
+    case "rotate": {
+      // Degrees, literal: rotate-45, -rotate-90, rotate-[10]
+      const deg = rest.startsWith("[") ? parseLength(rest) : Number(rest);
+      return typeof deg === "number" && Number.isFinite(deg) ? { rotate: negate(deg) } : undefined;
+    }
+    case "scale": {
+      // Percent named scale (scale-95), raw factor arbitrary (scale-[1.25])
+      if (rest.startsWith("[")) {
+        const factor = parseLength(rest);
+        return typeof factor === "number" ? { scale: factor } : undefined;
+      }
+      const percent = Number(rest);
+      return Number.isFinite(percent) ? { scale: percent / 100 } : undefined;
+    }
     case "text": {
       if (rest in textSizes) return { fontSize: textSizes[rest] };
       if (rest.startsWith("[") && !rest.startsWith("[#")) {
@@ -235,6 +278,15 @@ function resolveClass(cls: string): Style | undefined {
     case "border": {
       const n = Number(rest);
       if (Number.isFinite(n)) return { borderWidth: n };
+      // Per-side widths (literal px like tw): border-t-2, border-b-[3]
+      const side = /^([trbl])-(.+)$/.exec(rest);
+      if (side) {
+        const key = { t: "borderTopWidth", r: "borderRightWidth", b: "borderBottomWidth", l: "borderLeftWidth" }[
+          side[1] as "t" | "r" | "b" | "l"
+        ];
+        const width = side[2].startsWith("[") ? parseLength(side[2]) : Number(side[2]);
+        return typeof width === "number" && Number.isFinite(width) ? { [key]: width } : undefined;
+      }
       const color = resolveColor(rest);
       return color !== undefined ? { borderColor: color } : undefined;
     }

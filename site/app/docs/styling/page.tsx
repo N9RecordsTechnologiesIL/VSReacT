@@ -65,9 +65,29 @@ export default function Page() {
           <tr>
             <td>Borders &amp; radius</td>
             <td>
-              <code>border</code> <code>border-2</code> <code>rounded</code>{' '}
-              <code>rounded-sm…3xl/full</code>, per corner <code>rounded-t-lg</code>{' '}
-              <code>rounded-br-full</code>, arbitrary <code>rounded-[10]</code>
+              <code>border</code> <code>border-2</code>, per side <code>border-t</code>{' '}
+              <code>border-b-2</code> <code>border-l-[3]</code> (square strips — corner
+              radii ignored), <code>rounded</code> <code>rounded-sm…3xl/full</code>, per
+              corner <code>rounded-t-lg</code> <code>rounded-br-full</code>, arbitrary{' '}
+              <code>rounded-[10]</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Gradients</td>
+            <td>
+              <code>bg-gradient-to-t/tr/r/br/b/bl/l/tl</code>{' '}
+              <code>bg-gradient-radial</code> <code>bg-gradient-conic</code> with{' '}
+              <code>from-*</code> <code>via-*</code> <code>to-*</code> (palette, tokens,
+              or <code>from-[#111]</code>)
+            </td>
+          </tr>
+          <tr>
+            <td>Transforms</td>
+            <td>
+              <code>rotate-45</code> <code>-rotate-90</code> <code>rotate-[10.5]</code>{' '}
+              <code>scale-95</code> <code>scale-[1.25]</code>{' '}
+              <code>translate-x-4</code> <code>-translate-y-2</code> — paint-time only:
+              layout and hit areas stay at the untransformed rect
             </td>
           </tr>
           <tr>
@@ -83,8 +103,9 @@ export default function Page() {
             <td>Effects</td>
             <td>
               <code>opacity-*</code> <code>shadow…shadow-xl</code>{' '}
-              <code>overflow-hidden</code> <code>overflow-y-scroll</code>{' '}
-              <code>aspect-square</code> <code>cursor-pointer/text/default</code>
+              <code>shadow-inner</code> <code>overflow-hidden</code>{' '}
+              <code>overflow-y-scroll</code> <code>aspect-square</code>{' '}
+              <code>cursor-pointer/text/default</code>
             </td>
           </tr>
           <tr>
@@ -159,6 +180,29 @@ configureTheme({
         <li>
           <strong>Text input chrome</strong> — <code>caretColor</code>,{' '}
           <code>placeholderColor</code>.
+        </li>
+        <li>
+          <strong>Gradients (structured)</strong> — beyond the classes:{' '}
+          <code>gradientType</code> (<code>linear|radial|conic</code>),{' '}
+          <code>gradientAngle</code> (CSS degrees, 0 = up, clockwise),{' '}
+          <code>gradientStops</code>{' '}
+          (<code>{'[{ offset: 0, color: "#ff0000" }, …]'}</code>) for more than three
+          stops. Radial fills are farthest-corner ellipses; conic renders are cached per
+          size + spec.
+        </li>
+        <li>
+          <strong>Shadows</strong> — outer <code>shadowColor/Radius/OffsetX/OffsetY</code>{' '}
+          (path-shaped), inset <code>insetShadowColor/Radius/OffsetX/OffsetY</code>{' '}
+          (CSS <code>box-shadow: inset</code>), and glyph-shaped{' '}
+          <code>textShadowColor/Radius/OffsetX/OffsetY</code> on <code>&lt;Text&gt;</code>{' '}
+          (CSS <code>text-shadow</code> — LED glows without a bounding-box halo).
+        </li>
+        <li>
+          <strong>Transforms</strong> — <code>rotate</code> (degrees), <code>scale</code>,{' '}
+          <code>translateX/Y</code>, applied about the frame centre in CSS order
+          (translate → rotate → scale); children inherit. Paint-time only: hit areas and
+          layout stay at the untransformed rect, so keep interactive surfaces
+          untransformed.
         </li>
       </ul>
       <Code title="a bare arc, no Knob component">{`<View

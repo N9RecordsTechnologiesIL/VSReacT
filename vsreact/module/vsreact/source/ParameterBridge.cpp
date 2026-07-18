@@ -1,5 +1,7 @@
 #include "ParameterBridge.h"
 
+#include <cmath>
+
 namespace vsreact
 {
 
@@ -80,9 +82,14 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
 
     if (name == "param:set")
     {
-        const auto value = juce::jlimit (0.0f, 1.0f,
-                                         static_cast<float> (static_cast<double> (args["value"])));
-        parameter->setValueNotifyingHost (value);
+        const auto raw = static_cast<float> (static_cast<double> (args["value"]));
+
+        // jlimit passes NaN straight through — a NaN would poison the
+        // parameter (garbage text, stuck UI) until the next honest set.
+        if (! std::isfinite (raw))
+            return juce::var();
+
+        parameter->setValueNotifyingHost (juce::jlimit (0.0f, 1.0f, raw));
         return juce::var();
     }
 

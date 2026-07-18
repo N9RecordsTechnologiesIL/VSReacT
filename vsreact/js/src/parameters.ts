@@ -68,14 +68,25 @@ export function useParameter(id: string): ParameterHandle {
   useEffect(
     () =>
       native.on("param", (p) => {
-        if (p?.id === id)
-          setState((s) => ({ ...s, value: Number(p.value), text: String(p.text ?? "") }));
+        if (p?.id !== id) return;
+        // A malformed event must never poison good state: keep the previous
+        // value on non-finite numbers and the previous text when absent.
+        setState((s) => {
+          const value = Number(p.value);
+          return {
+            ...s,
+            value: Number.isFinite(value) ? value : s.value,
+            text: p.text == null ? s.text : String(p.text),
+          };
+        });
       }),
     [id],
   );
 
   const set = useCallback(
     (normalized: number) => {
+      // NaN would round-trip into the APVTS as garbage — drop it here too.
+      if (!Number.isFinite(normalized)) return;
       const value = Math.min(1, Math.max(0, normalized));
       setState((s) => ({ ...s, value }));
       native.call("param:set", { id, value });

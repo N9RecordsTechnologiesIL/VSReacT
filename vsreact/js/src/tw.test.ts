@@ -167,3 +167,62 @@ describe("arbitrary letter spacing", () => {
     expect(tw("tracking-widest").style).toEqual({ letterSpacing: 1.6 });
   });
 });
+
+describe("gradients (0.0.19)", () => {
+  test("direction classes set type and angle", () => {
+    expect(tw("bg-gradient-to-r").style).toEqual({ gradientType: "linear", gradientAngle: 90 });
+    expect(tw("bg-gradient-to-tl").style).toEqual({ gradientType: "linear", gradientAngle: 315 });
+    expect(tw("bg-gradient-radial").style).toEqual({ gradientType: "radial" });
+    expect(tw("bg-gradient-conic").style).toEqual({ gradientType: "conic" });
+  });
+
+  test("from/via/to resolve palette and arbitrary colors", () => {
+    expect(tw("from-zinc-900").style).toEqual({ gradientFrom: "#18181b" });
+    expect(tw("via-lime-400").style).toEqual({ gradientVia: "#a3e635" });
+    expect(tw("to-[#102030]").style).toEqual({ gradientTo: "#102030" });
+  });
+
+  test("full stack composes", () => {
+    expect(tw("bg-gradient-to-b from-[#111111] to-[#222222]").style).toEqual({
+      gradientType: "linear",
+      gradientAngle: 180,
+      gradientFrom: "#111111",
+      gradientTo: "#222222",
+    });
+  });
+});
+
+describe("transforms (0.0.19)", () => {
+  test("rotate literal degrees + negative + arbitrary", () => {
+    expect(tw("rotate-45").style).toEqual({ rotate: 45 });
+    expect(tw("-rotate-90").style).toEqual({ rotate: -90 });
+    expect(tw("rotate-[10.5]").style).toEqual({ rotate: 10.5 });
+  });
+
+  test("scale percent + arbitrary factor", () => {
+    expect(tw("scale-95").style).toEqual({ scale: 0.95 });
+    expect(tw("scale-[1.25]").style).toEqual({ scale: 1.25 });
+  });
+
+  test("translate on the spacing scale", () => {
+    expect(tw("translate-x-4").style).toEqual({ translateX: 16 });
+    expect(tw("-translate-y-2").style).toEqual({ translateY: -8 });
+    expect(tw("translate-x-[7]").style).toEqual({ translateX: 7 });
+  });
+});
+
+describe("per-side borders + inner shadow (0.0.19)", () => {
+  test("side widths are literal px", () => {
+    expect(tw("border-t").style).toEqual({ borderTopWidth: 1 });
+    expect(tw("border-b-2").style).toEqual({ borderBottomWidth: 2 });
+    expect(tw("border-l-[3]").style).toEqual({ borderLeftWidth: 3 });
+  });
+
+  test("shadow-inner maps to inset shadow keys", () => {
+    expect(tw("shadow-inner").style).toEqual({
+      insetShadowColor: "#0000000D",
+      insetShadowRadius: 4,
+      insetShadowOffsetY: 2,
+    });
+  });
+});

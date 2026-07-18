@@ -641,12 +641,17 @@ bool RootView::keyPressed (const juce::KeyPress& key)
     }
 
     if (auto* node = tree.find (focusedNodeId); node != nullptr && focusedNodeId != 0
-        && node->listeners.contains ("keydown"))
+        && (node->listeners.contains ("keydown") || node->listeners.contains ("keyup")))
     {
         const auto name = keyName (key);
 
         if (name.isEmpty())
             return false;
+
+        pressedKeys.addIfNotAlreadyThere (key);
+
+        if (! node->listeners.contains ("keydown"))
+            return true; // tracked for keyup only
 
         auto* payload = new juce::DynamicObject();
         payload->setProperty ("key", name);
@@ -659,6 +664,39 @@ bool RootView::keyPressed (const juce::KeyPress& key)
     }
 
     return false;
+}
+
+bool RootView::keyStateChanged (bool isKeyDown)
+{
+    if (isKeyDown)
+        return false;
+
+    bool handled = false;
+
+    for (int i = pressedKeys.size(); --i >= 0;)
+    {
+        const auto key = pressedKeys.getReference (i);
+
+        if (key.isCurrentlyDown())
+            continue;
+
+        pressedKeys.remove (i);
+
+        if (auto* node = tree.find (focusedNodeId); node != nullptr && focusedNodeId != 0
+            && node->listeners.contains ("keyup"))
+        {
+            auto* payload = new juce::DynamicObject();
+            payload->setProperty ("key", keyName (key));
+            payload->setProperty ("shift", key.getModifiers().isShiftDown());
+            payload->setProperty ("ctrl", key.getModifiers().isCtrlDown());
+            payload->setProperty ("alt", key.getModifiers().isAltDown());
+            payload->setProperty ("meta", key.getModifiers().isCommandDown());
+            dispatchNodeEvent (focusedNodeId, "keyup", juce::var (payload));
+            handled = true;
+        }
+    }
+
+    return handled;
 }
 
 } // namespace vsreact

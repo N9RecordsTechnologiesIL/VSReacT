@@ -4,7 +4,7 @@ import "./runtime";
 import "./bridge";
 
 /** The SDK version — stamp it on support dumps and analytics. */
-export const VERSION = "0.0.21";
+export const VERSION = "0.0.22";
 
 export { View, Text, Image, TextInput, NativeView } from "./primitives";
 export type {

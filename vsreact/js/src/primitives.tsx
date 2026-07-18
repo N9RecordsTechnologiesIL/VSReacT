@@ -62,6 +62,8 @@ export interface CommonProps {
       makes the node focusable: click focuses it, Tab cycles, keys arrive
       here with web KeyboardEvent.key names. */
   onKeyDown?: (e: KeyEventPayload) => void;
+  /** Fires when a key seen by onKeyDown is released (node still focused). */
+  onKeyUp?: (e: KeyEventPayload) => void;
   onFocus?: () => void;
   onBlur?: () => void;
   /** Fires after layout whenever this node's root-space rect changes —

@@ -820,3 +820,18 @@ describe("keyboard control model (0.0.20)", () => {
     expect(seen.at(-1)?.[1]).toBeCloseTo(0.49);
   });
 });
+
+describe("keyup wiring (0.0.22)", () => {
+  test("onKeyUp registers the keyup listener", () => {
+    const ups: string[] = [];
+    render(<Slider value={0.5} onChange={() => {}} />);
+    unmount();
+    batches.length = 0;
+    const { View: V } = require("./index");
+    render(<V onKeyUp={(e: any) => ups.push(e.key)} />);
+
+    const id = nodeWithListener("keyup");
+    dispatch({ kind: "event", nodeId: id, type: "keyup", payload: { key: "ArrowUp", shift: false, ctrl: false, alt: false, meta: false } });
+    expect(ups).toEqual(["ArrowUp"]);
+  });
+});

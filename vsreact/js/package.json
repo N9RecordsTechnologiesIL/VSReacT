@@ -1,6 +1,6 @@
 {
   "name": "@vsreact/core",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Write React. Ship native VST. A React renderer for JUCE audio plugins — QuickJS + Yoga + juce::Graphics, no webview.",
   "keywords": [
     "react",

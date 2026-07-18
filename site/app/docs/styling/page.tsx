@@ -104,7 +104,10 @@ export default function Page() {
               <code>text-xs…text-6xl</code> <code>text-[15]</code>{' '}
               <code>font-normal/medium/semibold/bold</code> <code>font-mono</code>{' '}
               <code>text-left/center/right</code> <code>tracking-*</code>{' '}
-              <code>tracking-[3]</code> <code>leading-*</code>
+              <code>tracking-[3]</code> <code>leading-*</code> <code>leading-[18]</code>{' '}
+              <code>truncate</code> <code>line-clamp-3</code>{' '}
+              <code>uppercase/lowercase/capitalize</code>{' '}
+              <code>underline</code> <code>line-through</code>
             </td>
           </tr>
           <tr>

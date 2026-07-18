@@ -134,7 +134,9 @@ export default function Page() {
         <kbd>Enter</kbd>/<kbd>Space</kbd> flips a Toggle — the{' '}
         <code>sliderKeyTarget</code> helper is exported if you want the same model on a
         custom control. Focus is invisible by default; opt into a ring with a{' '}
-        <code>focus:</code> variant.
+        <code>focus:</code> variant. <code>onKeyUp</code> (since 0.0.22) fires when a key
+        the node saw go down is released — key-repeat arrives as repeated{' '}
+        <code>onKeyDown</code>s, exactly like the web.
       </p>
 
       <h2 id="scroll">Scroll containers</h2>

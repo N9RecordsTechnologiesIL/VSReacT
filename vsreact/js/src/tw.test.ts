@@ -234,3 +234,22 @@ describe("zIndex (0.0.20)", () => {
     expect(tw("-z-1").style).toEqual({ zIndex: -1 });
   });
 });
+
+describe("typography (0.0.22)", () => {
+  test("truncate and line-clamp", () => {
+    expect(tw("truncate").style).toEqual({ numberOfLines: 1 });
+    expect(tw("line-clamp-3").style).toEqual({ numberOfLines: 3 });
+  });
+
+  test("case transforms and decorations", () => {
+    expect(tw("uppercase").style).toEqual({ textTransform: "uppercase" });
+    expect(tw("capitalize").style).toEqual({ textTransform: "capitalize" });
+    expect(tw("underline").style).toEqual({ textDecoration: "underline" });
+    expect(tw("line-through").style).toEqual({ textDecoration: "line-through" });
+  });
+
+  test("arbitrary leading is px", () => {
+    expect(tw("leading-[18]").style).toEqual({ lineHeight: 18 });
+    expect(tw("leading-5").style).toEqual({ lineHeight: 20 });
+  });
+});

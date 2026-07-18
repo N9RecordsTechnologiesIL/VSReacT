@@ -223,6 +223,9 @@ juce::Font Style::font() const
     if (letterSpacing != 0.0f && size > 0.0f)
         font.setExtraKerningFactor (letterSpacing / size);
 
+    if (getString ("textDecoration") == "underline")
+        font.setUnderline (true);
+
     return font;
 }
 

@@ -353,6 +353,117 @@ public:
             expect (approx (image.getPixelAt (50, 48), juce::Colour (0xff0000ff), 40));
         }
 
+        beginTest ("textTransform uppercase paints identically to uppercase text");
+        {
+            const auto renderText = [] (const juce::String& value, const juce::String& extraStyle)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                    ["appendChild", 0, 1],
+                    ["create", 2, "text"],
+                    ["setProps", 2, {"style": {"fontSize": 30, "color": "#ffffff")") + extraStyle + R"(}}],
+                    ["create", 3, "rawtext"],
+                    ["setText", 3, ")" + value + R"("],
+                    ["appendChild", 2, 3],
+                    ["appendChild", 1, 2]
+                ])");
+                return renderTree (tree, 200, 60);
+            };
+
+            const auto transformed = renderText ("abc", R"(, "textTransform": "uppercase")");
+            const auto plain = renderText ("ABC", "");
+
+            bool identical = true;
+
+            for (int py = 0; py < 60 && identical; ++py)
+                for (int px = 0; px < 200 && identical; ++px)
+                    identical = transformed.getPixelAt (px, py) == plain.getPixelAt (px, py);
+
+            expect (identical);
+        }
+
+        const auto renderStyled = [] (const juce::String& extraStyle)
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (juce::String (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "text"],
+                ["setProps", 2, {"style": {"fontSize": 20, "color": "#ffffff")") + extraStyle + R"(}}],
+                ["create", 3, "rawtext"],
+                ["setText", 3, "AAAA AAAA AAAA AAAA AAAA AAAA"],
+                ["appendChild", 2, 3],
+                ["appendChild", 1, 2]
+            ])");
+            return renderTree (tree, 120, 200);
+        };
+
+        const auto rowsWithInk = [] (const juce::Image& image)
+        {
+            int rows = 0;
+
+            for (int py = 0; py < image.getHeight(); ++py)
+                for (int px = 0; px < image.getWidth(); ++px)
+                    if (image.getPixelAt (px, py).getBrightness() > 0.4f)
+                    {
+                        ++rows;
+                        break;
+                    }
+
+            return rows;
+        };
+
+        const auto inkSpan = [] (const juce::Image& image)
+        {
+            int first = -1, last = -1;
+
+            for (int py = 0; py < image.getHeight(); ++py)
+                for (int px = 0; px < image.getWidth(); ++px)
+                    if (image.getPixelAt (px, py).getBrightness() > 0.4f)
+                    {
+                        if (first < 0) first = py;
+                        last = py;
+                        break;
+                    }
+
+            return last - first;
+        };
+
+        beginTest ("underline adds pixels");
+        {
+            const auto inkCount = [] (const juce::Image& image)
+            {
+                int count = 0;
+
+                for (int py = 0; py < image.getHeight(); ++py)
+                    for (int px = 0; px < image.getWidth(); ++px)
+                        if (image.getPixelAt (px, py).getBrightness() > 0.4f)
+                            ++count;
+
+                return count;
+            };
+
+            expect (inkCount (renderStyled (R"(, "textDecoration": "underline")"))
+                    > inkCount (renderStyled ("")));
+        }
+
+        beginTest ("numberOfLines clamps wrapping");
+        {
+            expect (rowsWithInk (renderStyled (R"(, "numberOfLines": 1)"))
+                    < rowsWithInk (renderStyled ("")) / 2);
+        }
+
+        beginTest ("lineHeight spreads the block vertically");
+        {
+            // Spacing adds empty rows BETWEEN lines — the ink-row count stays
+            // the same, so measure first-to-last span instead.
+            expect (inkSpan (renderStyled (R"(, "lineHeight": 44)"))
+                    > inkSpan (renderStyled ("")) + 20);
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

@@ -392,16 +392,83 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
 
 void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style)
 {
-    const auto text = node.textContent();
+    auto text = node.textContent();
 
     if (text.isEmpty())
         return;
 
+    // CSS text-transform.
+    const auto caseTransform = style.getString ("textTransform");
+
+    if (caseTransform == "uppercase")
+        text = text.toUpperCase();
+    else if (caseTransform == "lowercase")
+        text = text.toLowerCase();
+    else if (caseTransform == "capitalize")
+    {
+        auto words = juce::StringArray::fromTokens (text, " ", {});
+
+        for (auto& word : words)
+            if (word.isNotEmpty())
+                word = word.substring (0, 1).toUpperCase() + word.substring (1);
+
+        text = words.joinIntoString (" ");
+    }
+
+    const auto font = style.font();
+    const auto colour = style.getColour ("color").value_or (juce::Colours::white);
+    const bool strike = style.getString ("textDecoration") == "line-through";
+    const auto maxLines = (int) style.getFloat ("numberOfLines", 0.0f);
+
+    // numberOfLines clamps and truncates with an ellipsis (CSS truncate /
+    // line-clamp) via fitted glyphs; the default path wraps freely.
+    if (maxLines > 0)
+    {
+        const juce::Justification just (style.textAlign().getFlags()
+                                        | juce::Justification::verticallyCentred);
+
+        juce::GlyphArrangement glyphs;
+        glyphs.addFittedText (font, text,
+                              node.frame.getX(), node.frame.getY(),
+                              node.frame.getWidth(), node.frame.getHeight(),
+                              just, maxLines, 1.0f);
+
+        if (const auto glowColor = style.getColour ("textShadowColor"))
+        {
+            juce::Path glyphPath;
+            glyphs.createPath (glyphPath);
+
+            const juce::DropShadow shadow (*glowColor,
+                                           juce::roundToInt (style.getFloat ("textShadowRadius", 3.0f)),
+                                           { juce::roundToInt (style.getFloat ("textShadowOffsetX", 0.0f)),
+                                             juce::roundToInt (style.getFloat ("textShadowOffsetY", 0.0f)) });
+            shadow.drawForPath (g, glyphPath);
+        }
+
+        g.setColour (colour);
+        glyphs.draw (g);
+
+        if (strike)
+        {
+            const auto box = glyphs.getBoundingBox (0, -1, true);
+            g.fillRect (box.getX(), box.getCentreY() - font.getHeight() * 0.03f,
+                        box.getWidth(), juce::jmax (1.0f, font.getHeight() * 0.06f));
+        }
+
+        return;
+    }
+
     juce::AttributedString attributed;
     attributed.setText (text);
-    attributed.setFont (style.font());
-    attributed.setColour (style.getColour ("color").value_or (juce::Colours::white));
+    attributed.setFont (font);
+    attributed.setColour (colour);
     attributed.setJustification (style.textAlign());
+
+    // CSS line-height (px): extra spacing beyond the font's natural height.
+    const auto lineHeight = style.getFloat ("lineHeight", 0.0f);
+
+    if (lineHeight > 0.0f)
+        attributed.setLineSpacing (juce::jmax (0.0f, lineHeight - font.getHeight()));
 
     juce::TextLayout layout;
     layout.createLayout (attributed, node.frame.getWidth());
@@ -413,9 +480,9 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
     if (const auto glowColor = style.getColour ("textShadowColor"))
     {
         juce::GlyphArrangement glyphs;
-        glyphs.addFittedText (style.font(), text,
+        glyphs.addFittedText (font, text,
                               node.frame.getX(), y, node.frame.getWidth(), layout.getHeight(),
-                              style.textAlign(), 2);
+                              style.textAlign(), juce::jmax (2, layout.getNumLines()));
 
         juce::Path glyphPath;
         glyphs.createPath (glyphPath);
@@ -428,6 +495,28 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
     }
 
     layout.draw (g, { node.frame.getX(), y, node.frame.getWidth(), layout.getHeight() });
+
+    if (strike)
+    {
+        g.setColour (colour);
+
+        for (int i = 0; i < layout.getNumLines(); ++i)
+        {
+            const auto& line = layout.getLine (i);
+            float lineWidth = 0.0f;
+
+            for (const auto* run : line.runs)
+                for (const auto& glyph : run->glyphs)
+                    lineWidth = juce::jmax (lineWidth, glyph.anchor.x + glyph.width);
+
+            if (lineWidth <= 0.0f)
+                continue;
+
+            g.fillRect (node.frame.getX() + line.lineOrigin.x,
+                        y + line.lineOrigin.y - line.ascent * 0.3f,
+                        lineWidth, juce::jmax (1.0f, font.getHeight() * 0.06f));
+        }
+    }
 }
 
 juce::Image Painter::decodeDataUriImage (const juce::String& source)

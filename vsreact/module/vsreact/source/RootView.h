@@ -60,6 +60,9 @@ public:
     // focused node's onKeyDown as web-style names ("ArrowUp", "Enter", "a").
     bool keyPressed (const juce::KeyPress& key) override;
 
+    // Releases of keys seen by keyPressed dispatch "keyup" to the focused node.
+    bool keyStateChanged (bool isKeyDown) override;
+
     /** Web KeyboardEvent.key name for a JUCE key press ("ArrowUp", "Enter",
         "Escape", " ", "a"). Exposed for tests. */
     static juce::String keyName (const juce::KeyPress& key);
@@ -89,6 +92,7 @@ private:
 
     int hoveredNodeId = 0, activeNodeId = 0;
     int focusedNodeId = 0;
+    juce::Array<juce::KeyPress> pressedKeys;
     int dragNodeId = 0;
     juce::Point<float> dragStartPosition;
     bool dragging = false;

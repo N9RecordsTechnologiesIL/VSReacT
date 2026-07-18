@@ -62,6 +62,14 @@ const staticClasses: Record<string, Style> = {
   "font-medium": { fontWeight: 500 },
   "font-semibold": { fontWeight: 600 },
   "font-bold": { fontWeight: 700 },
+  truncate: { numberOfLines: 1 },
+  uppercase: { textTransform: "uppercase" },
+  lowercase: { textTransform: "lowercase" },
+  capitalize: { textTransform: "capitalize" },
+  "normal-case": { textTransform: "none" },
+  underline: { textDecoration: "underline" },
+  "line-through": { textDecoration: "line-through" },
+  "no-underline": { textDecoration: "none" },
   "tracking-tighter": { letterSpacing: -0.8 },
   "tracking-tight": { letterSpacing: -0.4 },
   "tracking-normal": { letterSpacing: 0 },
@@ -295,8 +303,20 @@ function resolveClass(cls: string): Style | undefined {
       return Number.isFinite(n) ? { opacity: n / 100 } : undefined;
     }
     case "leading": {
+      if (rest.startsWith("[")) {
+        const px = parseLength(rest);
+        return typeof px === "number" ? { lineHeight: px } : undefined;
+      }
       const n = Number(rest);
       return Number.isFinite(n) ? { lineHeight: n * 4 } : undefined;
+    }
+    case "line": {
+      // line-clamp-N (rest arrives as "clamp-N")
+      if (rest.startsWith("clamp-")) {
+        const n = Number(rest.slice("clamp-".length));
+        return Number.isFinite(n) && n > 0 ? { numberOfLines: n } : undefined;
+      }
+      return undefined;
     }
     case "tracking": {
       // Named scale lives in staticClasses; arbitrary is px: tracking-[3].

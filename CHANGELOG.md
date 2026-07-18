@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.0.22 — 2026-07-19
+
+Typography & keys: text finally behaves like web text.
+
+### Native (`vsreact` module)
+
+- **`numberOfLines`** clamps wrapping and truncates with an ellipsis
+  (CSS `truncate` / `line-clamp-N`).
+- **`lineHeight` is now painted** — `leading-*` classes always resolved,
+  but the painter ignored the key until now (extra spacing between
+  wrapped lines).
+- **`textTransform`** (`uppercase` / `lowercase` / `capitalize`) applied
+  at paint time, and **`textDecoration`** (`underline` via the font,
+  `line-through` drawn per wrapped line).
+- **`keyup` events** — releases of keys the focused node saw go down
+  dispatch `keyup` with the same web key names and modifier flags.
+
+### `@vsreact/core` 0.0.22
+
+- `onKeyUp` prop; `truncate`, `line-clamp-N`, `uppercase/lowercase/
+  capitalize/normal-case`, `underline/line-through/no-underline`, and
+  arbitrary `leading-[18]` classes. 136 tests.
+
 ## 0.0.21 — 2026-07-19
 
 Patch: `sliderKeyTarget` and the `KeyEventPayload` / `MouseMovePayload`

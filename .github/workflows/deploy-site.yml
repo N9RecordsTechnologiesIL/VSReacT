@@ -34,7 +34,7 @@ jobs:
       - name: Build static site
         run: |
           cd site
-          bun install
+          bun install || { echo "bun install failed — purging cache and retrying"; bun pm cache rm; bun install; }
           bun run build
       - name: Custom domain file
         run: echo "vsreact.n9records.com" > site/out/CNAME

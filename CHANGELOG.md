@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.21 — 2026-07-19
+
+Patch: `sliderKeyTarget` and the `KeyEventPayload` / `MouseMovePayload`
+types were missing from the `@vsreact/core` barrel (caught by verifying
+the published 0.0.20 from the registry). Native module unchanged.
+
 ## 0.0.20 — 2026-07-19
 
 Keyboard, stacking, and shapes: the last big structural gaps between

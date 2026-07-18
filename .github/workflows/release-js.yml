@@ -73,11 +73,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "VSReacT $GITHUB_REF_NAME" \
-            --notes "## vsreact $GITHUB_REF_NAME
-
-          Install the UI package:
+          # what's-new from CHANGELOG.md (the "## X.Y.Z — date" section), then install
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            $0 ~ "^## " ver " " { on = 1; next }
+            /^## / { on = 0 }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          if [ -s notes.md ]; then printf '\n---\n\n' >> notes.md; fi
+          cat >> notes.md <<EOF
+          ### Install
 
           \`\`\`sh
           bun add @vsreact/core   # or npm install / yarn add / pnpm add
@@ -94,7 +99,11 @@ jobs:
           FetchContent_MakeAvailable(vsreact)
           \`\`\`
 
-          Docs: https://vsreact.n9records.com/docs" \
+          Docs: https://vsreact.n9records.com/docs
+          EOF
+          gh release create "$GITHUB_REF_NAME" \
+            --title "VSReacT $GITHUB_REF_NAME" \
+            --notes-file notes.md \
             vsreact/js/vsreact-core-[0-9]*.tgz \
             "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)" \
             vsreact/js-posthog/vsreact-posthog-[0-9]*.tgz \

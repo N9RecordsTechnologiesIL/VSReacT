@@ -2404,7 +2404,7 @@ export default function ComponentsPage() {
               <AllThemes
                 render={(t) => (
                   <div className={`${styles.spinner} ${styles[`sp_${t}`] ?? ''}`} aria-label="Loading">
-                    {t === 'carbon' ? <i /> : null}
+                    {t === 'carbon' || t === 'steel' ? <i /> : null}
                   </div>
                 )}
               />

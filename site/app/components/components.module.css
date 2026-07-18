@@ -10966,3 +10966,672 @@
   letter-spacing: 0.2em;
   cursor: pointer;
 }
+
+/* ══ STEEL V2 — winner DNA: routed pockets, machined parts, glass windows ══ */
+
+/* fader/slider: the control sits in a ROUTED POCKET milled into the plate */
+.fadeSteel {
+  height: 52px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #9ea2a9, #bfc2c8 25%, #cdd0d5 70%, #d3d6da);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.4),
+    inset 0 12px 16px -12px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.fadeSteel::before {
+  left: 8px;
+  right: 8px;
+}
+
+.fadeSteel::after {
+  background:
+    repeating-linear-gradient(90deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 9.5px) 8px 6px / calc(100% - 16px) 6px no-repeat,
+    repeating-linear-gradient(90deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 9.5px) 8px calc(100% - 12px) / calc(100% - 16px) 6px no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 50% 4px / 1.5px 10px no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 50% calc(100% - 4px) / 1.5px 10px no-repeat;
+}
+
+/* cap: finned top face + a darker front lip = two visible faces */
+.fadeSteel b {
+  height: 32px;
+  margin-top: -16px;
+  border-radius: 3px 3px 4px 4px;
+  border: 1px solid #050607;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0 24px, rgba(0, 0, 0, 0.55) 24px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 16%, rgba(0, 0, 0, 0) 84%, rgba(0, 0, 0, 0.5)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0.18) 72%),
+    repeating-linear-gradient(90deg, #17181b 0 1px, #2e3136 1px 2px, #101114 2px 4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.7),
+    0 3px 4px rgba(10, 12, 15, 0.6),
+    0 9px 14px rgba(10, 12, 15, 0.35);
+}
+
+.fadeSteel b::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 8px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #26282c, #101114 55%, #17191c);
+  border-top: 1px solid rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.fadeSteel b i {
+  top: 2px;
+  bottom: 9px;
+}
+
+.fadeSteelV {
+  width: 52px;
+  height: auto;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #a4a8af, #c3c6cc 30%, #cdd0d5 75%, #d3d6da);
+  box-shadow:
+    inset 2px 0 5px rgba(0, 0, 0, 0.35),
+    inset 12px 0 16px -12px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.fadeSteelV::before {
+  top: 8px;
+  bottom: 8px;
+  left: 50%;
+}
+
+.fadeSteelV::after {
+  background:
+    repeating-linear-gradient(0deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 9.5px) 6px 8px / 6px calc(100% - 16px) no-repeat,
+    repeating-linear-gradient(0deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 9.5px) calc(100% - 12px) 8px / 6px calc(100% - 16px) no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 4px 50% / 10px 1.5px no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) calc(100% - 4px) 50% / 10px 1.5px no-repeat;
+}
+
+.fadeSteelV b {
+  width: 32px;
+  height: 38px;
+  margin: 0 0 0 -16px;
+  border-radius: 3px 3px 4px 4px;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0 30px, rgba(0, 0, 0, 0.55) 30px),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0) 72%, rgba(0, 0, 0, 0.35)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.1) 55%, rgba(0, 0, 0, 0.35)),
+    repeating-linear-gradient(0deg, #17181b 0 1px, #2e3136 1px 2px, #101114 2px 4px);
+}
+
+.fadeSteelV b::after {
+  border-radius: 0 0 3px 3px;
+}
+
+.fadeSteelV b i {
+  left: 2px;
+  right: 2px;
+  top: 13px;
+  bottom: auto;
+}
+
+/* crossfader — same pocket + cap language */
+.xfSteel {
+  border-radius: 7px;
+  background: linear-gradient(180deg, #9ea2a9, #bfc2c8 25%, #cdd0d5 70%, #d3d6da);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.4),
+    inset 0 12px 16px -12px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.xfSteel u {
+  left: 8px;
+  right: 8px;
+}
+
+.xfSteel u::after {
+  top: -12px;
+  background:
+    repeating-linear-gradient(90deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 8.8px),
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 50% 100% / 1.5px 10px no-repeat;
+}
+
+.xfSteel b {
+  border-radius: 3px 3px 4px 4px;
+  border: 1px solid #050607;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0 66%, rgba(0, 0, 0, 0.55) 66%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 18%, rgba(0, 0, 0, 0) 82%, rgba(0, 0, 0, 0.5)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0.18) 66%),
+    repeating-linear-gradient(90deg, #17181b 0 1px, #2e3136 1px 2px, #101114 2px 4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.7),
+    0 3px 4px rgba(10, 12, 15, 0.55),
+    0 8px 12px rgba(10, 12, 15, 0.3);
+}
+
+.xfSteel b::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #26282c, #101114 55%, #17191c);
+  border-top: 1px solid rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.xfSteel b i {
+  top: 2px;
+  bottom: 36%;
+}
+
+/* buttons: machined caps — hard mid-stop edge break, engraved text */
+.steelBtn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: 1px solid #4c4f55;
+  background: linear-gradient(180deg, #f6f7f9, #d5d8dd 44%, #b9bcc2 46%, #cfd2d7 88%, #e2e4e8);
+  color: #202226;
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.7),
+    0 3px 4px rgba(10, 12, 15, 0.45),
+    0 8px 14px rgba(10, 12, 15, 0.25);
+}
+
+.steelBtn:active {
+  transform: translateY(1.5px);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.4),
+    0 1px 1px rgba(10, 12, 15, 0.35);
+}
+
+/* dark variant: black anodized, fine knurl — same family as the fader cap */
+.steelBtnDark {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 40%, rgba(0, 0, 0, 0.25)),
+    repeating-linear-gradient(90deg, #17181b 0 1px, #2c2f34 1px 2px, #101114 2px 4px);
+  border-color: #060708;
+  color: #e6e8ec;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 3px 4px rgba(10, 12, 15, 0.5),
+    0 8px 14px rgba(10, 12, 15, 0.28);
+}
+
+/* toggle: turned chrome collar with a dark throat + chrome bat w/ ball tip */
+.steelTog {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.steelTog s {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 46%, #060708 0 32%, rgba(6, 7, 8, 0) 33%),
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 42%),
+    conic-gradient(from 100deg, #7c8189, #e8eaed 9%, #8d9299 18%, #f2f3f5 28%, #767b83 40%, #d5d8dd 52%, #6d7178 63%, #eef0f3 76%, #82868d 87%, #7c8189);
+  border: 1px solid #55585e;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.55),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.35),
+    0 2px 4px rgba(15, 17, 20, 0.4),
+    0 7px 12px rgba(15, 17, 20, 0.25);
+}
+
+.steelTog s::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #17191c, #050607 68%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95);
+}
+
+.steelTog i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 13px;
+  height: 38px;
+  margin: -38px 0 0 -6.5px;
+  transform-origin: 50% 100%;
+  border-radius: 6px 6px 5px 5px;
+  background: linear-gradient(90deg, #6d7178, #f4f6f8 38%, #c9ccd1 58%, #55585e);
+  border: 1px solid #45484e;
+  box-shadow:
+    inset 1px 1px 1px rgba(255, 255, 255, 0.7),
+    0 5px 6px rgba(15, 17, 20, 0.45);
+  transition: transform 0.09s ease;
+}
+
+.steelTog i::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -9px;
+  width: 19px;
+  height: 19px;
+  margin-left: -9.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 26%, #ffffff, #c9ccd1 42%, #7e838a 78%, #55585e);
+  border: 1px solid #45484e;
+  box-shadow: 0 3px 4px rgba(15, 17, 20, 0.4);
+}
+
+.steelTogWrap em {
+  font-size: 9px;
+  font-weight: 700;
+  color: #7c8087;
+}
+
+.steelTogWrap em.steelTogSide {
+  color: #101114;
+}
+
+/* meter: rack LED bridge behind glass in a machined bezel, scale beside */
+.ledBridge {
+  position: relative;
+  width: 38px;
+  height: 158px;
+  padding: 7px 8px;
+  gap: 3px;
+  border-radius: 4px;
+  border: 1px solid #3c4046;
+  background: linear-gradient(180deg, #030404, #0d0f11 60%, #090a0c);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.55),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 3px 7px 4px rgba(15, 17, 20, 0.28);
+}
+
+.ledBridge::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 7px;
+  bottom: 7px;
+  width: 8px;
+  background:
+    repeating-linear-gradient(0deg, rgba(15, 17, 20, 0.75) 0 1px, transparent 1px 13.3px) 100% 0 / 6px 100% no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 0 0 / 8px 1.5px no-repeat,
+    linear-gradient(rgba(15, 17, 20, 0.85), rgba(15, 17, 20, 0.85)) 0 100% / 8px 1.5px no-repeat;
+}
+
+.ledBridge::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 3px;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04) 30%, rgba(255, 255, 255, 0) 46%);
+  pointer-events: none;
+}
+
+.ledBridge i {
+  flex: 1;
+  border-radius: 1px;
+  background: #14161a;
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.8),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.ledBridge i.bridgeLit {
+  background: linear-gradient(180deg, #9dffb4, #2ecc5e 55%, #1d9e43);
+  box-shadow: 0 0 8px rgba(46, 204, 94, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.ledBridge i.bridgeAmber.bridgeLit {
+  background: linear-gradient(180deg, #ffe2a3, #f0a01e 55%, #c47b0c);
+  box-shadow: 0 0 8px rgba(240, 160, 30, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.ledBridge i.bridgeRed.bridgeLit {
+  background: linear-gradient(180deg, #ffb3a8, #e5301c 55%, #ab1509);
+  box-shadow: 0 0 9px rgba(229, 48, 28, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* bars + waveform: deep scope windows w/ etched grid, phosphor cells */
+.t_steel .barsDemo,
+.t_steel .waveDemo {
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid #3c4046;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 15px),
+    linear-gradient(180deg, #030404, #0c0e10 65%, #08090b);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 3px 7px 4px rgba(15, 17, 20, 0.28);
+}
+
+.t_steel .barsDemo i {
+  border-radius: 1px;
+  background: linear-gradient(180deg, #9dffb4, #2ecc5e 60%, #1d9e43);
+  box-shadow: 0 0 6px rgba(46, 204, 94, 0.55);
+}
+
+.t_steel .barsDemo i.hot {
+  background: linear-gradient(180deg, #ffb3a8, #e5301c 60%, #ab1509);
+  box-shadow: 0 0 7px rgba(229, 48, 28, 0.65);
+}
+
+.t_steel .waveDemo i {
+  border-radius: 1px;
+  background: linear-gradient(180deg, #eef8f1, #9dffb4 55%, #4fdc7c);
+  box-shadow: 0 0 6px rgba(157, 255, 180, 0.5);
+}
+
+.t_steel .waveDemo span {
+  background: rgba(157, 255, 180, 0.3);
+}
+
+/* readouts: black glass windows in turned bezel rings (macropad-window DNA) */
+.numSteel,
+.in_steel {
+  background: linear-gradient(180deg, #040505, #101214 60%, #0b0c0e);
+  border: 1px solid #3c4046;
+  border-radius: 4px;
+  color: #eef1f4;
+  caret-color: #ff4a38;
+  text-shadow: 0 0 7px rgba(210, 240, 255, 0.4);
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 2px 6px 4px rgba(15, 17, 20, 0.25);
+}
+
+.sel_steel .select {
+  background: linear-gradient(180deg, #040505, #101214 60%, #0b0c0e);
+  border: 1px solid #3c4046;
+  border-radius: 4px;
+  color: #eef1f4;
+  text-shadow: 0 0 7px rgba(210, 240, 255, 0.35);
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 2px 6px 4px rgba(15, 17, 20, 0.25);
+}
+
+.sel_steel .select em {
+  color: #8a9099;
+}
+
+.sel_steel .selectMenu {
+  background: linear-gradient(180deg, #e6e8ec, #c9ccd1 60%, #d5d8dd);
+  border: 1px solid #55585e;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 12px 26px rgba(15, 17, 20, 0.5);
+}
+
+.sel_steel .selectMenu button {
+  color: #202226;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.sel_steel .selectMenu button:hover {
+  background: rgba(23, 24, 27, 0.12);
+}
+
+.sel_steel .selectMenu .selOn {
+  background: linear-gradient(180deg, #101114, #1b1d21);
+  color: #f2f4f6;
+  text-shadow: 0 0 6px rgba(210, 240, 255, 0.35);
+}
+
+/* segmented: routed pocket strip, machined aluminum active cap */
+.t_steel .segmented {
+  border: none;
+  border-radius: 6px;
+  padding: 4px;
+  background: linear-gradient(180deg, #9ea2a9, #c3c6cc 30%, #d0d3d8);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.75),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+  overflow: visible;
+}
+
+.t_steel .segmented button {
+  color: #55585e;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.t_steel .segmented .segOn {
+  background: linear-gradient(180deg, #f6f7f9, #d5d8dd 44%, #b9bcc2 46%, #d2d5da);
+  color: #17181b !important;
+  border-radius: 3px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.2),
+    0 0 0 1px #55585e,
+    0 2px 3px rgba(10, 12, 15, 0.45),
+    0 5px 8px rgba(10, 12, 15, 0.25);
+}
+
+/* checkbox: drilled pilot LEDs in turned bezels, engraved legends */
+.steelLedRow {
+  font-size: 9.5px;
+  gap: 13px;
+  color: #26282c;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.steelLedRow i {
+  width: 15px;
+  height: 15px;
+  background: radial-gradient(circle at 38% 30%, #551710, #260806 60%, #170403);
+  border: 1px solid #45484e;
+  box-shadow:
+    0 0 0 3px #d5d8dd,
+    0 0 0 4.5px #7e838a,
+    inset 0 2px 3px rgba(0, 0, 0, 0.85),
+    0 2px 4px 5px rgba(15, 17, 20, 0.12);
+}
+
+.steelLedRow i.steelLedOn {
+  background: radial-gradient(circle at 36% 28%, #ffd9d2, #ff5a44 30%, #e5301c 58%, #a51408 88%);
+  box-shadow:
+    0 0 0 3px #d5d8dd,
+    0 0 0 4.5px #7e838a,
+    0 0 16px 2px rgba(229, 48, 28, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* radio: routed pocket + slot, knurled black thumb with an index line */
+.slide3 s {
+  width: 24px;
+  height: 82px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #a4a8af, #c3c6cc 35%, #cdd0d5);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.slide3 s::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  bottom: 7px;
+  width: 5px;
+  margin-left: -2.5px;
+  border-radius: 2.5px;
+  background: linear-gradient(90deg, #020303, #101214);
+  box-shadow:
+    inset 1px 0 2px rgba(0, 0, 0, 0.9),
+    1px 0 0 rgba(255, 255, 255, 0.45);
+}
+
+.slide3 s i {
+  left: 2px;
+  right: 2px;
+  height: 24px;
+  border-radius: 3px;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0.4)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 35%, rgba(0, 0, 0, 0.25)),
+    repeating-linear-gradient(0deg, #17181b 0 1px, #2e3136 1px 2px, #101114 2px 4px);
+  border: 1px solid #050607;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(10, 12, 15, 0.6);
+}
+
+.slide3 s i::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: #f2f4f6;
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(0, 0, 0, 0.55);
+}
+
+.slide3 em {
+  font-size: 9px;
+  color: #6d7178;
+}
+
+.slide3 em.slide3On {
+  color: #101114;
+  font-weight: 700;
+}
+
+/* pulse orb: a big machine pilot light — turned bezel, domed red lens */
+.steelLamp i {
+  width: 46px;
+  height: 46px;
+  background:
+    radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.95) 0 5%, rgba(255, 255, 255, 0.4) 11%, rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 50% 46%, #ffa294, #ee402c 44%, #b01608 76%, #7d0f04);
+  border: 1px solid #4a0802;
+  box-shadow:
+    0 0 0 4px #e6e8ec,
+    0 0 0 7px #a7abb1,
+    0 0 0 8.5px #6d7178,
+    inset 0 -4px 7px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.55),
+    0 0 24px 5px rgba(229, 48, 28, 0.45),
+    0 4px 8px 8px rgba(15, 17, 20, 0.15);
+}
+
+.steelLamp span {
+  font-size: 9px;
+  color: #26282c;
+}
+
+/* progress: routed channel, segmented red LED fill, engraved % */
+.prog_steel {
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #9ea2a9, #c3c6cc 35%, #d0d3d8);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.75),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.prog_steel i {
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.4) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, #ff8a72, #e5301c 60%, #a51408);
+  box-shadow:
+    0 0 9px rgba(229, 48, 28, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.t_steel .progressDemo span {
+  color: #26282c;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* spinner: a spinning spun-aluminum rotor with a black index dot */
+.sp_steel {
+  border: 1px solid #55585e;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 42%),
+    conic-gradient(from 40deg, #7c8189, #e8eaed 8%, #8d9299 17%, #f2f3f5 27%, #767b83 38%, #d5d8dd 50%, #6d7178 62%, #eef0f3 74%, #82868d 86%, #7c8189);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(15, 17, 20, 0.4),
+    0 6px 10px rgba(15, 17, 20, 0.22);
+}
+
+.sp_steel i {
+  display: none;
+}
+
+.sp_steel b {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #33363c, #0b0c0e 70%);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}

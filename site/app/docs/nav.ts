@@ -41,12 +41,13 @@ export const DOCS: DocPage[] = [
     title: 'Quick start',
     group: 'GETTING STARTED',
     headings: [
+      ['create', 'Scaffold a project'],
       ['ui', 'Build the UI bundle'],
       ['plugin', 'Build the plugin'],
       ['run', 'Run it'],
       ['tour', 'What just happened'],
     ],
-    keywords: 'example gain first plugin five minutes build run standalone vst3 tutorial',
+    keywords: 'example gain first plugin five minutes build run standalone vst3 tutorial create-vsreact create scaffold scaffolder starter template new project generator npm create bun create',
   },
   {
     slug: 'integration',

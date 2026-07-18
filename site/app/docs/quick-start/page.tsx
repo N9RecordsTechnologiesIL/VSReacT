@@ -15,9 +15,20 @@ export default function Page() {
       <Crumbs slug="quick-start" />
       <h1>Quick start</h1>
       <p className={styles.lead}>
-        The fastest tour is <code>vsreact/examples/gain</code>: a working gain/pan VST3 and
-        standalone app whose entire UI is fourteen lines of TSX — the exact tree running in
-        the demo on the landing page.
+        The fastest start is the scaffolder — one command gives you a complete plugin
+        project (CMake + C++ + a React UI) that builds to a VST3 and a standalone app:
+      </p>
+
+      <h2 id="create">0. Scaffold a project</h2>
+      <Code title="shell">{`bun create vsreact my-plugin        # or: npm create vsreact@latest my-plugin
+cd my-plugin/ui && bun install && bun run build
+cd .. && cmake -S . -B build -DJUCE_SOURCE_DIR=path/to/JUCE   # omit to auto-fetch JUCE
+cmake --build build --target MyPlugin_Standalone --config Release`}</Code>
+      <p>
+        Add <code>--posthog</code> for analytics wiring, <code>--yes</code> to skip the
+        prompts. Prefer reading a finished project instead? The tour below walks{' '}
+        <code>vsreact/examples/gain</code> — a working gain/pan VST3 whose entire UI is
+        fourteen lines of TSX, the exact tree running in the demo on the landing page.
       </p>
 
       <h2 id="ui">1. Build the UI bundle</h2>

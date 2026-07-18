@@ -37,6 +37,12 @@ jobs:
           npm pack
           cp vsreact-posthog-[0-9]*.tgz vsreact-posthog.tgz
 
+      - name: Pack create-vsreact
+        working-directory: vsreact/create
+        run: |
+          npm pack
+          cp create-vsreact-[0-9]*.tgz create-vsreact.tgz
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -46,7 +52,7 @@ jobs:
             exit 0
           fi
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          for dir in vsreact/js vsreact/js-posthog; do
+          for dir in vsreact/js vsreact/js-posthog vsreact/create; do
             NAME=$(node -p "require('./$dir/package.json').name")
             VERSION=$(node -p "require('./$dir/package.json').version")
             if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
@@ -107,4 +113,6 @@ jobs:
             vsreact/js/vsreact-core-[0-9]*.tgz \
             "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)" \
             vsreact/js-posthog/vsreact-posthog-[0-9]*.tgz \
-            "vsreact/js-posthog/vsreact-posthog.tgz#vsreact-posthog.tgz (stable name — latest)"
+            "vsreact/js-posthog/vsreact-posthog.tgz#vsreact-posthog.tgz (stable name — latest)" \
+            vsreact/create/create-vsreact-[0-9]*.tgz \
+            "vsreact/create/create-vsreact.tgz#create-vsreact.tgz (stable name — latest)"

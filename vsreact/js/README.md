@@ -30,6 +30,15 @@ wheel / double-click-reset, automation-safe begin/set/end gestures.
 
 ## Install
 
+Starting fresh? The scaffolder gives you a complete plugin project —
+CMake, C++, and a React UI — in one command:
+
+```sh
+bun create vsreact my-plugin     # or: npm create vsreact@latest my-plugin
+```
+
+Adding to an existing plugin:
+
 ```sh
 bun add @vsreact/core     # or npm / yarn / pnpm
 ```

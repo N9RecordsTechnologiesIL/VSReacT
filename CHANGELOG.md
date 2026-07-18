@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.0.17 — 2026-07-18
+
+The scaffolder. JS-only; native module unchanged from 0.0.9.
+
+### New package: `create-vsreact` 0.1.0
+
+- **`bun create vsreact my-plugin`** / **`npm create vsreact@latest
+  my-plugin`** — one command scaffolds a complete plugin project:
+  CMake (auto-fetches JUCE and the VSReacT native module, or points at
+  local checkouts), a gain/pan processor, and a themed React UI that
+  hot-reloads in your DAW.
+- Interactive prompts (or `--yes`) for product name, company, and the
+  4-char JUCE codes; `--posthog` wires `@vsreact/posthog` end-to-end
+  with a **placeholder** API key and instructions to bring your own.
+- Zero dependencies; the generated `ui/` installs `@vsreact/core` from
+  npm like any real project.
+
+### Housekeeping
+
+- Core 0.0.17: the npm README now leads with the scaffolder. The
+  example plugins carry a placeholder PostHog key (never a real one),
+  and StashTrack's key moved out of source into build-time injection.
+
 ## 0.0.16 — 2026-07-18
 
 The release-polish tier. JS-only; native module unchanged from 0.0.9.

@@ -1,0 +1,36 @@
+{
+  "name": "create-vsreact",
+  "version": "0.1.0",
+  "description": "Scaffold a native JUCE VST whose UI is React — `npm create vsreact` / `bun create vsreact`.",
+  "keywords": [
+    "create",
+    "scaffold",
+    "starter",
+    "template",
+    "vsreact",
+    "react",
+    "juce",
+    "vst",
+    "vst3",
+    "audio-plugin"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://vsreact.n9records.com/docs/quick-start",
+  "bugs": "https://github.com/N9RecordsTechnologiesIL/VSReacT/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/N9RecordsTechnologiesIL/VSReacT.git",
+    "directory": "vsreact/create"
+  },
+  "bin": {
+    "create-vsreact": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

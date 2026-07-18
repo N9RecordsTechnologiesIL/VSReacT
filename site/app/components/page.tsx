@@ -42,6 +42,7 @@ const CATS: Array<[id: string, label: string]> = [
   ['buttons', 'Buttons'],
   ['visualizers', 'Meters & visualizers'],
   ['feedback', 'Feedback'],
+  ['perform', 'Perform'],
   ['overlays', 'Overlays & editors'],
 ]
 
@@ -1665,6 +1666,90 @@ function ProgressTwin({ theme = 'inst', value }: { theme?: string; value: number
   )
 }
 
+function PianoTwin({ theme = 'inst' }: { theme?: string }) {
+  const [note, setNote] = useState<number | null>(null)
+  const whites = [48, 50, 52, 53, 55, 57, 59, 60]
+  const blacks: Array<[note: number, whitesLeft: number]> = [
+    [49, 1],
+    [51, 2],
+    [54, 4],
+    [56, 5],
+    [58, 6],
+  ]
+  const off = () => setNote(null)
+
+  return (
+    <div
+      className={`${styles.piano} ${styles[`piano_${theme}`] ?? ''}`}
+      onMouseUp={off}
+      onMouseLeave={off}
+      role="group"
+      aria-label="Piano keyboard"
+    >
+      {whites.map((n) => (
+        <b
+          key={n}
+          className={note === n ? styles.pianoOn : ''}
+          onMouseDown={() => setNote(n)}
+          onMouseEnter={(e) => {
+            if (e.buttons === 1) setNote(n)
+          }}
+        />
+      ))}
+      {blacks.map(([n, i]) => (
+        <s
+          key={n}
+          style={{ left: i * 26 - 8 }}
+          className={note === n ? styles.pianoOn : ''}
+          onMouseDown={() => setNote(n)}
+          onMouseEnter={(e) => {
+            if (e.buttons === 1) setNote(n)
+          }}
+        />
+      ))}
+      <em style={{ left: 0 }}>C3</em>
+      <em style={{ left: 26 * 7 }}>C4</em>
+    </div>
+  )
+}
+
+function SeqTwin({ theme = 'inst', step }: { theme?: string; step: number }) {
+  const [pattern, setPattern] = useState(() => [
+    [true, false, false, false, true, false, false, false],
+    [false, false, true, false, false, false, true, false],
+    [true, false, true, true, true, false, true, true],
+  ])
+  const labels = ['KICK', 'SNR', 'HAT']
+
+  return (
+    <div className={`${styles.seq} ${styles[`seq_${theme}`] ?? ''}`}>
+      {pattern.map((row, r) => (
+        <div key={r} className={styles.seqRow}>
+          <em>{labels[r]}</em>
+          {row.map((on, s) => (
+            <b
+              key={s}
+              className={[
+                on ? styles.seqOn : '',
+                s === step ? styles.seqPh : '',
+                s % 4 === 0 ? styles.seqDown : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() =>
+                setPattern((p) =>
+                  p.map((rw, ri) => (ri === r ? rw.map((c, si) => (si === s ? !c : c)) : rw)),
+                )
+              }
+              aria-label={`${labels[r]} step ${s + 1}`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: number; tick: number }) {
   // METAL — a radar scope: machined bezel, rotating sweep, fixed blips
   if (theme === 'metal') {
@@ -2116,6 +2201,7 @@ export default function ComponentsPage() {
     Math.sin((tick - i * 3) / 14) * Math.abs(Math.sin((tick - i * 3) / 47)),
   )
   const progress = (tick % 300) / 300
+  const seqStep = Math.floor(tick / 9) % 8
 
   return (
     <main className={styles.page}>
@@ -2408,6 +2494,29 @@ export default function ComponentsPage() {
                   </div>
                 )}
               />
+            </Family>
+          </section>
+
+          {/* ── PERFORM ──────────────────────────────────────────────── */}
+          <section id="perform" className={styles.cat}>
+            <h3 className={styles.catTitle}>PERFORM</h3>
+
+            <Family
+              title="PianoKeyboard"
+              blurb="The playable keyboard — press for note-on, drag across keys for glissando, heldNotes paints host MIDI in."
+              imports={`<PianoKeyboard octaves={2} onNoteOn={play} onNoteOff={stop} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <PianoTwin theme={t} />} />
+            </Family>
+
+            <Family
+              title="StepSequencer"
+              blurb="The pattern grid — click cells on and off, downbeat tinting, a playhead column the host drives."
+              imports={`<StepSequencer pattern={pattern} playhead={step} onToggle={flip} />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <SeqTwin theme={t} step={seqStep} />} />
             </Family>
           </section>
 

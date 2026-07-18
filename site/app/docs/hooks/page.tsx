@@ -99,6 +99,19 @@ return <Waveform values={history} width={220} label="ENV" />;`}</Code>
         </li>
       </ul>
 
+      <h2 id="format">Value formatting</h2>
+      <Code title="readouts DAW users expect">{`formatDb(-12.53)      // "-12.5 dB"   (-Infinity → "-inf dB")
+formatHz(1200)        // "1.2 kHz"
+formatMs(1250)        // "1.25 s"
+formatPercent(0.42)   // "42%"
+formatSemitones(7)    // "+7 st"
+midiNoteName(60)      // "C4"
+mapRange(v, 0, 1, -60, 6)   // linear remap, optional clamp`}</Code>
+      <p>
+        Pure functions, made for <code>NumberBox</code>’s <code>format</code> prop and value
+        labels next to knobs.
+      </p>
+
       <h2 id="cx">cx()</h2>
       <p>
         The className composer — strings, arrays, object maps, falsy values dropped. Details

@@ -225,6 +225,10 @@ function resolveClass(cls: string): Style | undefined {
     }
     case "text": {
       if (rest in textSizes) return { fontSize: textSizes[rest] };
+      if (rest.startsWith("[") && !rest.startsWith("[#")) {
+        const size = parseLength(rest);
+        if (typeof size === "number") return { fontSize: size };
+      }
       const color = resolveColor(rest);
       return color !== undefined ? { color } : undefined;
     }

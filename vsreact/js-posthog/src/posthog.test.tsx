@@ -11,8 +11,15 @@ const nativeCalls: Array<{ name: string; args: any }> = [];
   return "null";
 };
 
-import { render, unmount, View } from "@vsreact/core";
-import { posthog, useCaptureOnMount, usePostHogParameters } from "./index";
+import { render, unmount, View, Text } from "@vsreact/core";
+import {
+  posthog,
+  useCaptureOnMount,
+  useCaptureOnUnmount,
+  useEditorSession,
+  usePostHogParameters,
+  PostHogErrorBoundary,
+} from "./index";
 
 const sends = () => nativeCalls.filter((c) => c.name === "posthog:send");
 const dispatch = (msg: unknown) =>
@@ -67,6 +74,60 @@ describe("posthog client", () => {
     expect(sends()).toHaveLength(1);
   });
 
+  test("unregister removes one super property", () => {
+    posthog.register({ plugin_version: "1.2.0", host: "Ableton" });
+    posthog.unregister("host");
+    posthog.capture("x");
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect(event.properties.plugin_version).toBe("1.2.0");
+    expect("host" in event.properties).toBe(false);
+  });
+
+  test("optOut drops new events and discards the queue; optIn resumes", () => {
+    posthog.capture("queued_before");
+    posthog.optOut();
+    expect(posthog.optedOut).toBe(true);
+
+    posthog.capture("while_out");
+    posthog.flush();
+    expect(sends()).toHaveLength(0); // queue was discarded, capture dropped
+
+    posthog.optIn();
+    posthog.capture("after_optin");
+    posthog.flush();
+    const events = sends().flatMap((s) => s.args.batch);
+    expect(events.map((e: any) => e.event)).toEqual(["after_optin"]);
+  });
+
+  test("captureException shapes a $exception event for error tracking", () => {
+    const boom = new TypeError("cannot read tone of undefined");
+    posthog.captureException(boom, { panel: "eq" });
+    posthog.captureException("string failure");
+    posthog.flush();
+
+    const batch = sends()[0].args.batch;
+    expect(batch[0].event).toBe("$exception");
+    const first = batch[0].properties.$exception_list[0];
+    expect(first.type).toBe("TypeError");
+    expect(first.value).toBe("cannot read tone of undefined");
+    expect(first.mechanism).toEqual({ handled: true, synthetic: false });
+    expect(batch[0].properties.panel).toBe("eq");
+    expect(batch[0].properties.$exception_level).toBe("error");
+
+    const second = batch[1].properties.$exception_list[0];
+    expect(second.type).toBe("Error");
+    expect(second.value).toBe("string failure");
+  });
+
+  test("getSessionId is stable within a session", () => {
+    const a = posthog.getSessionId();
+    posthog.capture("x");
+    expect(posthog.getSessionId()).toBe(a);
+    expect(a.length).toBeGreaterThan(0);
+  });
+
   test("register stamps super properties; identify swaps identity", () => {
     posthog.register({ plugin_version: "1.2.0" });
     posthog.capture("x");
@@ -97,6 +158,66 @@ describe("posthog hooks", () => {
     const batch = sends()[0].args.batch;
     expect(batch.filter((e: any) => e.event === "settings_opened")).toHaveLength(1);
     expect(batch[0].properties.tab).toBe("eq");
+  });
+
+  test("useCaptureOnUnmount fires once with the mounted duration", async () => {
+    function Panel() {
+      useCaptureOnUnmount("settings_closed", { tab: "eq" });
+      return <View />;
+    }
+
+    render(<Panel />);
+    await new Promise((r) => setTimeout(r, 10));
+    unmount();
+    await new Promise((r) => setTimeout(r, 10));
+    posthog.flush();
+
+    const events = sends()
+      .flatMap((s) => s.args.batch)
+      .filter((e: any) => e.event === "settings_closed");
+    expect(events).toHaveLength(1);
+    expect(events[0].properties.tab).toBe("eq");
+    expect(events[0].properties.duration_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  test("useEditorSession brackets the editor lifetime and self-flushes", async () => {
+    function App() {
+      useEditorSession({ properties: { preset: "Init" } });
+      return <View />;
+    }
+
+    render(<App />);
+    await new Promise((r) => setTimeout(r, 10));
+    unmount();
+    await new Promise((r) => setTimeout(r, 10));
+    // No manual flush — the end event must flush itself.
+
+    const events = sends().flatMap((s) => s.args.batch);
+    const start = events.find((e: any) => e.event === "editor_session_start");
+    const end = events.find((e: any) => e.event === "editor_session_end");
+    expect(start).toBeDefined();
+    expect(end).toBeDefined();
+    expect(end.properties.duration_ms).toBeGreaterThanOrEqual(0);
+    expect(end.properties.preset).toBe("Init");
+  });
+
+  test("PostHogErrorBoundary captures render crashes and shows the fallback", async () => {
+    function Bomb(): never {
+      throw new Error("render exploded");
+    }
+
+    render(
+      <PostHogErrorBoundary fallback={<Text>recovered</Text>} properties={{ area: "main" }}>
+        <Bomb />
+      </PostHogErrorBoundary>,
+    );
+    await new Promise((r) => setTimeout(r, 10));
+
+    const events = sends().flatMap((s) => s.args.batch);
+    const exception = events.find((e: any) => e.event === "$exception");
+    expect(exception).toBeDefined();
+    expect(exception.properties.$exception_list[0].value).toBe("render exploded");
+    expect(exception.properties.area).toBe("main");
   });
 
   test("usePostHogParameters debounces per parameter", async () => {

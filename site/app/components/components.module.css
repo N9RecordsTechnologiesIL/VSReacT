@@ -12227,3 +12227,326 @@
 .slide3 s i::after {
   content: none;
 }
+
+/* ══ PERFORM families — PianoKeyboard + StepSequencer twins ══ */
+
+/* — piano: 8 whites + 5 blacks, one octave C3..C4 — */
+.piano {
+  position: relative;
+  display: flex;
+  width: 208px;
+  height: 96px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.piano b {
+  flex: none;
+  width: 26px;
+  height: 96px;
+  border: 1px solid #1a1b1e;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #fbfbf9, #e8e9e4 88%, #d9dad4);
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.12);
+}
+
+.piano b.pianoOn {
+  background: linear-gradient(180deg, var(--acc), var(--acc));
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.piano s {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 58px;
+  border: 1px solid #000;
+  border-radius: 0 0 2.5px 2.5px;
+  background: linear-gradient(180deg, #2b2d31, #0d0e10 78%, #1c1e22);
+  box-shadow:
+    inset 0 -4px 0 rgba(255, 255, 255, 0.07),
+    0 3px 5px rgba(0, 0, 0, 0.5);
+}
+
+.piano s.pianoOn {
+  background: var(--acc);
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.4);
+}
+
+.piano em {
+  position: absolute;
+  bottom: 3px;
+  width: 26px;
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* STEALTH — all-black rubber pads */
+.piano_metal b {
+  background: linear-gradient(180deg, #1e2023, #101214 85%, #16181b);
+  border-color: #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.piano_metal s {
+  background: linear-gradient(180deg, #0a0b0d, #040506);
+}
+
+.piano_metal em {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* STEEL — ivory over the machined plate, red-lit like a MIDI controller */
+.piano_steel b {
+  border-color: #2c2f34;
+  background: linear-gradient(180deg, #ffffff, #eceee9 82%, #d8dad3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -5px 7px rgba(0, 0, 0, 0.16),
+    0 2px 3px rgba(15, 17, 20, 0.35);
+}
+
+.piano_steel s {
+  background: linear-gradient(180deg, #232529, #08090b 80%, #17191d);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -4px 0 rgba(255, 255, 255, 0.05),
+    0 3px 5px rgba(10, 12, 15, 0.55);
+}
+
+.piano_steel em {
+  color: rgba(15, 17, 20, 0.5);
+}
+
+/* ETHER — smoked glass keys, violet light-up */
+.piano_glass b {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.05));
+  border-color: rgba(160, 125, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.piano_glass s {
+  background: linear-gradient(180deg, rgba(10, 7, 22, 0.95), rgba(4, 3, 10, 0.98));
+  border-color: rgba(160, 125, 255, 0.55);
+}
+
+.piano_glass b.pianoOn,
+.piano_glass s.pianoOn {
+  background: #a07dff;
+  box-shadow: 0 0 14px rgba(160, 125, 255, 0.65);
+}
+
+.piano_glass em {
+  color: rgba(220, 205, 255, 0.55);
+}
+
+/* EMBER — heat-treated dark keys */
+.piano_carbon b {
+  background: linear-gradient(180deg, #261c11, #150e07 85%, #1d140b);
+  border-color: #000;
+  box-shadow: inset 0 1px 0 rgba(255, 140, 59, 0.14);
+}
+
+.piano_carbon s {
+  background: linear-gradient(180deg, #0d0803, #050301);
+}
+
+.piano_carbon b.pianoOn,
+.piano_carbon s.pianoOn {
+  background: #ff8c3b;
+  box-shadow: 0 0 13px rgba(255, 140, 59, 0.55);
+}
+
+.piano_carbon em {
+  color: rgba(255, 180, 110, 0.5);
+}
+
+/* NEON — dark cells, cyan strike */
+.piano_neon b {
+  background: linear-gradient(180deg, #0c191d, #060f12);
+  border-color: rgba(45, 226, 230, 0.35);
+  box-shadow: inset 0 1px 0 rgba(45, 226, 230, 0.12);
+}
+
+.piano_neon s {
+  background: linear-gradient(180deg, #04090b, #020506);
+  border-color: rgba(45, 226, 230, 0.45);
+}
+
+.piano_neon b.pianoOn,
+.piano_neon s.pianoOn {
+  background: var(--acc);
+  box-shadow: 0 0 15px var(--acc);
+}
+
+.piano_neon em {
+  color: rgba(45, 226, 230, 0.55);
+}
+
+/* BLUEPRINT — white-ink key outlines on the paper */
+.piano_bp b {
+  background: rgba(10, 37, 89, 0.25);
+  border: 1px solid rgba(234, 243, 255, 0.75);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.piano_bp s {
+  background: rgba(234, 243, 255, 0.85);
+  border: 1px solid rgba(234, 243, 255, 0.9);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.piano_bp b.pianoOn {
+  background: rgba(234, 243, 255, 0.3);
+}
+
+.piano_bp s.pianoOn {
+  background: rgba(234, 243, 255, 0.55);
+}
+
+.piano_bp em {
+  color: rgba(234, 243, 255, 0.75);
+}
+
+/* — step sequencer: rows of cells, downbeat tint, playhead column — */
+.seq {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  user-select: none;
+}
+
+.seqRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.seq em {
+  width: 36px;
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--tx, #8b8f96);
+  opacity: 0.75;
+}
+
+.seq b {
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: var(--trk, #22262b);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.seq b.seqDown {
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 30px rgba(255, 255, 255, 0.07);
+}
+
+.seq b.seqOn {
+  background: var(--acc);
+  border-color: rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 0 9px -2px var(--acc),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.seq b.seqPh {
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+/* STANDARD — light card needs a dark playhead ring + darker labels */
+.seq_std b.seqPh {
+  border-color: #1a1b1e;
+}
+
+.seq_std em {
+  color: #52525b;
+}
+
+/* STEEL — drilled LED wells in the plate, red lamps, chrome playhead */
+.seq_steel em {
+  color: rgba(15, 17, 20, 0.66);
+  opacity: 1;
+}
+
+.seq_steel b {
+  background: linear-gradient(180deg, #0a0b0d, #17191d);
+  border: 1px solid #3f434a;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.seq_steel b.seqDown {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 30px rgba(255, 255, 255, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.seq_steel b.seqOn {
+  background: radial-gradient(circle at 40% 30%, #ffb3a8, #e5301c 55%, #9c150a);
+  border-color: #5c0e06;
+  box-shadow:
+    0 0 10px 1px rgba(229, 48, 28, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.seq_steel b.seqPh {
+  border-color: #d7dade;
+}
+
+/* BLUEPRINT — dashed drawing cells, solid ink when lit */
+.seq_bp em {
+  color: rgba(234, 243, 255, 0.75);
+  opacity: 1;
+}
+
+.seq_bp b {
+  border-radius: 2px;
+  border: 1px dashed rgba(234, 243, 255, 0.55);
+  background: rgba(10, 37, 89, 0.25);
+  box-shadow: none;
+}
+
+.seq_bp b.seqDown {
+  box-shadow: none;
+  background: rgba(10, 37, 89, 0.45);
+}
+
+.seq_bp b.seqOn {
+  background: rgba(234, 243, 255, 0.85);
+  border-style: solid;
+  box-shadow: none;
+}
+
+.seq_bp b.seqPh {
+  border-color: #ffffff;
+  border-style: solid;
+}
+
+/* ETHER — glass cells with a violet glow */
+.seq_glass b {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(160, 125, 255, 0.35);
+}
+
+.seq_glass b.seqOn {
+  background: #a07dff;
+  box-shadow: 0 0 12px rgba(160, 125, 255, 0.6);
+}

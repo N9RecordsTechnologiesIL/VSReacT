@@ -1,6 +1,6 @@
 // React sugar for plugin analytics.
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { native } from "@vsreact/core";
 import { posthog } from "./client";
 
@@ -14,6 +14,63 @@ export function usePostHog() {
 export function useCaptureOnMount(event: string, properties?: Record<string, unknown>): void {
   useEffect(() => {
     posthog.capture(event, properties);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
+/** Captures once when the component unmounts, with how long it was
+    mounted: `useCaptureOnUnmount("settings_closed")` →
+    `settings_closed { duration_ms }`. */
+export function useCaptureOnUnmount(event: string, properties?: Record<string, unknown>): void {
+  const propertiesRef = useRef(properties);
+  propertiesRef.current = properties;
+
+  useEffect(() => {
+    const mountedAt = Date.now();
+    return () => {
+      posthog.capture(event, {
+        duration_ms: Date.now() - mountedAt,
+        ...propertiesRef.current,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
+export interface EditorSessionOptions {
+  /** Default "editor_session_start". */
+  startEvent?: string;
+  /** Default "editor_session_end". */
+  endEvent?: string;
+  /** Stamped on both events. */
+  properties?: Record<string, unknown>;
+}
+
+/**
+ * One line in App for editor-lifetime analytics: captures
+ * `editor_session_start` on mount and `editor_session_end
+ * { duration_ms }` on unmount — how long users keep your UI open.
+ * The end event is flushed immediately (the editor is closing; the
+ * batch timer would never fire).
+ */
+export function useEditorSession({
+  startEvent = "editor_session_start",
+  endEvent = "editor_session_end",
+  properties,
+}: EditorSessionOptions = {}): void {
+  const propertiesRef = useRef(properties);
+  propertiesRef.current = properties;
+
+  useEffect(() => {
+    const openedAt = Date.now();
+    posthog.capture(startEvent, propertiesRef.current);
+    return () => {
+      posthog.capture(endEvent, {
+        duration_ms: Date.now() - openedAt,
+        ...propertiesRef.current,
+      });
+      posthog.flush();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }

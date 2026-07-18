@@ -12,6 +12,9 @@ export interface PostHogInitOptions {
   flushIntervalMs?: number;
   /** Extra properties stamped on every event (plugin version, host…). */
   defaultProperties?: Record<string, unknown>;
+  /** Start with capturing disabled (a user privacy setting the plugin
+      persists). Default false. */
+  optOut?: boolean;
 }
 
 export interface PostHogEvent {
@@ -21,7 +24,7 @@ export interface PostHogEvent {
 }
 
 const LIB = "@vsreact/posthog";
-const LIB_VERSION = "0.0.1";
+const LIB_VERSION = "0.0.2";
 
 function uuid(): string {
   // RFC4122-ish v4 — good enough for anonymous ids inside a plugin.
@@ -40,12 +43,14 @@ export class PostHogClient {
   private flushIntervalMs = 10_000;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private initialised = false;
+  private isOptedOut = false;
 
   /** Pulls the persistent distinct id from the native PostHogBridge and
       starts a session. Safe to call once at app start. */
   init(options: PostHogInitOptions = {}): void {
     this.flushAt = options.flushAt ?? 10;
     this.flushIntervalMs = options.flushIntervalMs ?? 10_000;
+    this.isOptedOut = options.optOut ?? false;
     if (options.defaultProperties) this.superProperties = { ...options.defaultProperties };
 
     const config = native.call("posthog:config");
@@ -62,12 +67,42 @@ export class PostHogClient {
     return this.distinctId;
   }
 
+  getSessionId(): string {
+    return this.sessionId;
+  }
+
   /** Properties stamped on every subsequent event. */
   register(properties: Record<string, unknown>): void {
     this.superProperties = { ...this.superProperties, ...properties };
   }
 
+  /** Removes one registered super property. */
+  unregister(key: string): void {
+    delete this.superProperties[key];
+  }
+
+  /** Stops capturing (a user privacy setting) — new events are dropped
+      and anything queued is discarded unsent. */
+  optOut(): void {
+    this.isOptedOut = true;
+    if (this.timer !== null) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    this.queue.length = 0;
+  }
+
+  /** Resumes capturing after optOut(). */
+  optIn(): void {
+    this.isOptedOut = false;
+  }
+
+  get optedOut(): boolean {
+    return this.isOptedOut;
+  }
+
   capture(event: string, properties: Record<string, unknown> = {}): void {
+    if (this.isOptedOut) return;
     if (!this.initialised) this.init();
 
     this.queue.push({
@@ -101,6 +136,29 @@ export class PostHogClient {
   /** Sets person properties. */
   set(properties: Record<string, unknown>): void {
     this.capture("$set", { $set: properties });
+  }
+
+  /** Reports an error to PostHog error tracking as a `$exception`
+      event. Accepts anything thrown; Errors keep their name, message,
+      and (QuickJS) stack. */
+  captureException(error: unknown, extraProperties: Record<string, unknown> = {}): void {
+    const isError = error instanceof Error;
+    const type = isError ? error.name || "Error" : "Error";
+    const value = isError ? error.message : String(error);
+    const stack = isError && typeof error.stack === "string" ? error.stack : undefined;
+
+    this.capture("$exception", {
+      $exception_list: [
+        {
+          type,
+          value,
+          mechanism: { handled: true, synthetic: false },
+          ...(stack !== undefined ? { stacktrace: { type: "raw", value: stack } } : {}),
+        },
+      ],
+      $exception_level: "error",
+      ...extraProperties,
+    });
   }
 
   /** New anonymous identity + fresh session; clears super properties. */

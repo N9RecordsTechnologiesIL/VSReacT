@@ -84,7 +84,7 @@ export const DOCS: DocPage[] = [
       ['nativeview', '<NativeView>'],
     ],
     keywords:
-      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty native escape hatch',
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead native escape hatch',
   },
   {
     slug: 'styling',
@@ -134,9 +134,10 @@ export const DOCS: DocPage[] = [
       ['pointer', 'Pointer & layout'],
       ['audio', 'Audio data'],
       ['bridge', 'Native bridge'],
+      ['format', 'Value formatting'],
     ],
     keywords:
-      'usetoggle useprevious usedebounced usethrottled useinterval usehover userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer',
+      'usetoggle useprevious usedebounced usethrottled useinterval usehover userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename maprange db hz khz decibel readout format',
   },
   {
     slug: 'parameters',
@@ -171,9 +172,10 @@ export const DOCS: DocPage[] = [
       ['cpp', 'C++ wiring'],
       ['js', 'Capture from React'],
       ['api', 'The client API'],
+      ['errors', 'Error tracking & sessions'],
     ],
     keywords:
-      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount useposthogparameters bridge consent',
+      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy bridge',
   },
   {
     slug: 'cpp-api',

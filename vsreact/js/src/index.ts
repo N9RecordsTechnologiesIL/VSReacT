@@ -90,6 +90,19 @@ export type {
 } from "./fields";
 export { ProgressBar, Spinner } from "./feedback";
 export type { ProgressBarProps, SpinnerProps } from "./feedback";
+export { PianoKeyboard } from "./keyboard";
+export type { PianoKeyboardProps } from "./keyboard";
+export { StepSequencer } from "./sequencer";
+export type { StepSequencerProps } from "./sequencer";
+export {
+  mapRange,
+  formatDb,
+  formatHz,
+  formatMs,
+  formatPercent,
+  formatSemitones,
+  midiNoteName,
+} from "./format";
 export {
   MacroPad,
   ParamMacroPad,

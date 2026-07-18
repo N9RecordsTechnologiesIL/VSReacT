@@ -1,5 +1,59 @@
 # Changelog
 
+## 0.0.12 — 2026-07-18
+
+The perform tier — play your plugin, not just tweak it. JS-only;
+native module unchanged from 0.0.9.
+
+### New components
+
+- **`<PianoKeyboard>`** — the playable keyboard: press for note-on,
+  release for note-off, drag across keys for glissando (black keys
+  correctly steal the top zone). `heldNotes` paints host MIDI in,
+  octave labels on the Cs, any range via `startNote`/`octaves`.
+- **`<StepSequencer>`** — the pattern grid: rows × steps of clickable
+  cells, downbeat tinting every 4, a playhead column the host drives,
+  optional row labels. Fully controlled — patterns live in your state.
+
+### Value formatting
+
+- **`formatDb` / `formatHz` / `formatMs` / `formatPercent` /
+  `formatSemitones` / `midiNoteName` / `mapRange`** — the readout
+  strings DAW users expect ("+6.0 dB", "1.2 kHz", "350 ms", "C#4"),
+  ready for `NumberBox`'s `format` prop or any label.
+
+### Control upgrades
+
+- `ProgressBar` — `indeterminate` sweeps a segment across the track
+  for unknown-duration work.
+- Styling fix: arbitrary text sizes (`text-[13]`) now actually resolve
+  to font sizes — they were silently ignored, so labels using them
+  rendered at the default size.
+
+### `@vsreact/posthog` 0.0.2
+
+- **`posthog.captureException(error, props?)`** — report errors to
+  PostHog error tracking as properly-shaped `$exception` events
+  (name, message, QuickJS stack).
+- **`<PostHogErrorBoundary>`** — wrap your app: render crashes are
+  captured (and flushed immediately) while a fallback keeps the
+  editor window alive.
+- **`optOut()` / `optIn()` / `optedOut`** — a user privacy switch:
+  opting out drops new events and discards the unsent queue;
+  `init({ optOut })` starts disabled.
+- **`useEditorSession()`** — brackets the editor lifetime:
+  `editor_session_start` on mount, `editor_session_end
+  { duration_ms }` on unmount, self-flushing on close.
+- **`useCaptureOnUnmount(event)`** — the closing bookend to
+  `useCaptureOnMount`, stamped with the mounted duration.
+- `unregister(key)` removes one super property; `getSessionId()`
+  exposes the session id for cross-referencing native logs.
+
+### Site
+
+- Gallery: PianoKeyboard and StepSequencer families, playable in all
+  eight worlds.
+
 ## 0.0.11 — 2026-07-17
 
 The flagship-visual tier — Output-style centerpieces and hardware feel.

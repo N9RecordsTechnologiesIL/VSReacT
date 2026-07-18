@@ -71,6 +71,12 @@ describe("tw resolver", () => {
     expect(tw("font-mono").style).toEqual({ fontFamily: "monospace" });
   });
 
+  test("arbitrary text sizes resolve; bracket hex stays a color", () => {
+    expect(tw("text-[13]").style).toEqual({ fontSize: 13 });
+    expect(tw("text-[8]").style).toEqual({ fontSize: 8 });
+    expect(tw("text-[#ff4a38]").style).toEqual({ color: "#ff4a38" });
+  });
+
   test("alignment, position, shadow, opacity, overflow, cursor", () => {
     const r = tw(
       "items-center justify-between absolute inset-0 top-2 shadow-lg opacity-50 overflow-hidden cursor-pointer",

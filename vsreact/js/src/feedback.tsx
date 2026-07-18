@@ -14,6 +14,9 @@ export interface ProgressBarProps {
   height?: number;
   /** Renders "42%" alongside the bar. Default false. */
   showPercent?: boolean;
+  /** Unknown duration — a segment sweeps the track and `value` is
+      ignored. Default false. */
+  indeterminate?: boolean;
   trackColor?: string;
   color?: string;
   label?: string;
@@ -25,24 +28,43 @@ export function ProgressBar({
   width = 200,
   height = 8,
   showPercent = false,
+  indeterminate = false,
   trackColor = "#2A2F27",
   color = "#C6F135",
   label,
 }: ProgressBarProps) {
   const level = clamp01(value);
 
+  // The indeterminate sweep: a 30%-width segment marching left → right.
+  const [sweep, setSweep] = useState(0);
+  useInterval(() => setSweep((t) => (t + 0.018) % 1), indeterminate ? 16 : null);
+  const segment = width * 0.3;
+
   const bar = (
     <View className="flex-row items-center gap-3">
       <View
-        className="rounded-full overflow-hidden"
+        className="rounded-full overflow-hidden relative"
         style={{ width, height, backgroundColor: trackColor }}
       >
-        <View
-          className="rounded-full"
-          style={{ width: level * width, height, backgroundColor: color }}
-        />
+        {indeterminate ? (
+          <View
+            className="rounded-full absolute"
+            style={{
+              left: sweep * (width + segment) - segment,
+              top: 0,
+              width: segment,
+              height,
+              backgroundColor: color,
+            }}
+          />
+        ) : (
+          <View
+            className="rounded-full"
+            style={{ width: level * width, height, backgroundColor: color }}
+          />
+        )}
       </View>
-      {showPercent ? (
+      {showPercent && !indeterminate ? (
         <Text className="text-faint text-[11] font-bold" style={{ width: 34 }}>
           {`${Math.round(level * 100)}%`}
         </Text>

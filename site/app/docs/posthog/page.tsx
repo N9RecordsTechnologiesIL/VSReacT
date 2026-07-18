@@ -101,11 +101,42 @@ posthog.reset();                               // fresh anonymous identity`}</Co
         </li>
       </ul>
 
+      <h2 id="errors">Error tracking &amp; sessions</h2>
+      <Code title="ui/src/main.tsx">{`import { PostHogErrorBoundary, useEditorSession } from "@vsreact/posthog";
+
+function App() {
+  useEditorSession();   // editor_session_start / _end { duration_ms }
+  return <MainPanel />;
+}
+
+render(
+  <PostHogErrorBoundary fallback={<Text>Something broke — reopen the window.</Text>}>
+    <App />
+  </PostHogErrorBoundary>,
+);`}</Code>
+      <ul>
+        <li>
+          <code>posthog.captureException(error, props?)</code> — a properly-shaped{' '}
+          <code>$exception</code> event for PostHog error tracking; the boundary calls it for
+          every render crash and flushes immediately.
+        </li>
+        <li>
+          <code>useCaptureOnUnmount(event)</code> — the closing bookend to{' '}
+          <code>useCaptureOnMount</code>, stamped with <code>duration_ms</code>.
+        </li>
+        <li>
+          <code>posthog.optOut()</code> / <code>optIn()</code> / <code>optedOut</code> — the
+          consent switch: opting out drops new events and discards the unsent queue;{' '}
+          <code>init({'{optOut}'})</code> starts disabled. <code>unregister(key)</code> and{' '}
+          <code>getSessionId()</code> round out the client.
+        </li>
+      </ul>
+
       <Note>
         <strong>Respect your users:</strong> ship analytics behind a consent toggle in your
         settings panel, and say what you collect. A <code>&lt;ParamToggle&gt;</code> wired to
-        a &quot;share usage data&quot; flag that gates <code>posthog.init()</code> is the
-        pattern.
+        a &quot;share usage data&quot; flag that drives <code>posthog.optOut()</code> /{' '}
+        <code>optIn()</code> is the pattern.
       </Note>
 
       <p>

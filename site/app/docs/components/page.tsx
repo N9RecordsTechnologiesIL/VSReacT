@@ -269,8 +269,28 @@ export default function Page() {
             </td>
             <td>Feedback</td>
             <td>
-              Determinate progress with optional percent; indeterminate spinner painted with
-              the native arc keys.
+              Determinate progress with optional percent (or an <code>indeterminate</code>{' '}
+              sweep); indeterminate spinner painted with the native arc keys.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;PianoKeyboard&gt;</code>
+            </td>
+            <td>Performance</td>
+            <td>
+              The playable keyboard — note-on on press, note-off on release, glissando by
+              dragging across keys; <code>heldNotes</code> paints host MIDI in.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;StepSequencer&gt;</code>
+            </td>
+            <td>Patterns</td>
+            <td>
+              The rows × steps grid: click cells on and off, downbeat tinting, a playhead
+              column the host drives. Fully controlled.
             </td>
           </tr>
           <tr>

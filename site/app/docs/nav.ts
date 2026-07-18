@@ -175,7 +175,7 @@ export const DOCS: DocPage[] = [
       ['errors', 'Error tracking & sessions'],
     ],
     keywords:
-      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy alias setonce group groups groupidentify beforesend scrub sanitize debug time timeend duration stopwatch samplerate sampling maxqueuesize queue screen usescreen shutdown teardown denylist propertydenylist bridge',
+      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy alias setonce group groups groupidentify beforesend scrub sanitize debug time timeend duration stopwatch samplerate sampling maxqueuesize queue screen usescreen shutdown teardown denylist propertydenylist register registeronce bridge',
   },
   {
     slug: 'cpp-api',

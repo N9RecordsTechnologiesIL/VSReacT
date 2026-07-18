@@ -37,7 +37,7 @@ export interface PostHogEvent {
 }
 
 const LIB = "@vsreact/posthog";
-const LIB_VERSION = "0.0.5";
+const LIB_VERSION = "0.0.6";
 
 function uuid(): string {
   // RFC4122-ish v4 — good enough for anonymous ids inside a plugin.
@@ -103,6 +103,14 @@ export class PostHogClient {
   /** Properties stamped on every subsequent event. */
   register(properties: Record<string, unknown>): void {
     this.superProperties = { ...this.superProperties, ...properties };
+  }
+
+  /** Registers super properties only where none exist yet — safe
+      defaults that never clobber `register`ed values. */
+  registerOnce(properties: Record<string, unknown>): void {
+    for (const key of Object.keys(properties)) {
+      if (!(key in this.superProperties)) this.superProperties[key] = properties[key];
+    }
   }
 
   /** Removes one registered super property. */

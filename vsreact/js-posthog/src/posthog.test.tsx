@@ -75,6 +75,17 @@ describe("posthog client", () => {
     expect(sends()).toHaveLength(1);
   });
 
+  test("registerOnce never clobbers existing super properties", () => {
+    posthog.register({ tier: "pro" });
+    posthog.registerOnce({ tier: "free", first_daw: "Ableton" });
+    posthog.capture("x");
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect(event.properties.tier).toBe("pro");
+    expect(event.properties.first_daw).toBe("Ableton");
+  });
+
   test("unregister removes one super property", () => {
     posthog.register({ plugin_version: "1.2.0", host: "Ableton" });
     posthog.unregister("host");

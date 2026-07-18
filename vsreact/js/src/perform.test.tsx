@@ -10,6 +10,7 @@ const batches: unknown[][][] = [];
 import {
   render,
   unmount,
+  VERSION,
   PianoKeyboard,
   StepSequencer,
   ProgressBar,
@@ -39,6 +40,12 @@ const nodesWithListener = (type: string): number[] => {
 beforeEach(() => {
   unmount();
   batches.length = 0;
+});
+
+describe("VERSION", () => {
+  test("matches the package version", () => {
+    expect(VERSION).toBe(require("../package.json").version);
+  });
 });
 
 describe("format", () => {

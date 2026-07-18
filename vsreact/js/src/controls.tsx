@@ -388,6 +388,9 @@ export function Toggle({
 export interface ParamToggleProps {
   paramId: string;
   label?: string;
+  /** Hardware-style side captions, forwarded to Toggle. */
+  offLabel?: string;
+  onLabel?: string;
   size?: number;
   trackColor?: string;
   onColor?: string;

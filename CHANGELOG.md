@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.0.16 — 2026-07-18
+
+The release-polish tier. JS-only; native module unchanged from 0.0.9.
+
+### Polish
+
+- **npm READMEs** for both packages — `@vsreact/core` and
+  `@vsreact/posthog` finally have real registry pages: quick-starts,
+  the full component index, the architecture picture, and the C++
+  wiring for analytics.
+- **`VERSION`** exported from `@vsreact/core` — stamp support dumps
+  and analytics with the SDK version.
+
+### `@vsreact/posthog` 0.0.6
+
+- **`registerOnce(props)`** — super properties that never clobber
+  existing values (safe defaults).
+
+### Examples
+
+- **Three new example plugins** under `vsreact/examples/`, each a
+  complete CMake + React project: **synth** (PianoKeyboard,
+  ParamADSREnvelope, wheels, full PostHog integration), **drums**
+  (StepSequencer patterns driving a native step clock, RingMeter —
+  no analytics), and **channel** (EQCurve bound to APVTS bands,
+  gain-reduction Meter, Disclosure) — alongside the original gain
+  quick-start.
+- StashTrack ships `@vsreact/posthog` — editor sessions, parameter
+  analytics, and error tracking wired end-to-end.
+
 ## 0.0.15 — 2026-07-18
 
 The DSP-display tier — the EQ curve and the ring meter. JS-only;

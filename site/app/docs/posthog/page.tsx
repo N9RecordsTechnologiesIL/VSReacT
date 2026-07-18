@@ -86,6 +86,7 @@ render(<App />);`}</Code>
       <h2 id="api">The client API</h2>
       <Code title="TSX">{`posthog.capture("preset_loaded", { preset: "Warm Tape" });
 posthog.register({ daw: hostName });          // stamped on every event
+posthog.registerOnce({ first_seen: today });   // only where unset
 posthog.identify("user-123", { plan: "pro" }); // tie to a known user
 posthog.alias("licence-XYZ");                  // link another id
 posthog.set({ favourite_mode: "TUBE" });       // person properties

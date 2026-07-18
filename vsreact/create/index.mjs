@@ -14,8 +14,8 @@ import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const TEMPLATES = path.join(path.dirname(fileURLToPath(import.meta.url)), "templates");
-const VSREACT_TAG = "v0.0.16";
-const CORE_RANGE = "^0.0.16";
+const VSREACT_TAG = "v0.0.18";
+const CORE_RANGE = "^0.0.18";
 const POSTHOG_RANGE = "^0.0.6";
 
 const HELP = `create-vsreact — a native JUCE VST whose UI is React.
@@ -136,6 +136,7 @@ async function main() {
     MFR_CODE: mfrCode,
     PLUGIN_CODE: pluginCode,
     TARGET: targetName,
+    TARGET_UPPER: targetName.toUpperCase(),
     SLUG: slug,
     VSREACT_TAG,
     CORE_RANGE,

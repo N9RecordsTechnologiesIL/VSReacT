@@ -4,6 +4,8 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <vsreact/vsreact.h>
 
+#include "BinaryData.h"
+
 class {{TARGET}}Processor final : public juce::AudioProcessor
 {
 public:
@@ -116,8 +118,16 @@ public:
 
 {{/IF_POSTHOG}}
         vsreact::RootOptions options;
-        options.bundleFile = juce::File (juce::String (PLUGIN_BUNDLE_PATH));
+
+#if {{TARGET_UPPER}}_DEV
+        // Dev: load the bundle from disk and hot-reload on save.
+        options.bundleFile = juce::File (juce::String ({{TARGET_UPPER}}_UI_BUNDLE_PATH));
         options.watchForChanges = true;
+#else
+        // Ship: the bundle is compiled in — works on any machine.
+        options.bundleSource = juce::String::fromUTF8 (BinaryData::main_js,
+                                                       BinaryData::main_jsSize);
+#endif
         options.onNativeCall = [this] (const juce::String& name, const juce::var& args) -> juce::var
         {
 {{#IF_POSTHOG}}

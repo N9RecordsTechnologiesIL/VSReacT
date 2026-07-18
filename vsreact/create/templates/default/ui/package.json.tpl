@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run build.ts",
+    "watch": "bun run watch.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

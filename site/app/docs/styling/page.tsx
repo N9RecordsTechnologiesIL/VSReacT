@@ -76,7 +76,7 @@ export default function Page() {
               <code>text-xs…text-6xl</code> <code>text-[15]</code>{' '}
               <code>font-normal/medium/semibold/bold</code> <code>font-mono</code>{' '}
               <code>text-left/center/right</code> <code>tracking-*</code>{' '}
-              <code>leading-*</code>
+              <code>tracking-[3]</code> <code>leading-*</code>
             </td>
           </tr>
           <tr>
@@ -152,6 +152,9 @@ configureTheme({
           <code>arcValueEnd</code>, <code>arcThickness</code>: the natively painted knob
           arc, angles in degrees around the View’s center. The built-in <code>Knob</code>{' '}
           uses −135°…+135°; <code>arcValueStart</code> is what powers its bipolar mode.
+          Strokes default to rounded caps, which turn short slices into capsule blobs —
+          set <code>arcCap: &quot;butt&quot;</code> (since 0.0.18) for radial tick marks
+          and crisp dashes.
         </li>
         <li>
           <strong>Text input chrome</strong> — <code>caretColor</code>,{' '}

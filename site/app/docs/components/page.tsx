@@ -44,8 +44,11 @@ export default function Page() {
 
       <h2 id="image">&lt;Image src&gt;</h2>
       <p>
-        Paints an image from a file path or a <code>data:</code> URI, scaled to its layout
-        box.
+        Paints an image from a file path or a base64 <code>data:</code> URI (since 0.0.18),
+        scaled to its layout box. Formats are JUCE&apos;s built-ins — PNG, JPEG, GIF, BMP;
+        <strong> WebP is not supported</strong>. Plugin editors are fixed-size, so export
+        assets at the exact pixels you draw them at — a 1:1 blit always beats runtime
+        rescaling.
       </p>
       <Code title="TSX">{`<Image src={logoDataUri} className="w-24 h-24 rounded-full" />`}</Code>
 

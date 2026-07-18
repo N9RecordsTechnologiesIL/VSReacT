@@ -19,6 +19,10 @@ public:
                                        float topLeft, float topRight,
                                        float bottomRight, float bottomLeft);
 
+    /** Decodes a base64 `data:` URI into an image (PNG/JPEG/GIF); returns an
+        invalid image for anything else. Exposed for tests. */
+    static juce::Image decodeDataUriImage (const juce::String& source);
+
 private:
     static void paintNode (juce::Graphics& g, const Node& node);
     static void paintText (juce::Graphics& g, const Node& node, const Style& style);

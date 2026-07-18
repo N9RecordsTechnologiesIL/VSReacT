@@ -114,6 +114,58 @@ public:
             expect (approx (image.getPixelAt (30, 30), juce::Colour (0xff7f7f7f), 16));
         }
 
+        beginTest ("data: URI images decode and paint");
+        {
+            // Build the URI with JUCE's own encoder — no magic base64.
+            juce::Image source (juce::Image::ARGB, 2, 2, true);
+            source.clear (source.getBounds(), juce::Colour (0xffff0000));
+
+            juce::MemoryOutputStream png;
+            juce::PNGImageFormat().writeImageToStream (source, png);
+            const auto uri = "data:image/png;base64,"
+                           + juce::Base64::toBase64 (png.getData(), png.getDataSize());
+
+            const auto decoded = vsreact::Painter::decodeDataUriImage (uri);
+            expect (decoded.isValid());
+            expectEquals (decoded.getWidth(), 2);
+            expect (approx (decoded.getPixelAt (0, 0), juce::Colour (0xffff0000)));
+
+            expect (! vsreact::Painter::decodeDataUriImage ("data:image/png;base64,????").isValid());
+            expect (! vsreact::Painter::decodeDataUriImage ("data:image/png,notbase64").isValid());
+
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (juce::String (R"([
+                ["create", 1, "image"],
+                ["setProps", 1, {"src": ")") + uri + R"(", "style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = renderTree (tree, 40, 40);
+            expect (approx (image.getPixelAt (20, 20), juce::Colour (0xffff0000)));
+        }
+
+        beginTest ("arcCap butt drops the rounded overhang");
+        {
+            const auto arcPixel = [this] (const juce::String& capStyle)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                        "arcColor": "#ff0000", "arcValueStart": 0, "arcValueEnd": 30,
+                        "arcStart": 0, "arcThickness": 10)") + capStyle + R"(}}],
+                    ["appendChild", 0, 1]
+                ])");
+
+                // Just before the arc start along the circle: a rounded cap
+                // paints here, a butt cap leaves the backdrop.
+                return renderTree (tree, 100, 100).getPixelAt (46, 6);
+            };
+
+            expect (! approx (arcPixel (""), juce::Colours::black, 40));
+            expect (approx (arcPixel (R"(, "arcCap": "butt")"), juce::Colours::black, 40));
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

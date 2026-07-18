@@ -97,6 +97,37 @@ render(<GenericEditor />);`}</Code>
 return params.map((p) => <ParamSlider key={p.id} paramId={p.id} />);`}</Code>
 
       <h2 id="wiring">C++ wiring</h2>
+      <p>
+        Everything above assumes an APVTS. The <em>parameter definition</em> is where{' '}
+        <code>useParameter().text</code>, its <code>label</code>, the <code>value</code>{' '}
+        scale, and double-click defaults all come from — ranges, skew, and string
+        formatting live in the <code>ParameterLayout</code>, not in JS:
+      </p>
+      <Code title="PluginProcessor.cpp — the layout JS sees">{`static juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    // 1–1000 ms with finer travel at the low end. NOTE: useParameter().value
+    // is the NORMALIZED 0–1 including this skew — map through the range if
+    // your UI wants display-linear knob angles.
+    auto ms = juce::NormalisableRange<float> (1.0f, 1000.0f, 0.1f);
+    ms.setSkewForCentre (200.0f);
+
+    layout.add (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "time", 1 }, "Time", ms, 320.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("ms")   // useParameter().label
+            .withStringFromValueFunction (                  // .text
+                [] (float v, int) { return juce::String (juce::roundToInt (v)) + " ms"; })));
+
+    layout.add (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "bypass", 1 }, "Bypass", false));
+
+    return layout;
+}
+
+// in the processor's constructor:
+//   state (*this, nullptr, "PARAMS", createLayout())`}</Code>
       <Code title="PluginEditor.h / .cpp">{`vsreact::ParameterBridge bridge { processor.apvts };
 
 // 1. chain param:* calls first in onNativeCall

@@ -155,3 +155,15 @@ describe("negative spacing", () => {
     expect(tw("-left-1/2").style).toEqual({ left: "-50%" });
   });
 });
+
+describe("arbitrary letter spacing", () => {
+  test("tracking-[n] is px", () => {
+    expect(tw("tracking-[3]").style).toEqual({ letterSpacing: 3 });
+    expect(tw("tracking-[1.5]").style).toEqual({ letterSpacing: 1.5 });
+    expect(tw("-tracking-[2]").style).toEqual({ letterSpacing: -2 });
+  });
+
+  test("named scale still wins", () => {
+    expect(tw("tracking-widest").style).toEqual({ letterSpacing: 1.6 });
+  });
+});

@@ -14,10 +14,25 @@ cd .. && cmake -S . -B build -DJUCE_SOURCE_DIR=/path/to/JUCE
 cmake --build build --target {{TARGET}}_Standalone --config Release
 ```
 
-## Dev loop
+## Dev loop (hot reload)
 
-Keep the standalone (or your DAW) open, edit `ui/src/main.tsx`, run
-`bun run build` — the plugin watches the bundle file and hot-reloads.
+```sh
+cd ui && bun run watch        # rebuilds build/main.js on every save
+```
+
+Keep the standalone (or your DAW) open and edit `ui/src/main.tsx` — the
+plugin watches the bundle file and remounts in ~100 ms.
+
+## Shipping
+
+Dev builds (`{{TARGET_UPPER}}_DEV=ON`, the default) load the bundle from an
+absolute path on this machine. Before distributing, make a build that
+embeds it:
+
+```sh
+cmake -S . -B build-ship -D{{TARGET_UPPER}}_DEV=OFF
+cmake --build build-ship --target {{TARGET}}_VST3 --config Release
+```
 {{#IF_POSTHOG}}
 
 ## Analytics

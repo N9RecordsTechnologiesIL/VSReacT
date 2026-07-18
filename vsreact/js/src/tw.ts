@@ -246,6 +246,14 @@ function resolveClass(cls: string): Style | undefined {
       const n = Number(rest);
       return Number.isFinite(n) ? { lineHeight: n * 4 } : undefined;
     }
+    case "tracking": {
+      // Named scale lives in staticClasses; arbitrary is px: tracking-[3].
+      if (rest.startsWith("[")) {
+        const spacing = parseLength(rest);
+        if (typeof spacing === "number") return { letterSpacing: negate(spacing) };
+      }
+      return undefined;
+    }
     case "flex": {
       const n = Number(rest);
       return Number.isFinite(n) ? { flex: n } : undefined;

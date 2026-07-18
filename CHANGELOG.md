@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.0.18 — 2026-07-19
+
+The dogfood release: everything here came out of building
+[DirtyDelay](https://github.com/N9RecordsTechnologiesIL) against only the
+public SDK + docs, then pixel-diffing the plugin against the same UI
+running in a browser.
+
+### Native (`vsreact` module)
+
+- **Image downscaling no longer sparkles** — the painter draws images
+  with high resampling quality; bright single pixels used to survive
+  nearest-style sampling as white dots when an asset painted below its
+  native size.
+- **`<Image src>` accepts base64 `data:` URIs** (PNG/JPEG/GIF), decoded
+  once and cached. Previously documented but unimplemented — a data URI
+  painted nothing, silently.
+- **`arcCap: "butt"`** style key: arc strokes default to rounded caps,
+  which turn short slices into capsule blobs — butt caps make radial
+  tick marks and crisp dashes possible.
+
+### `@vsreact/core` 0.0.18
+
+- **`tracking-[n]`** arbitrary letter-spacing (px), including negative
+  `-tracking-[2]` — the named `tracking-*` scale already worked.
+- `VERSION` is now `0.0.18`.
+
+### `create-vsreact` 0.1.1
+
+- **`bun run watch` ships in the scaffold** (`ui/watch.ts`) — the docs'
+  hot-reload loop now works out of the box.
+- **Dev/ship split generated for you**: `<TARGET>_DEV` CMake option
+  (default ON, hot reload from disk); `OFF` embeds the bundle via
+  BinaryData so shipped builds work on machines that aren't yours. The
+  compile definition is now `<TARGET>_UI_BUNDLE_PATH`, matching the docs.
+- Pins vsreact `v0.0.18` / `@vsreact/core ^0.0.18` — the scaffold and the
+  installation docs now agree on the version.
+
+### Docs
+
+- Audio-parameters page shows the APVTS `ParameterLayout` (ranges, skew,
+  label, string formatting) that `useParameter` reflects — with a note
+  that `.value` is the *normalized, skew-included* 0–1, the trap that
+  makes web-linear knob angles differ if you map it directly.
+- `<Image>` documents the supported formats (PNG/JPEG/GIF/BMP — no WebP)
+  and the ship-assets-at-display-size rule.
+- Styling page documents `arcCap` and `tracking-[n]`.
+
 ## 0.0.17 — 2026-07-18
 
 The scaffolder. JS-only; native module unchanged from 0.0.9.

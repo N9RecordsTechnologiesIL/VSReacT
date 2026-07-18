@@ -117,6 +117,12 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
         const auto radius = juce::jmin (node.frame.getWidth(), node.frame.getHeight()) * 0.5f
                           - thickness * 0.5f;
 
+        // Rounded caps read as capsule blobs on short slices; arcCap "butt"
+        // makes radial ticks and dashes possible.
+        const auto cap = style.getString ("arcCap") == "butt"
+                       ? juce::PathStrokeType::butt
+                       : juce::PathStrokeType::rounded;
+
         const auto drawArc = [&] (juce::Colour colour, float fromDeg, float toDeg)
         {
             if (toDeg <= fromDeg + 0.01f || radius <= 0.0f)
@@ -131,7 +137,7 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
             g.setColour (colour);
             g.strokePath (arc, juce::PathStrokeType (thickness,
                                                      juce::PathStrokeType::curved,
-                                                     juce::PathStrokeType::rounded));
+                                                     cap));
         };
 
         const auto arcStart = style.getFloat ("arcStart", -135.0f);
@@ -212,6 +218,23 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
     layout.draw (g, { node.frame.getX(), y, node.frame.getWidth(), layout.getHeight() });
 }
 
+juce::Image Painter::decodeDataUriImage (const juce::String& source)
+{
+    // data:image/png;base64,<payload> — PNG/JPEG/GIF (whatever
+    // juce::ImageFileFormat knows). Non-base64 payloads are not images.
+    const auto comma = source.indexOfChar (',');
+
+    if (comma <= 0 || ! source.substring (0, comma).endsWith (";base64"))
+        return {};
+
+    juce::MemoryOutputStream decoded;
+
+    if (! juce::Base64::convertFromBase64 (decoded, source.substring (comma + 1)))
+        return {};
+
+    return juce::ImageFileFormat::loadFrom (decoded.getData(), decoded.getDataSize());
+}
+
 void Painter::paintImage (juce::Graphics& g, const Node& node)
 {
     const auto source = node.props["src"].toString();
@@ -219,10 +242,34 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
     if (source.isEmpty())
         return;
 
-    const auto image = juce::ImageCache::getFromFile (juce::File (source));
+    juce::Image image;
+
+    if (source.startsWith ("data:"))
+    {
+        // Decoded once, cached under the source string's hash.
+        const auto hash = source.hashCode64();
+        image = juce::ImageCache::getFromHashCode (hash);
+
+        if (! image.isValid())
+        {
+            image = decodeDataUriImage (source);
+
+            if (image.isValid())
+                juce::ImageCache::addImageToCache (image, hash);
+        }
+    }
+    else
+    {
+        image = juce::ImageCache::getFromFile (juce::File (source));
+    }
 
     if (image.isValid())
+    {
+        // Low-quality resampling turns bright single pixels into sparkle
+        // when an asset is drawn below its native size.
+        g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
         g.drawImage (image, node.frame, juce::RectanglePlacement::centred);
+    }
 }
 
 } // namespace vsreact

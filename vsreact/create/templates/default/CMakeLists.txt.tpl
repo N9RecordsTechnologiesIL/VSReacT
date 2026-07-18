@@ -3,6 +3,9 @@
 #   cd ui && bun install && bun run build
 #   cmake -S . -B build [-DJUCE_SOURCE_DIR=/path/to/JUCE]
 #   cmake --build build --target {{TARGET}}_Standalone --config Release
+#
+# Dev builds (default) load ui/build/main.js from disk and hot-reload it.
+# Ship builds embed the bundle:  cmake -B build -D{{TARGET_UPPER}}_DEV=OFF
 
 cmake_minimum_required(VERSION 3.24)
 
@@ -34,6 +37,8 @@ FetchContent_Declare(vsreact
     SOURCE_SUBDIR  vsreact)
 FetchContent_MakeAvailable(vsreact)
 
+option({{TARGET_UPPER}}_DEV "Load the UI bundle from disk and watch it (hot reload)" ON)
+
 juce_add_plugin({{TARGET}}
     COMPANY_NAME "{{COMPANY}}"
     PRODUCT_NAME "{{PRODUCT_NAME}}"
@@ -47,16 +52,27 @@ juce_add_plugin({{TARGET}}
 
 target_sources({{TARGET}} PRIVATE Source/Plugin.cpp)
 
+# The UI bundle is embedded via BinaryData for ship builds; write a stub so
+# a fresh configure works before the first `bun run build`.
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ui/build/main.js")
+    file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/ui/build/main.js"
+        "// placeholder — run `bun run build` in ui/\n")
+endif()
+
+juce_add_binary_data({{TARGET}}Assets SOURCES ui/build/main.js)
+
 target_compile_definitions({{TARGET}}
     PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
-        PLUGIN_BUNDLE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/ui/build/main.js")
+        {{TARGET_UPPER}}_DEV=$<BOOL:${{{TARGET_UPPER}}_DEV}>
+        {{TARGET_UPPER}}_UI_BUNDLE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/ui/build/main.js")
 
 target_link_libraries({{TARGET}}
     PRIVATE
         vsreact
+        {{TARGET}}Assets
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags

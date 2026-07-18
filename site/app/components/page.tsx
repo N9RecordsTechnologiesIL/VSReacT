@@ -43,6 +43,7 @@ const CATS: Array<[id: string, label: string]> = [
   ['visualizers', 'Meters & visualizers'],
   ['feedback', 'Feedback'],
   ['perform', 'Perform'],
+  ['structure', 'Structure'],
   ['overlays', 'Overlays & editors'],
 ]
 
@@ -1795,6 +1796,56 @@ function AdsrTwin({ theme = 'inst' }: { theme?: string }) {
   )
 }
 
+function TabsTwin({ theme = 'inst' }: { theme?: string }) {
+  const [tab, setTab] = useState(0)
+  const labels = ['MAIN', 'FX', 'MOD']
+  const content = ['CUTOFF · RES · DRIVE', 'DELAY · VERB · WIDTH', 'LFO · ENV · KEYS']
+
+  return (
+    <div className={`${styles.tabs} ${styles[`tabs_${theme}`] ?? ''}`}>
+      <div>
+        {labels.map((label, i) => (
+          <button
+            key={label}
+            type="button"
+            className={i === tab ? styles.tabOn : ''}
+            onClick={() => setTab(i)}
+          >
+            {label}
+            <i />
+          </button>
+        ))}
+      </div>
+      <p>{content[tab]}</p>
+    </div>
+  )
+}
+
+function DiscTwin({ theme = 'inst' }: { theme?: string }) {
+  const [open, setOpen] = useState([true, false])
+  const rows: Array<[string, string]> = [
+    ['ADVANCED', 'OVERSAMPLE · DITHER · PHASE'],
+    ['MODULATION', 'RATE · DEPTH · SHAPE'],
+  ]
+
+  return (
+    <div className={`${styles.disc} ${styles[`disc_${theme}`] ?? ''}`}>
+      {rows.map(([title, body], i) => (
+        <div key={title}>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => o.map((v, j) => (j === i ? !v : v)))}
+          >
+            <s>{open[i] ? '▾' : '▸'}</s>
+            {title}
+          </button>
+          {open[i] ? <p>{body}</p> : null}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function WheelsTwin({ theme = 'inst' }: { theme?: string }) {
   const [bend, setBend] = useState(0)
   const [bending, setBending] = useState(false)
@@ -2626,6 +2677,29 @@ export default function ComponentsPage() {
               docs="/docs/components#controls"
             >
               <AllThemes render={(t) => <WheelsTwin theme={t} />} />
+            </Family>
+          </section>
+
+          {/* ── STRUCTURE ────────────────────────────────────────────── */}
+          <section id="structure" className={styles.cat}>
+            <h3 className={styles.catTitle}>STRUCTURE</h3>
+
+            <Family
+              title="Tabs"
+              blurb="The page switcher — a themed tab bar with an underline indicator that renders the active panel."
+              imports={`<Tabs labels={['MAIN', 'FX', 'MOD']}>{panels}</Tabs>`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <TabsTwin theme={t} />} />
+            </Family>
+
+            <Family
+              title="Disclosure"
+              blurb="The collapsible settings row — click the header to fold content in and out."
+              imports={`<Disclosure title="ADVANCED">{rows}</Disclosure>`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <DiscTwin theme={t} />} />
             </Family>
           </section>
 

@@ -67,6 +67,9 @@ export interface MeterProps {
   thickness?: number;
   /** Horizontal bar instead of the vertical default. */
   horizontal?: boolean;
+  /** Fill from the top (vertical) / right (horizontal) — gain-reduction
+      meters. Default false. */
+  reverse?: boolean;
   /** Show the peak-hold line. Default true. */
   peak?: boolean;
   holdMs?: number;
@@ -85,6 +88,7 @@ export function Meter({
   length = 120,
   thickness = 10,
   horizontal,
+  reverse = false,
   peak = true,
   holdMs,
   decayPerSecond,
@@ -108,19 +112,27 @@ export function Meter({
       style={{ width: length, height: thickness, backgroundColor: trackColor }}
     >
       <View
-        className="absolute left-0 top-0 bottom-0"
-        style={{ width: fill, backgroundColor: color }}
+        className="absolute top-0 bottom-0"
+        style={reverse ? { right: 0, width: fill, backgroundColor: color } : { left: 0, width: fill, backgroundColor: color }}
       />
       {hotFill > 0 ? (
         <View
           className="absolute top-0 bottom-0"
-          style={{ left: hot * length, width: hotFill, backgroundColor: hotColor }}
+          style={
+            reverse
+              ? { right: hot * length, width: hotFill, backgroundColor: hotColor }
+              : { left: hot * length, width: hotFill, backgroundColor: hotColor }
+          }
         />
       ) : null}
       {peak && peakAt > 2 ? (
         <View
           className="absolute top-0 bottom-0 w-[2]"
-          style={{ left: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }}
+          style={
+            reverse
+              ? { right: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }
+              : { left: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }
+          }
         />
       ) : null}
     </View>
@@ -130,19 +142,27 @@ export function Meter({
       style={{ width: thickness, height: length, backgroundColor: trackColor }}
     >
       <View
-        className="absolute bottom-0 left-0 right-0"
-        style={{ height: fill, backgroundColor: color }}
+        className="absolute left-0 right-0"
+        style={reverse ? { top: 0, height: fill, backgroundColor: color } : { bottom: 0, height: fill, backgroundColor: color }}
       />
       {hotFill > 0 ? (
         <View
           className="absolute left-0 right-0"
-          style={{ bottom: hot * length, height: hotFill, backgroundColor: hotColor }}
+          style={
+            reverse
+              ? { top: hot * length, height: hotFill, backgroundColor: hotColor }
+              : { bottom: hot * length, height: hotFill, backgroundColor: hotColor }
+          }
         />
       ) : null}
       {peak && peakAt > 2 ? (
         <View
           className="absolute left-0 right-0 h-[2]"
-          style={{ bottom: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }}
+          style={
+            reverse
+              ? { top: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }
+              : { bottom: peakAt - 2, backgroundColor: held >= hot ? hotColor : color }
+          }
         />
       ) : null}
     </View>

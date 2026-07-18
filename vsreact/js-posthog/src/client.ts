@@ -18,6 +18,13 @@ export interface PostHogInitOptions {
   /** Scrub or veto events before they queue: return the (edited) event
       to keep it, or null to drop it. */
   beforeSend?: (event: PostHogEvent) => PostHogEvent | null;
+  /** Keep only this fraction of sessions (0..1): the whole client goes
+      silent for the rest, and kept events carry $sample_rate so
+      PostHog can weight counts. Default 1 (everyone). */
+  sampleRate?: number;
+  /** Queue cap — oldest events drop first if the bridge stops draining
+      (a misconfigured native side shouldn't grow memory). Default 1000. */
+  maxQueueSize?: number;
 }
 
 export interface PostHogEvent {
@@ -27,7 +34,7 @@ export interface PostHogEvent {
 }
 
 const LIB = "@vsreact/posthog";
-const LIB_VERSION = "0.0.3";
+const LIB_VERSION = "0.0.4";
 
 function uuid(): string {
   // RFC4122-ish v4 — good enough for anonymous ids inside a plugin.
@@ -50,6 +57,10 @@ export class PostHogClient {
   private isDebug = false;
   private groups: Record<string, string> = {};
   private beforeSend: ((event: PostHogEvent) => PostHogEvent | null) | null = null;
+  private sampleRate = 1;
+  private sampledOut = false;
+  private maxQueueSize = 1000;
+  private timings: Map<string, number> = new Map();
 
   /** Pulls the persistent distinct id from the native PostHogBridge and
       starts a session. Safe to call once at app start. */
@@ -58,6 +69,10 @@ export class PostHogClient {
     this.flushIntervalMs = options.flushIntervalMs ?? 10_000;
     this.isOptedOut = options.optOut ?? false;
     this.beforeSend = options.beforeSend ?? null;
+    this.maxQueueSize = options.maxQueueSize ?? 1000;
+    this.sampleRate = Math.min(1, Math.max(0, options.sampleRate ?? 1));
+    this.sampledOut = this.sampleRate < 1 && Math.random() >= this.sampleRate;
+    if (this.isDebug && this.sampledOut) console.log("[posthog] session sampled out");
     if (options.defaultProperties) this.superProperties = { ...options.defaultProperties };
 
     const config = native.call("posthog:config");
@@ -113,8 +128,22 @@ export class PostHogClient {
     this.isDebug = on;
   }
 
+  /** Starts a named stopwatch; `timeEnd` captures the elapsed time. */
+  time(name: string): void {
+    this.timings.set(name, Date.now());
+  }
+
+  /** Captures `name { duration_ms }` since the matching `time(name)` —
+      preset load times, render passes, analysis sweeps. */
+  timeEnd(name: string, properties: Record<string, unknown> = {}): void {
+    const startedAt = this.timings.get(name);
+    if (startedAt === undefined) return;
+    this.timings.delete(name);
+    this.capture(name, { duration_ms: Date.now() - startedAt, ...properties });
+  }
+
   capture(event: string, properties: Record<string, unknown> = {}): void {
-    if (this.isOptedOut) return;
+    if (this.isOptedOut || this.sampledOut) return;
     if (!this.initialised) this.init();
 
     let entry: PostHogEvent | null = {
@@ -123,6 +152,7 @@ export class PostHogClient {
         ...this.superProperties,
         ...(Object.keys(this.groups).length > 0 ? { $groups: { ...this.groups } } : {}),
         ...properties,
+        ...(this.sampleRate < 1 ? { $sample_rate: this.sampleRate } : {}),
         distinct_id: this.distinctId,
         $session_id: this.sessionId,
         $lib: LIB,
@@ -141,6 +171,10 @@ export class PostHogClient {
 
     if (this.isDebug) console.log(`[posthog] capture "${entry.event}"`, entry.properties);
     this.queue.push(entry);
+    while (this.queue.length > this.maxQueueSize) {
+      const dropped = this.queue.shift();
+      if (this.isDebug) console.log(`[posthog] queue full — dropped "${dropped?.event}"`);
+    }
 
     if (this.queue.length >= this.flushAt) this.flush();
     else this.armTimer();

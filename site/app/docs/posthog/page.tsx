@@ -91,6 +91,8 @@ posthog.alias("licence-XYZ");                  // link another id
 posthog.set({ favourite_mode: "TUBE" });       // person properties
 posthog.setOnce({ first_version: "1.2.0" });   // only if unset
 posthog.group("studio", "abbey-road");         // group analytics
+posthog.time("preset_load");                   // start a stopwatch…
+posthog.timeEnd("preset_load");                // …capture { duration_ms }
 posthog.debug(true);                           // log captures (dev builds)
 posthog.flush();                               // force-send now
 posthog.reset();                               // fresh anonymous identity`}</Code>
@@ -104,11 +106,16 @@ posthog.reset();                               // fresh anonymous identity`}</Co
       <ul>
         <li>
           Events queue in JS and flush at 10 events or 10 seconds (tune with{' '}
-          <code>init({'{flushAt, flushIntervalMs}'})</code>).
+          <code>init({'{flushAt, flushIntervalMs}'})</code>); the queue is capped at{' '}
+          <code>maxQueueSize</code> (drop-oldest, default 1000).
         </li>
         <li>
           Every event carries <code>distinct_id</code>, <code>$session_id</code>, and lib
           metadata automatically.
+        </li>
+        <li>
+          <code>init({'{sampleRate}'})</code> keeps a fraction of sessions and stamps{' '}
+          <code>$sample_rate</code> on kept events so PostHog can weight counts.
         </li>
       </ul>
 

@@ -12857,3 +12857,207 @@
   background: linear-gradient(180deg, #342514, #241a0e);
   border-color: rgba(0, 0, 0, 0.7);
 }
+
+/* ══ STRUCTURE families — Tabs + Disclosure twins ══ */
+
+/* — tabs: underline bar + panel line — */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 216px;
+}
+
+.tabs > div {
+  display: flex;
+  gap: 4px;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tabs button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 4px 12px 0;
+  cursor: pointer;
+  font-family: var(--font-jb), monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--tx, #7c8087);
+  opacity: 0.6;
+}
+
+.tabs button i {
+  display: block;
+  height: 2px;
+  margin-top: 6px;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.tabs button.tabOn {
+  opacity: 1;
+}
+
+.tabs button.tabOn i {
+  background: var(--acc);
+  box-shadow: 0 0 7px -1px var(--acc);
+}
+
+.tabs p {
+  margin: 0;
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--tx, #8b8f96);
+  opacity: 0.8;
+}
+
+/* STANDARD — dark text on the light card */
+.tabs_std > div {
+  border-bottom-color: rgba(0, 0, 0, 0.14);
+}
+
+.tabs_std button {
+  color: #52525b;
+}
+
+.tabs_std p {
+  color: #3f3f46;
+}
+
+/* STEEL — engraved labels on the plate, red indicator */
+.tabs_steel > div {
+  border-bottom-color: rgba(15, 17, 20, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.tabs_steel button {
+  color: rgba(15, 17, 20, 0.6);
+  opacity: 1;
+}
+
+.tabs_steel button.tabOn {
+  color: rgba(15, 17, 20, 0.95);
+}
+
+.tabs_steel button.tabOn i {
+  background: linear-gradient(180deg, #ff5a44, #c81e14);
+  box-shadow:
+    0 0 6px rgba(229, 48, 28, 0.45),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
+}
+
+.tabs_steel p {
+  color: rgba(15, 17, 20, 0.66);
+  opacity: 1;
+}
+
+/* BLUEPRINT — ink tabs, dashed baseline */
+.tabs_bp > div {
+  border-bottom: 1px dashed rgba(234, 243, 255, 0.5);
+}
+
+.tabs_bp button {
+  color: rgba(234, 243, 255, 0.65);
+  opacity: 1;
+}
+
+.tabs_bp button.tabOn {
+  color: #ffffff;
+}
+
+.tabs_bp button.tabOn i {
+  background: #eaf3ff;
+  box-shadow: none;
+}
+
+.tabs_bp p {
+  color: rgba(234, 243, 255, 0.75);
+  opacity: 1;
+}
+
+/* — disclosure: fold rows — */
+.disc {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 216px;
+}
+
+.disc button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-family: var(--font-jb), monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--tx, #a1a1aa);
+}
+
+.disc button s {
+  text-decoration: none;
+  color: var(--acc);
+  font-size: 8px;
+  width: 9px;
+}
+
+.disc p {
+  margin: 6px 0 2px 16px;
+  padding-left: 9px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: var(--tx, #8b8f96);
+  opacity: 0.75;
+}
+
+/* STANDARD */
+.disc_std button {
+  color: #3f3f46;
+}
+
+.disc_std p {
+  color: #52525b;
+  border-left-color: rgba(0, 0, 0, 0.16);
+}
+
+/* STEEL — engraved on aluminum */
+.disc_steel button {
+  color: rgba(15, 17, 20, 0.85);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.disc_steel button s {
+  color: #c81e14;
+}
+
+.disc_steel p {
+  color: rgba(15, 17, 20, 0.62);
+  border-left-color: rgba(15, 17, 20, 0.3);
+  opacity: 1;
+}
+
+/* BLUEPRINT — drawing ink */
+.disc_bp button {
+  color: rgba(234, 243, 255, 0.85);
+}
+
+.disc_bp button s {
+  color: #ffffff;
+}
+
+.disc_bp p {
+  color: rgba(234, 243, 255, 0.7);
+  border-left: 1px dashed rgba(234, 243, 255, 0.45);
+  opacity: 1;
+}

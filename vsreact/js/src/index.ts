@@ -15,6 +15,7 @@ export { render, unmount } from "./render";
 export { native } from "./native";
 export {
   useNativeEvent,
+  useNativeValue,
   useDebounced,
   useThrottled,
   usePrevious,
@@ -94,6 +95,8 @@ export { PianoKeyboard } from "./keyboard";
 export type { PianoKeyboardProps } from "./keyboard";
 export { StepSequencer } from "./sequencer";
 export type { StepSequencerProps } from "./sequencer";
+export { Tabs, Disclosure } from "./layout";
+export type { TabsProps, DisclosureProps } from "./layout";
 export {
   ADSREnvelope,
   ParamADSREnvelope,

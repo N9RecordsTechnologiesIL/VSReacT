@@ -316,6 +316,16 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;Tabs&gt;</code> / <code>&lt;Disclosure&gt;</code>
+            </td>
+            <td>Structure</td>
+            <td>
+              The page switcher with an underline tab bar, and the collapsible settings row —
+              both controlled or uncontrolled.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Button&gt;</code>
             </td>
             <td>Actions</td>

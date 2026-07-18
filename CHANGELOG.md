@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.0.14 — 2026-07-18
+
+The workspace tier — structure for multi-page plugin UIs. JS-only;
+native module unchanged from 0.0.9.
+
+### New components
+
+- **`<Tabs>`** — the page switcher (MAIN / FX / SETTINGS): a themed
+  tab bar with an underline indicator that renders the active panel.
+  Controlled or uncontrolled.
+- **`<Disclosure>`** — the collapsible settings row ("ADVANCED"):
+  click the header to fold content in and out.
+
+### Hooks & control upgrades
+
+- **`useNativeValue(name, initial)`** — the one-liner for native → UI
+  data feeds: holds the latest payload of a C++ event as state.
+- `Meter` — **`reverse`** fills from the top (vertical) or right
+  (horizontal): gain-reduction meters for compressors.
+
+### `@vsreact/posthog` 0.0.4
+
+- **`time(name)` / `timeEnd(name, props?)`** — stopwatch captures:
+  `preset_load { duration_ms }` for load times, render passes,
+  analysis sweeps.
+- **`init({ sampleRate })`** — whole-session sampling: keep a fraction
+  of clients, and kept events carry `$sample_rate` so PostHog can
+  weight the counts.
+- **`init({ maxQueueSize })`** — a queue cap (drop-oldest, default
+  1000) so a misbehaving bridge can't grow memory.
+
+### Site
+
+- Gallery: Tabs and Disclosure families in all eight worlds.
+
 ## 0.0.13 — 2026-07-18
 
 The synth tier — the envelope editor and the wheels. JS-only; native

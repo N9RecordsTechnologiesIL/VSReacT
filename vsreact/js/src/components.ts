@@ -68,6 +68,8 @@ export { PianoKeyboard } from "./keyboard";
 export type { PianoKeyboardProps } from "./keyboard";
 export { StepSequencer } from "./sequencer";
 export type { StepSequencerProps } from "./sequencer";
+export { Tabs, Disclosure } from "./layout";
+export type { TabsProps, DisclosureProps } from "./layout";
 export {
   ADSREnvelope,
   ParamADSREnvelope,

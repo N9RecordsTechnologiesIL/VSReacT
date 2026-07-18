@@ -1,6 +1,6 @@
 {
   "name": "@vsreact/posthog",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "PostHog analytics for VSReacT plugins — capture from your React UI, delivered over HTTPS by the native PostHogBridge.",
   "keywords": [
     "posthog",

@@ -90,6 +90,10 @@ return <Waveform values={history} width={220} label="ENV" />;`}</Code>
           <Link href="/docs/native-messaging">Native messaging</Link>.
         </li>
         <li>
+          <code>useNativeValue(name, initial)</code> — the latest payload of a C++ event,
+          held as state: <code>{`const m = useNativeValue("meter", { level: 0 })`}</code>.
+        </li>
+        <li>
           <code>useParameter(id)</code> / <code>useParameterList()</code> — see{' '}
           <Link href="/docs/parameters">Audio parameters</Link>.
         </li>

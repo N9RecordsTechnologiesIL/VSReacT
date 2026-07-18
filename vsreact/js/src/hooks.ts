@@ -30,6 +30,19 @@ export function useNativeEvent(name: string, handler: (payload: any) => void): v
 }
 
 /**
+ * The latest payload of a C++ event, held as state — the one-liner for
+ * native → UI data feeds:
+ *
+ *   const meter = useNativeValue("meter", { level: 0 });
+ *   <Meter value={meter.level} />
+ */
+export function useNativeValue<T = any>(name: string, initial: T): T {
+  const [value, setValue] = useState<T>(initial);
+  useNativeEvent(name, setValue);
+  return value;
+}
+
+/**
  * The value, but only after it has stopped changing for `delayMs` —
  * classic input debouncing for expensive native calls:
  *

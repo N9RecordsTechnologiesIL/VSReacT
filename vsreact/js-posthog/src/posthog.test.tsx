@@ -182,6 +182,50 @@ describe("posthog client", () => {
     expect(batch[0].properties.ok).toBe(true);
   });
 
+  test("time/timeEnd capture a duration; unmatched timeEnd is a no-op", async () => {
+    posthog.time("preset_load");
+    await new Promise((r) => setTimeout(r, 15));
+    posthog.timeEnd("preset_load", { preset: "Init" });
+    posthog.timeEnd("never_started");
+    posthog.flush();
+
+    const events = sends().flatMap((s) => s.args.batch);
+    expect(events).toHaveLength(1);
+    expect(events[0].event).toBe("preset_load");
+    expect(events[0].properties.duration_ms).toBeGreaterThanOrEqual(10);
+    expect(events[0].properties.preset).toBe("Init");
+  });
+
+  test("sampleRate 0 silences the client; kept sessions stamp $sample_rate", () => {
+    posthog.init({ flushAt: 10, flushIntervalMs: 60_000, sampleRate: 0 });
+    nativeCalls.length = 0;
+    posthog.capture("dropped");
+    posthog.flush();
+    expect(sends()).toHaveLength(0);
+
+    posthog.init({ flushAt: 10, flushIntervalMs: 60_000, sampleRate: 0.999999 });
+    nativeCalls.length = 0;
+    posthog.capture("kept");
+    posthog.flush();
+    const kept = sends().flatMap((s) => s.args.batch);
+    expect(kept).toHaveLength(1);
+    expect(kept[0].properties.$sample_rate).toBeCloseTo(0.999999);
+  });
+
+  test("maxQueueSize drops the oldest events first", () => {
+    posthog.init({ flushAt: 100, flushIntervalMs: 60_000, maxQueueSize: 3 });
+    nativeCalls.length = 0;
+
+    posthog.capture("one");
+    posthog.capture("two");
+    posthog.capture("three");
+    posthog.capture("four");
+    posthog.flush();
+
+    const events = sends().flatMap((s) => s.args.batch);
+    expect(events.map((e: any) => e.event)).toEqual(["two", "three", "four"]);
+  });
+
   test("getSessionId is stable within a session", () => {
     const a = posthog.getSessionId();
     posthog.capture("x");

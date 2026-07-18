@@ -93,6 +93,38 @@ export function Image(props: ImageProps) {
   return createElement("vs-image", props);
 }
 
+export interface SvgProps extends CommonProps {
+  /** "minX minY width height" — path coordinates map from this box onto the
+      node's layout frame (like the web's preserveAspectRatio="none"). */
+  viewBox: string;
+}
+
+/** Vector container: lays out like a View, paints its <SvgPath> children
+    scaled from viewBox space. Icon sets port directly — rename attributes
+    and drop each path's `d` in. */
+export function Svg(props: SvgProps) {
+  return createElement("vs-svg", props);
+}
+
+export interface SvgPathProps {
+  /** SVG path data ("M12 2 L22 22 …") — parsed once and cached. */
+  d: string;
+  /** Fill color; SVG's default black. "none" for stroke-only paths. */
+  fill?: string;
+  stroke?: string;
+  /** Stroke width in viewBox units (scales with the frame, like SVG). */
+  strokeWidth?: number;
+  strokeCap?: "butt" | "round" | "square";
+  strokeJoin?: "miter" | "round" | "bevel";
+  /** Dash pattern in viewBox units, e.g. "4 2". */
+  strokeDash?: string;
+  fillRule?: "nonzero" | "evenodd";
+}
+
+export function SvgPath(props: SvgPathProps) {
+  return createElement("vs-svgpath", props);
+}
+
 export interface TextInputProps extends Omit<CommonProps, "children" | "onChange" | "onSubmit"> {
   value?: string;
   defaultValue?: string;

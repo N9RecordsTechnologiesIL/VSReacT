@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.0.24 — 2026-07-19
+
+Vectors: real SVG paths, natively painted.
+
+### Native (`vsreact` module)
+
+- **`svg` / `svgpath` node types** — an `svg` node lays out like a view
+  and paints its `svgpath` children scaled from `viewBox` space onto
+  its frame. Path `d` data parses once per unique string (cached, like
+  the conic raster). Fill (SVG-default black, `"none"` to skip),
+  stroke with width in viewBox units (scales with the frame, SVG
+  semantics), butt/round/square caps, miter/round/bevel joins,
+  `strokeDash` patterns, and `evenodd` fill rule.
+
+### `@vsreact/core` 0.0.24
+
+- **`<Svg viewBox>` + `<SvgPath d fill stroke …/>`** — web icon sets
+  (lucide, heroicons) port by renaming attributes and pasting the
+  path data. 138 tests.
+
 ## 0.0.23 — 2026-07-19
 
 Input & media: pointer-events, image fitting/tinting, dashed borders,

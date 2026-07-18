@@ -526,6 +526,63 @@ public:
                             juce::Colour (0xff00ff00)));
         }
 
+        beginTest ("svg paths fill and stroke in viewBox space");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "svg"],
+                ["setProps", 1, {"viewBox": "0 0 10 10", "style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "svgpath"],
+                ["setProps", 2, {"d": "M5 0 L10 10 L0 10 Z", "fill": "#ff0000"}],
+                ["appendChild", 1, 2],
+                ["create", 3, "svgpath"],
+                ["setProps", 3, {"d": "M1 1 L9 1", "fill": "none", "stroke": "#00ff00", "strokeWidth": 1}],
+                ["appendChild", 1, 3]
+            ])");
+
+            const auto image = renderTree (tree, 100, 100);
+
+            // Triangle apex at top-centre: centre-bottom red, top corners not.
+            expect (approx (image.getPixelAt (50, 70), juce::Colour (0xffff0000)));
+            expect (! approx (image.getPixelAt (3, 3), juce::Colour (0xffff0000)));
+
+            // The stroked line: 1 viewBox unit ≈ 10px thick at y≈10.
+            expect (approx (image.getPixelAt (50, 10), juce::Colour (0xff00ff00)));
+            expect (approx (image.getPixelAt (50, 30), juce::Colour (0xffff0000), 40)
+                    || approx (image.getPixelAt (50, 30), juce::Colours::black, 40));
+        }
+
+        beginTest ("svg stroke dashes leave gaps");
+        {
+            const auto lineInk = [this] (const juce::String& extraProps)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "svg"],
+                    ["setProps", 1, {"viewBox": "0 0 100 10", "style": {"width": "100%", "height": "100%"}}],
+                    ["appendChild", 0, 1],
+                    ["create", 2, "svgpath"],
+                    ["setProps", 2, {"d": "M0 5 L100 5", "fill": "none", "stroke": "#00ff00", "strokeWidth": 4)") + extraProps + R"(}],
+                    ["appendChild", 1, 2]
+                ])");
+
+                const auto image = renderTree (tree, 100, 10);
+                int ink = 0;
+
+                for (int px = 0; px < 100; ++px)
+                    if (approx (image.getPixelAt (px, 5), juce::Colour (0xff00ff00)))
+                        ++ink;
+
+                return ink;
+            };
+
+            const auto solid = lineInk ("");
+            const auto dashed = lineInk (R"(, "strokeDash": "6 4")");
+            expect (solid > 95);
+            expect (dashed > 20 && dashed < solid - 15);
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

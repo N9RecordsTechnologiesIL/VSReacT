@@ -1,6 +1,8 @@
 #include "Painter.h"
 #include "HitTest.h"
 
+#include <juce_gui_basics/juce_gui_basics.h> // Drawable::parseSVGPath
+
 #include <map>
 
 namespace vsreact
@@ -178,8 +180,8 @@ void Painter::paint (juce::Graphics& g, const Node& root)
 
 void Painter::paintNode (juce::Graphics& g, const Node& node)
 {
-    if (node.type == "rawtext")
-        return;   // painted by its text parent
+    if (node.type == "rawtext" || node.type == "svgpath")
+        return;   // painted by their text / svg parent
 
     const auto style = node.effectiveStyle();
     const auto alpha = juce::jlimit (0.0f, 1.0f, style.opacity());
@@ -366,6 +368,8 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
         paintText (g, node, style);
     else if (node.type == "image")
         paintImage (g, node);
+    else if (node.type == "svg")
+        paintSvg (g, node);
 
     const bool scrollable = node.isScrollable();
 
@@ -534,6 +538,109 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
             g.fillRect (node.frame.getX() + line.lineOrigin.x,
                         y + line.lineOrigin.y - line.ascent * 0.3f,
                         lineWidth, juce::jmax (1.0f, font.getHeight() * 0.06f));
+        }
+    }
+}
+
+void Painter::paintSvg (juce::Graphics& g, const Node& node)
+{
+    const auto tokens = juce::StringArray::fromTokens (node.props["viewBox"].toString(), " ,", {});
+
+    if (tokens.size() != 4 || node.frame.isEmpty())
+        return;
+
+    const auto viewWidth = tokens[2].getFloatValue();
+    const auto viewHeight = tokens[3].getFloatValue();
+
+    if (viewWidth <= 0.0f || viewHeight <= 0.0f)
+        return;
+
+    const auto scaleX = node.frame.getWidth() / viewWidth;
+    const auto scaleY = node.frame.getHeight() / viewHeight;
+    const auto strokeScale = (scaleX + scaleY) * 0.5f;
+    const auto transform = juce::AffineTransform::translation (-tokens[0].getFloatValue(),
+                                                               -tokens[1].getFloatValue())
+                               .scaled (scaleX, scaleY)
+                               .translated (node.frame.getX(), node.frame.getY());
+
+    // Path data parses once per unique `d`, like the conic raster cache.
+    static std::map<juce::String, juce::Path> parsed;
+
+    for (const auto* child : node.children)
+    {
+        if (child->type != "svgpath")
+            continue;
+
+        const auto d = child->props["d"].toString();
+
+        if (d.isEmpty())
+            continue;
+
+        auto found = parsed.find (d);
+
+        if (found == parsed.end())
+        {
+            if (parsed.size() > 256)
+                parsed.clear();
+
+            found = parsed.emplace (d, juce::Drawable::parseSVGPath (d)).first;
+        }
+
+        auto path = found->second;
+
+        if (child->props["fillRule"].toString() == "evenodd")
+            path.setUsingNonZeroWinding (false);
+
+        path.applyTransform (transform);
+
+        // SVG defaults: fill black unless told otherwise; "none" skips.
+        const auto fillName = child->props["fill"].toString();
+
+        if (fillName != "none")
+        {
+            g.setColour (parseCssColor (fillName).value_or (juce::Colours::black));
+            g.fillPath (path);
+        }
+
+        if (const auto stroke = parseCssColor (child->props["stroke"].toString()))
+        {
+            const auto strokeWidth = child->props.hasProperty ("strokeWidth")
+                                   ? (float) (double) child->props["strokeWidth"]
+                                   : 1.0f;
+
+            const auto capName = child->props["strokeCap"].toString();
+            const auto joinName = child->props["strokeJoin"].toString();
+
+            const juce::PathStrokeType strokeType (
+                strokeWidth * strokeScale,
+                joinName == "round" ? juce::PathStrokeType::curved
+                : joinName == "bevel" ? juce::PathStrokeType::beveled
+                                      : juce::PathStrokeType::mitered,
+                capName == "round" ? juce::PathStrokeType::rounded
+                : capName == "square" ? juce::PathStrokeType::square
+                                      : juce::PathStrokeType::butt);
+
+            g.setColour (*stroke);
+
+            const auto dashTokens = juce::StringArray::fromTokens (
+                child->props["strokeDash"].toString(), " ,", {});
+
+            if (dashTokens.size() >= 2)
+            {
+                juce::Array<float> lengths;
+
+                for (const auto& token : dashTokens)
+                    lengths.add (juce::jmax (0.1f, token.getFloatValue() * strokeScale));
+
+                juce::Path dashed;
+                strokeType.createDashedStroke (dashed, path,
+                                               lengths.getRawDataPointer(), lengths.size());
+                g.fillPath (dashed);
+            }
+            else
+            {
+                g.strokePath (path, strokeType);
+            }
         }
     }
 }

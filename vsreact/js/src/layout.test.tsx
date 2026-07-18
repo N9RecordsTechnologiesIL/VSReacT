@@ -125,3 +125,26 @@ describe("useNativeValue", () => {
     expect(seen.at(-1)).toBe(0.8);
   });
 });
+
+describe("Svg primitives (0.0.24)", () => {
+  test("Svg + SvgPath create their node types with data props", async () => {
+    const { Svg, SvgPath } = require("./index");
+    render(
+      <Svg viewBox="0 0 24 24" style={{ width: 24, height: 24 }}>
+        <SvgPath d="M12 2 L22 22 L2 22 Z" fill="#ff0000" />
+        <SvgPath d="M2 12 H22" fill="none" stroke="#00ff00" strokeWidth={2} strokeDash="4 2" />
+      </Svg>,
+    );
+
+    const creates = allOps().filter((op: any) => op[0] === "create");
+    expect(creates.some((op: any) => op[2] === "svg")).toBe(true);
+    expect(creates.filter((op: any) => op[2] === "svgpath")).toHaveLength(2);
+
+    const propOps = allOps().filter((op: any) => op[0] === "setProps");
+    const svgProps: any = propOps.find((op: any) => op[2]?.viewBox);
+    expect(svgProps[2].viewBox).toBe("0 0 24 24");
+
+    const pathProps: any = propOps.find((op: any) => op[2]?.strokeDash);
+    expect(pathProps[2]).toMatchObject({ d: "M2 12 H22", fill: "none", stroke: "#00ff00", strokeWidth: 2 });
+  });
+});

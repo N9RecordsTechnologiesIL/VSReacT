@@ -27,6 +27,7 @@ private:
     static void paintNode (juce::Graphics& g, const Node& node);
     static void paintText (juce::Graphics& g, const Node& node, const Style& style);
     static void paintImage (juce::Graphics& g, const Node& node);
+    static void paintSvg (juce::Graphics& g, const Node& node);
 };
 
 } // namespace vsreact

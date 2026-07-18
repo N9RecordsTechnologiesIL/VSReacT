@@ -20,6 +20,8 @@ const hostTypes: Record<string, string> = {
   "vs-image": "image",
   "vs-textinput": "textinput",
   "vs-native": "native",
+  "vs-svg": "svg",
+  "vs-svgpath": "svgpath",
 };
 
 const eventPropNames: Record<string, string> = {

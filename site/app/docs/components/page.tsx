@@ -55,6 +55,21 @@ export default function Page() {
       </p>
       <Code title="TSX">{`<Image src={logoDataUri} className="w-24 h-24 rounded-full" />`}</Code>
 
+      <h2 id="svg">&lt;Svg&gt; + &lt;SvgPath&gt; (since 0.0.24)</h2>
+      <p>
+        Native vector paths. <code>&lt;Svg viewBox&gt;</code> lays out like a View and
+        scales its <code>&lt;SvgPath&gt;</code> children from viewBox space onto the frame;
+        each path takes SVG <code>d</code> data (parsed once, cached), <code>fill</code>{' '}
+        (SVG&apos;s default black, <code>&quot;none&quot;</code> to skip),{' '}
+        <code>stroke</code>/<code>strokeWidth</code> (viewBox units — scales like SVG),{' '}
+        <code>strokeCap/strokeJoin</code>, <code>strokeDash</code>, and{' '}
+        <code>fillRule</code>. Web icon sets port directly — rename the attributes and
+        paste the <code>d</code>:
+      </p>
+      <Code title="a lucide icon, verbatim">{`<Svg viewBox="0 0 24 24" className="w-6 h-6">
+  <SvgPath d="M12 2 L2 7 v10 l10 5 10-5 V7 Z" fill="none" stroke="#C6F135" strokeWidth={2} strokeJoin="round" />
+</Svg>`}</Code>
+
       <h2 id="textinput">&lt;TextInput&gt;</h2>
       <p>
         A real, chrome-stripped <code>juce::TextEditor</code> positioned by Yoga — real

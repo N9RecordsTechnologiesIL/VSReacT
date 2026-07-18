@@ -262,3 +262,17 @@ describe("input & media classes (0.0.23)", () => {
     expect(tw("cursor-grab").style).toEqual({ cursor: "grab" });
   });
 });
+
+describe("layout & robustness classes (0.0.25)", () => {
+  test("hidden vs invisible", () => {
+    expect(tw("hidden").style).toEqual({ display: "none" });
+    expect(tw("invisible").style).toEqual({ visibility: "hidden" });
+    expect(tw("visible").style).toEqual({ visibility: "visible" });
+  });
+
+  test("percent translate and transform origin", () => {
+    expect(tw("translate-x-1/2").style).toEqual({ translateX: "50%" });
+    expect(tw("-translate-y-1/2").style).toEqual({ translateY: "-50%" });
+    expect(tw("origin-top-left").style).toEqual({ transformOriginX: 0, transformOriginY: 0 });
+  });
+});

@@ -49,6 +49,17 @@ export default function Page() {
         window. And hot reload keeps the iteration loop around 100ms.
       </p>
 
+      <h2 id="gaps">What can the web do that VSReacT can&apos;t (yet)?</h2>
+      <p>
+        The honest list, as of 0.0.25: no WebP decoding (PNG/JPEG/GIF/BMP only), no
+        blur/backdrop filters, no text selection outside <code>&lt;TextInput&gt;</code>,
+        no CSS animations/transitions (use <code>useTween</code>/<code>useSpring</code>),
+        and scroll containers are vertical-only. Everything else you&apos;d reach for —
+        gradients (incl. conic and repeating), all three shadow kinds, transforms with
+        correct hit-testing, clip polygons, zIndex, keyboard focus and Tab order,
+        pointer-events, SVG paths, ellipsis/line-clamp — is in.
+      </p>
+
       <h2 id="licensing">What licenses am I agreeing to?</h2>
       <p>
         VSReacT itself is MIT. Vendored engines keep their permissive licenses (QuickJS-ng:

@@ -100,6 +100,15 @@ void RootView::initialiseRuntime()
     runtime = std::make_unique<JsRuntime> (std::move (callbacks));
     bundleLoaded = runtime->evaluate (source, sourceName);
     relayout();
+    sendResizeEvent(); // seed useRootSize with the mount-time size
+}
+
+void RootView::sendResizeEvent()
+{
+    auto* payload = new juce::DynamicObject();
+    payload->setProperty ("width", getWidth());
+    payload->setProperty ("height", getHeight());
+    sendNativeEvent ("resize", juce::var (payload));
 }
 
 void RootView::teardownRuntime()
@@ -328,6 +337,9 @@ void RootView::resized()
 {
     errorOverlay.setBounds (getLocalBounds());
     relayout();
+
+    if (runtime != nullptr)
+        sendResizeEvent();
 }
 
 //==============================================================================

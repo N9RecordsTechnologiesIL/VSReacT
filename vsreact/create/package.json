@@ -1,6 +1,6 @@
 {
   "name": "create-vsreact",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Scaffold a native JUCE VST whose UI is React — `npm create vsreact` / `bun create vsreact`.",
   "keywords": [
     "create",

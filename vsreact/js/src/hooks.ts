@@ -42,6 +42,30 @@ export function useNativeValue<T = any>(name: string, initial: T): T {
   return value;
 }
 
+export interface RootSize {
+  width: number;
+  height: number;
+}
+
+/**
+ * The editor's current size. The native side sends a "resize" event at
+ * mount (so this resolves on the first committed frame) and on every
+ * host resize — the foundation for resizable editors.
+ */
+export function useRootSize(): RootSize {
+  const [size, setSize] = useState<RootSize>({ width: 0, height: 0 });
+
+  useNativeEvent("resize", (payload) => {
+    const width = Number(payload?.width);
+    const height = Number(payload?.height);
+
+    if (Number.isFinite(width) && Number.isFinite(height))
+      setSize((s) => (s.width === width && s.height === height ? s : { width, height }));
+  });
+
+  return size;
+}
+
 /**
  * The value, but only after it has stopped changing for `delayMs` —
  * classic input debouncing for expensive native calls:

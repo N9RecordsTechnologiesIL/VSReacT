@@ -583,6 +583,78 @@ public:
             expect (dashed > 20 && dashed < solid - 15);
         }
 
+        beginTest ("display none removes from layout; visibility hidden keeps it");
+        {
+            const auto renderStack = [] (const juce::String& firstExtra)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                    ["appendChild", 0, 1],
+                    ["create", 2, "view"],
+                    ["setProps", 2, {"style": {"height": 50, "backgroundColor": "#ff0000")") + firstExtra + R"(}}],
+                    ["appendChild", 1, 2],
+                    ["create", 3, "view"],
+                    ["setProps", 3, {"style": {"height": 50, "backgroundColor": "#0000ff"}}],
+                    ["appendChild", 1, 3]
+                ])");
+                return renderTree (tree, 100, 100);
+            };
+
+            // display none: the blue sibling reflows to the top.
+            const auto gone = renderStack (R"(, "display": "none")");
+            expect (approx (gone.getPixelAt (50, 25), juce::Colour (0xff0000ff)));
+
+            // visibility hidden: the red slot stays reserved but unpainted.
+            const auto ghost = renderStack (R"(, "visibility": "hidden")");
+            expect (approx (ghost.getPixelAt (50, 25), juce::Colours::black));
+            expect (approx (ghost.getPixelAt (50, 75), juce::Colour (0xff0000ff)));
+        }
+
+        beginTest ("percent translate is relative to the node's own size");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0,
+                    "width": 50, "height": 50, "backgroundColor": "#ff0000", "translateX": "50%"}}],
+                ["appendChild", 1, 2]
+            ])");
+
+            // 50% of its own 50px width = shifted 25px right.
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (10, 25), juce::Colours::black));
+            expect (approx (image.getPixelAt (60, 25), juce::Colour (0xffff0000)));
+        }
+
+        beginTest ("transformOrigin moves the scaling centre");
+        {
+            const auto renderScaled = [] (const juce::String& extra)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                    ["appendChild", 0, 1],
+                    ["create", 2, "view"],
+                    ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0,
+                        "width": 40, "height": 40, "backgroundColor": "#ff0000", "scale": 2)") + extra + R"(}}],
+                    ["appendChild", 1, 2]
+                ])");
+                return renderTree (tree, 100, 100);
+            };
+
+            // Top-left origin doubles to 0..80; centre origin covers -20..60.
+            expect (approx (renderScaled (R"(, "transformOriginX": 0, "transformOriginY": 0)")
+                                .getPixelAt (70, 10),
+                            juce::Colour (0xffff0000)));
+            expect (approx (renderScaled ("").getPixelAt (70, 10), juce::Colours::black));
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

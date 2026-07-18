@@ -148,3 +148,22 @@ describe("Svg primitives (0.0.24)", () => {
     expect(pathProps[2]).toMatchObject({ d: "M2 12 H22", fill: "none", stroke: "#00ff00", strokeWidth: 2 });
   });
 });
+
+describe("useRootSize (0.0.25)", () => {
+  test("tracks resize events, ignores junk", async () => {
+    const { useRootSize } = require("./index");
+    let seen: any = null;
+    function Probe() {
+      seen = useRootSize();
+      return <View />;
+    }
+    render(<Probe />);
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(seen).toEqual({ width: 0, height: 0 });
+    dispatch({ kind: "native", name: "resize", payload: { width: 793, height: 496 } });
+    expect(seen).toEqual({ width: 793, height: 496 });
+    dispatch({ kind: "native", name: "resize", payload: { width: "nope" } });
+    expect(seen).toEqual({ width: 793, height: 496 });
+  });
+});

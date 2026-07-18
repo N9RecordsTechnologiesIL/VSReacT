@@ -189,6 +189,10 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
     if (alpha <= 0.0f || node.frame.isEmpty())
         return;
 
+    // CSS visibility: hidden — keeps layout, paints nothing (subtree too).
+    if (style.getString ("visibility") == "hidden")
+        return;
+
     juce::Graphics::ScopedSaveState save (g);
 
     const bool needsLayer = alpha < 1.0f;

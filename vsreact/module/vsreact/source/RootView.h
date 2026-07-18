@@ -69,6 +69,7 @@ public:
 
 private:
     void focusNode (int nodeId);
+    void sendResizeEvent();
     void initialiseRuntime();
     void teardownRuntime();
     void handleFlush (const juce::String& opsJson);

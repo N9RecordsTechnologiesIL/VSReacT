@@ -62,6 +62,11 @@ const overlay = useOverlay();               // a slot in the top-most layer`}</C
           <code>useLayoutRect()</code> / <code>useOverlay()</code> — the popover building
           blocks; see <Link href="/docs/events">Events &amp; gestures</Link>.
         </li>
+        <li>
+          <code>useRootSize()</code> (since 0.0.25) — the editor&apos;s current
+          width/height as state, seeded at mount and updated on host resize: the
+          foundation for resizable editors.
+        </li>
       </ul>
 
       <h2 id="audio">Audio data</h2>

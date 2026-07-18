@@ -163,8 +163,28 @@ bool Style::hasTransform() const
 
 juce::AffineTransform Style::transformFor (juce::Rectangle<float> frame) const
 {
-    const auto centre = frame.getCentre();
-    auto transform = juce::AffineTransform::translation (-centre.x, -centre.y);
+    // Numbers are px; "NN%" strings are relative to the frame's own size
+    // (translate-x-1/2 = the web's self-centering trick).
+    const auto resolve = [this] (const juce::Identifier& key, float relativeTo)
+    {
+        if (const auto* value = values.getVarPointer (key))
+        {
+            if (value->isString() && value->toString().endsWithChar ('%'))
+                return relativeTo * value->toString().dropLastCharacters (1).getFloatValue() / 100.0f;
+
+            if (value->isDouble() || value->isInt() || value->isInt64())
+                return static_cast<float> (static_cast<double> (*value));
+        }
+
+        return 0.0f;
+    };
+
+    // CSS transform-origin, percent of the frame (default 50% 50%).
+    const juce::Point<float> origin (
+        frame.getX() + frame.getWidth() * getFloat ("transformOriginX", 50.0f) / 100.0f,
+        frame.getY() + frame.getHeight() * getFloat ("transformOriginY", 50.0f) / 100.0f);
+
+    auto transform = juce::AffineTransform::translation (-origin.x, -origin.y);
 
     const auto scale = getFloat ("scale", 1.0f);
 
@@ -176,8 +196,8 @@ juce::AffineTransform Style::transformFor (juce::Rectangle<float> frame) const
     if (rotate != 0.0f)
         transform = transform.rotated (juce::degreesToRadians (rotate));
 
-    transform = transform.translated (centre.x + getFloat ("translateX", 0.0f),
-                                      centre.y + getFloat ("translateY", 0.0f));
+    transform = transform.translated (origin.x + resolve ("translateX", frame.getWidth()),
+                                      origin.y + resolve ("translateY", frame.getHeight()));
     return transform;
 }
 
@@ -350,6 +370,7 @@ namespace
         YGNodeStyleSetGap (n, YGGutterAll, YGUndefined);
         YGNodeStyleSetGap (n, YGGutterRow, YGUndefined);
         YGNodeStyleSetGap (n, YGGutterColumn, YGUndefined);
+        YGNodeStyleSetDisplay (n, YGDisplayFlex);
 
         for (const auto edge : { YGEdgeLeft, YGEdgeTop, YGEdgeRight, YGEdgeBottom, YGEdgeAll })
         {
@@ -425,6 +446,9 @@ void Style::applyLayout (YGNodeRef node) const
             YGNodeStyleSetOverflow (node, v.toString() == "hidden" ? YGOverflowHidden
                                     : v.toString() == "scroll"     ? YGOverflowScroll
                                                                    : YGOverflowVisible);
+        else if (name == "display")
+            YGNodeStyleSetDisplay (node, v.toString() == "none" ? YGDisplayNone
+                                                                : YGDisplayFlex);
         else if (name == "gap" && isNumber (v))
             YGNodeStyleSetGap (node, YGGutterAll, toFloat (v));
         else if (name == "rowGap" && isNumber (v))

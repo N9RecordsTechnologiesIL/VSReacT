@@ -65,8 +65,9 @@ namespace
         const auto style = node.effectiveStyle();
 
         // CSS pointer-events: none — the node AND its children are
-        // transparent to input.
-        if (style.getString ("pointerEvents") == "none")
+        // transparent to input. Invisible nodes don't take input either.
+        if (style.getString ("pointerEvents") == "none"
+            || style.getString ("visibility") == "hidden")
             return nullptr;
 
         if (style.hasTransform())

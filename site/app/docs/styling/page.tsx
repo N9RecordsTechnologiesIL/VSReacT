@@ -86,9 +86,10 @@ export default function Page() {
             <td>
               <code>rotate-45</code> <code>-rotate-90</code> <code>rotate-[10.5]</code>{' '}
               <code>scale-95</code> <code>scale-[1.25]</code>{' '}
-              <code>translate-x-4</code> <code>-translate-y-2</code> — layout is
-              untransformed, but painting <em>and hit-testing</em> follow the transform
-              (since 0.0.20)
+              <code>translate-x-4</code> <code>-translate-y-2</code>, percent of own size{' '}
+              <code>translate-x-1/2</code>, origin <code>origin-top-left</code> etc.
+              (since 0.0.25) — layout is untransformed, but painting <em>and
+              hit-testing</em> follow the transform (since 0.0.20)
             </td>
           </tr>
           <tr>
@@ -96,6 +97,14 @@ export default function Page() {
             <td>
               <code>z-10</code> <code>z-[3]</code> <code>-z-1</code> — reorders both
               painting and hit-testing among siblings (tree order breaks ties)
+            </td>
+          </tr>
+          <tr>
+            <td>Visibility</td>
+            <td>
+              <code>hidden</code> (display: none — leaves layout entirely) vs{' '}
+              <code>invisible</code>/<code>visible</code> (keeps its space, paints
+              nothing, takes no input)
             </td>
           </tr>
           <tr>

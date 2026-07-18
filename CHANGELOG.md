@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.0.25 — 2026-07-19
+
+Layout & robustness: the display/visibility split, self-relative
+transforms, and resizable-editor plumbing.
+
+### Native (`vsreact` module)
+
+- **`display: "none"`** — removes the node from layout entirely (the
+  Tailwind `hidden` class now means what it means on the web) vs
+  **`visibility: "hidden"`** — keeps the space, paints nothing, takes
+  no input (`invisible`/`visible`).
+- **Percent translates** — `translateX/Y: "50%"` are relative to the
+  node's own size (`translate-x-1/2`, the web's self-centering trick).
+- **`transformOriginX/Y`** (percent of the frame, default 50/50) —
+  `origin-top-left` and friends.
+- **`resize` native event** — sent at mount and on every host resize.
+
+### `@vsreact/core` 0.0.25
+
+- **`useRootSize()`** — the editor's size as state; the foundation for
+  resizable editors.
+- Classes: `hidden`, `invisible`, `visible`, `origin-*`; percent
+  translates flow through the existing `translate-x-1/2` fractions.
+  141 tests.
+- Docs: the FAQ now carries the honest "what the web can do that
+  VSReacT can't yet" list (WebP, blur/backdrop filters, text
+  selection, CSS animations, horizontal scroll).
+
 ## 0.0.24 — 2026-07-19
 
 Vectors: real SVG paths, natively painted.

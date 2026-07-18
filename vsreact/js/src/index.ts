@@ -4,7 +4,7 @@ import "./runtime";
 import "./bridge";
 
 /** The SDK version — stamp it on support dumps and analytics. */
-export const VERSION = "0.0.24";
+export const VERSION = "0.0.25";
 
 export { View, Text, Image, TextInput, NativeView, Svg, SvgPath } from "./primitives";
 export type {
@@ -21,6 +21,7 @@ export { native } from "./native";
 export {
   useNativeEvent,
   useNativeValue,
+  useRootSize,
   useDebounced,
   useThrottled,
   usePrevious,
@@ -29,6 +30,7 @@ export {
   useHover,
   useLayoutRect,
 } from "./hooks";
+export type { RootSize } from "./hooks";
 export { useOverlay, OverlayLayer } from "./overlay";
 export { Tooltip, Modal } from "./popover";
 export type { TooltipProps, ModalProps } from "./popover";

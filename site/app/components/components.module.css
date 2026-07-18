@@ -8992,3 +8992,1954 @@
   background: rgba(255, 140, 59, 0.8);
   box-shadow: 0 0 3px rgba(255, 140, 59, 0.25);
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TWO NEW WORLDS
+   STEEL — real metal, from the reference photos: bright brushed-steel
+   faceplates, spun stainless knobs, knurled rims, ribbed console fader
+   caps with one white index line, engraved black text, a red LED.
+   BLUEPRINT — a cyanotype technical drawing: white hairlines and dashed
+   construction geometry on drafting-grid blue, hatched fills, mono
+   dimension callouts.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── STEEL tile: vertical-brushed bright steel ─────────────────────── */
+.t_steel {
+  --acc: #c81e14;
+  --accText: #fff;
+  --hot: #e5301c;
+  --trk: #9ba0a8;
+  --box: #d3d6da;
+  --tx: #17181b;
+  --sub: #4c4f55;
+  --lineEdge: #8d9299;
+  --glow: rgba(200, 30, 20, 0.35);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='420'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.004' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='90' height='420' filter='url(%23b)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent 18%, rgba(0, 0, 0, 0.06) 38%, rgba(255, 255, 255, 0.35) 52%, rgba(0, 0, 0, 0.08) 72%, rgba(255, 255, 255, 0.3) 92%),
+    linear-gradient(180deg, #d8dbdf, #c3c7cc 55%, #cdd0d5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    inset 0 0 34px rgba(0, 0, 0, 0.07);
+}
+
+.t_steel .tileLabel {
+  color: #3d4046;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* faceplate screws in the tile corners */
+.t_steel .tilePreview {
+  position: relative;
+}
+
+.t_steel .tilePreview::before,
+.t_steel .tilePreview::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background:
+    linear-gradient(135deg, transparent 42%, #494d53 42% 58%, transparent 58%),
+    radial-gradient(circle at 38% 30%, #f0f1f3, #a7abb1 55%, #7e838a);
+  border: 1px solid #6a6e75;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.t_steel .tilePreview::before {
+  left: 8px;
+  bottom: 8px;
+}
+
+.t_steel .tilePreview::after {
+  right: 8px;
+  bottom: 8px;
+}
+
+/* ── BLUEPRINT tile: drafting grid on cyanotype blue ───────────────── */
+.t_bp {
+  --acc: #eaf3ff;
+  --accText: #123a7d;
+  --hot: #8fd8ff;
+  --trk: rgba(234, 243, 255, 0.28);
+  --box: #12377a;
+  --tx: #eaf3ff;
+  --sub: #93b2e4;
+  --lineEdge: #2c58aa;
+  --glow: rgba(160, 215, 255, 0.45);
+  background:
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.075) 0 1px, transparent 1px 36px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.075) 0 1px, transparent 1px 36px),
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.035) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.035) 0 1px, transparent 1px 9px),
+    radial-gradient(120% 100% at 50% 0%, #16408c, #0f3170 60%, #0c2a62);
+}
+
+.t_bp .tileLabel {
+  color: #a9c4ef;
+}
+
+/* sheet frame + corner register ticks drawn inside the preview area */
+.t_bp .tilePreview {
+  position: relative;
+}
+
+.t_bp .tilePreview::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(234, 243, 255, 0.22);
+  pointer-events: none;
+}
+
+.t_bp .tilePreview::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 0 0 / 14px 1px no-repeat,
+    linear-gradient(180deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 0 0 / 1px 14px no-repeat,
+    linear-gradient(270deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 100% 0 / 14px 1px no-repeat,
+    linear-gradient(180deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 100% 0 / 1px 14px no-repeat,
+    linear-gradient(90deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 0 100% / 14px 1px no-repeat,
+    linear-gradient(0deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 0 100% / 1px 14px no-repeat,
+    linear-gradient(270deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 100% 100% / 14px 1px no-repeat,
+    linear-gradient(0deg, rgba(234, 243, 255, 0.55) 0 7px, transparent 7px) 100% 100% / 1px 14px no-repeat;
+}
+
+/* ── STEEL heroes: spun knob, knurled HW knob, console fader, bat toggle ── */
+
+.knobSteel {
+  position: relative;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.knobSteel svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.knobSteel svg line {
+  stroke: #3b3e44;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* the spun face: grain + top light + 15-stop turned conic */
+.knobSteel i {
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.55), transparent 42%),
+    conic-gradient(from 118deg, #6e737b, #cfd3d9 5%, #7c8189 11%, #e9ebef 18%, #767b83 26%, #c3c7cd 33%, #676c74 41%, #dfe2e6 49%, #71767e 57%, #cdd1d7 64%, #7a7f87 71%, #eef0f3 79%, #6b7078 86%, #d5d8dd 93%, #6e737b);
+  border: 1px solid #74787f;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25),
+    0 2px 3px rgba(20, 22, 26, 0.35),
+    0 8px 14px rgba(20, 22, 26, 0.28);
+}
+
+.knobSteel u {
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* machined hairline pointer */
+.knobSteel u::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7%;
+  width: 2.5px;
+  height: 22%;
+  margin-left: -1.25px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #17181b, #3a3d43);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* HW knob — knurled rim, polished ring, dark spun face, indicator window */
+.hw_steel svg {
+  display: none;
+}
+
+.hw_steel s {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#0d0e10 0deg 4.5deg, #4a4e55 4.5deg 9deg);
+  border: 1px solid #17181b;
+  box-shadow:
+    0 3px 5px rgba(15, 17, 20, 0.5),
+    0 10px 18px rgba(15, 17, 20, 0.35);
+}
+
+.hw_steel s::after {
+  content: '';
+  position: absolute;
+  inset: 7%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.6), transparent 45%),
+    conic-gradient(from 130deg, #787d85, #d9dce1 6%, #83888f 13%, #eff1f4 21%, #7d828a 30%, #ccd0d5 38%, #6f747c 47%, #e6e8ec 56%, #7a7f87 64%, #d2d5da 72%, #82878e 80%, #f2f3f6 89%, #787d85);
+  border: 1px solid #5c6067;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.hw_steel i {
+  inset: 15%;
+  z-index: 1;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.14), transparent 48%),
+    conic-gradient(from 200deg, #34373d, #17191d 12%, #3c4046 24%, #191b1f 37%, #33363c 49%, #16181c 62%, #383c42 74%, #1a1c20 87%, #34373d);
+  border: 1px solid #0b0c0e;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.hw_steel u {
+  z-index: 2;
+}
+
+.hw_steel u::after {
+  top: 20%;
+  width: 13px;
+  height: 6px;
+  margin-left: -6.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #f4f5f7, #c9ccd1);
+  border: 1px solid #08090b;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+/* console fader/slider — slot + printed ticks + ribbed cap, no fill */
+.fadeSteel {
+  position: relative;
+  height: 46px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.fadeSteel::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #060708, #17191c);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.fadeSteel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(23, 24, 27, 0.5) 0 1.2px, transparent 1.2px 10.5px) 0 0 / 100% 6px no-repeat,
+    repeating-linear-gradient(90deg, rgba(23, 24, 27, 0.5) 0 1.2px, transparent 1.2px 10.5px) 0 100% / 100% 6px no-repeat;
+  pointer-events: none;
+}
+
+.fadeSteel b {
+  position: absolute;
+  top: 50%;
+  width: 38px;
+  height: 30px;
+  margin-top: -15px;
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 45%),
+    repeating-linear-gradient(90deg, #45484e 0 3.5px, #26282c 3.5px 7px);
+  border: 1px solid #0b0c0e;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 3px 5px rgba(10, 12, 15, 0.55),
+    0 8px 12px rgba(10, 12, 15, 0.3);
+}
+
+.fadeSteel b i {
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  bottom: 3px;
+  width: 5px;
+  margin-left: -2.5px;
+  border-radius: 1.5px;
+  background: linear-gradient(180deg, #ffffff, #d4d7db);
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* vertical variant — re-derive every box the horizontal rules set */
+.fadeSteelV {
+  width: 46px;
+  height: auto;
+  cursor: ns-resize;
+}
+
+.fadeSteelV::before {
+  left: 50%;
+  right: auto;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  height: auto;
+  margin: 0 0 0 -2px;
+  background: linear-gradient(90deg, #060708, #17191c);
+  box-shadow:
+    inset 1px 0 2px rgba(0, 0, 0, 0.95),
+    1px 0 0 rgba(255, 255, 255, 0.4);
+}
+
+.fadeSteelV::after {
+  background:
+    repeating-linear-gradient(0deg, rgba(23, 24, 27, 0.5) 0 1.2px, transparent 1.2px 10.5px) 0 0 / 6px 100% no-repeat,
+    repeating-linear-gradient(0deg, rgba(23, 24, 27, 0.5) 0 1.2px, transparent 1.2px 10.5px) 100% 0 / 6px 100% no-repeat;
+}
+
+.fadeSteelV b {
+  top: auto;
+  left: 50%;
+  width: 30px;
+  height: 38px;
+  margin: 0 0 0 -15px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 45%),
+    repeating-linear-gradient(0deg, #45484e 0 3.5px, #26282c 3.5px 7px);
+}
+
+.fadeSteelV b i {
+  left: 3px;
+  right: 3px;
+  top: 50%;
+  bottom: auto;
+  width: auto;
+  height: 5px;
+  margin: -2.5px 0 0;
+  background: linear-gradient(90deg, #ffffff, #d4d7db);
+}
+
+/* crossfader — recessed strip look on the plate */
+.xfSteel {
+  border: none;
+  background: transparent;
+}
+
+.xfSteel u {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #060708, #17191c);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.xfSteel u::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9px;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, rgba(23, 24, 27, 0.5) 0 1.2px, transparent 1.2px 8.8px);
+}
+
+.xfSteel b {
+  width: 30px;
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 45%),
+    repeating-linear-gradient(90deg, #45484e 0 3.5px, #26282c 3.5px 7px);
+  border: 1px solid #0b0c0e;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 3px 5px rgba(10, 12, 15, 0.5);
+}
+
+.xfSteel b i {
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  bottom: 3px;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 1.5px;
+  background: linear-gradient(180deg, #ffffff, #d4d7db);
+}
+
+/* bat toggle — polished collar, steel lever that throws */
+.steelTogWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.steelTogWrap em {
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: #7c8087;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.steelTogWrap em.steelTogSide {
+  color: #17181b;
+  font-weight: 700;
+}
+
+.steelTog {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.steelTog s {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #2c2f34, #0d0e11 72%);
+  box-shadow:
+    0 0 0 4px #cdd0d5,
+    0 0 0 5px #82868d,
+    inset 0 2px 4px rgba(0, 0, 0, 0.9),
+    0 2px 3px rgba(15, 17, 20, 0.4);
+}
+
+.steelTog i {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 11px;
+  height: 27px;
+  margin-left: -5.5px;
+  border-radius: 6px 6px 3px 3px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(90deg, #8f949b, #eef0f3 45%, #7e838a);
+  border: 1px solid #4c5057;
+  box-shadow: 0 2px 4px rgba(10, 12, 15, 0.55);
+  transition: transform 0.12s ease;
+}
+
+.steelTog i::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 15px;
+  height: 15px;
+  margin-left: -7.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 28%, #f6f7f9, #b6bac0 62%, #8b9097);
+  border: 1px solid #4c5057;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(10, 12, 15, 0.5);
+}
+
+/* ── BLUEPRINT heroes: drafted dial, schematic switch, dimension lines ── */
+
+.knobBp {
+  position: relative;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.knobBp svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bpDash {
+  fill: none;
+  stroke: rgba(234, 243, 255, 0.5);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.bpSolid {
+  fill: none;
+  stroke: rgba(234, 243, 255, 0.85);
+  stroke-width: 1.4;
+}
+
+.bpArc {
+  fill: none;
+  stroke: #8fd8ff;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 3px rgba(143, 216, 255, 0.45));
+}
+
+/* center point */
+.knobBp::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #eaf3ff;
+}
+
+/* radius pointer from hub to the inner circle */
+.knobBp u {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.knobBp u::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 1.5px;
+  height: 32%;
+  margin-left: -0.75px;
+  background: #eaf3ff;
+}
+
+.knobBp b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 57%;
+  text-align: center;
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #8fd8ff;
+  pointer-events: none;
+}
+
+/* HW knob drafted: keep the tick arc, outline the body, radius pointer */
+.hw_bp .hwTicks {
+  stroke: rgba(234, 243, 255, 0.35);
+  stroke-width: 1.5;
+}
+
+.hw_bp i {
+  background: transparent;
+  border: 1.5px solid rgba(234, 243, 255, 0.85);
+  box-shadow: none;
+}
+
+.hw_bp i::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(234, 243, 255, 0.35);
+  border-radius: 50%;
+}
+
+.hw_bp::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: #eaf3ff;
+  z-index: 1;
+}
+
+.hw_bp u::after {
+  top: 17%;
+  width: 1.5px;
+  height: 34%;
+  margin-left: -0.75px;
+  border-radius: 0;
+  background: #8fd8ff;
+  box-shadow: none;
+}
+
+/* slider/fader as a dimension line */
+.fadeBp {
+  position: relative;
+  height: 42px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.fadeBp::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed rgba(234, 243, 255, 0.45);
+}
+
+.fadeBp u {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: #8fd8ff;
+  box-shadow: 0 0 4px rgba(143, 216, 255, 0.4);
+  pointer-events: none;
+}
+
+/* start-station tick */
+.fadeBp u::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -5px;
+  width: 1.5px;
+  height: 12px;
+  background: rgba(234, 243, 255, 0.8);
+}
+
+.fadeBp b {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  background: rgba(12, 42, 98, 0.65);
+}
+
+.fadeBp b::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: #8fd8ff;
+}
+
+.fadeBp em {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -3px;
+  text-align: center;
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #bcd9ff;
+  pointer-events: none;
+}
+
+/* vertical variant — re-derive the axis */
+.fadeBpV {
+  width: 42px;
+  height: auto;
+  cursor: ns-resize;
+}
+
+.fadeBpV::before {
+  left: 50%;
+  right: auto;
+  top: 0;
+  bottom: 0;
+  border-top: none;
+  border-left: 1px dashed rgba(234, 243, 255, 0.45);
+}
+
+.fadeBpV u {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 0;
+  width: 2px;
+  height: auto;
+  margin: 0 0 0 -1px;
+}
+
+.fadeBpV u::before {
+  left: -5px;
+  top: auto;
+  bottom: 0;
+  width: 12px;
+  height: 1.5px;
+}
+
+.fadeBpV b {
+  top: auto;
+  left: 50%;
+  margin: 0 0 0 -7px;
+}
+
+.fadeBpV em {
+  left: auto;
+  right: -8px;
+  top: 50%;
+  margin-top: -6px;
+  text-align: left;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.18em;
+}
+
+/* crossfader as a measured span */
+.xfBp {
+  border: 1px solid rgba(234, 243, 255, 0.3);
+  border-radius: 2px;
+  background: transparent;
+}
+
+.xfBp span {
+  color: #bcd9ff;
+}
+
+.xfBp u {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 50%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: rgba(234, 243, 255, 0.75);
+  pointer-events: none;
+}
+
+.xfBp u::before,
+.xfBp u::after {
+  content: '';
+  position: absolute;
+  top: -3.25px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.xfBp u::before {
+  left: -1px;
+  border-right: 7px solid rgba(234, 243, 255, 0.9);
+}
+
+.xfBp u::after {
+  right: -1px;
+  border-left: 7px solid rgba(234, 243, 255, 0.9);
+}
+
+.xfBp b {
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  background: rgba(12, 42, 98, 0.85);
+  box-shadow: none;
+}
+
+.xfBp b::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  bottom: 4px;
+  width: 1.5px;
+  margin-left: -0.75px;
+  background: #8fd8ff;
+}
+
+/* schematic SPST switch */
+.bpSwitch {
+  position: relative;
+  width: 128px;
+  height: 54px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bpSwitch::before,
+.bpSwitch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: rgba(234, 243, 255, 0.7);
+}
+
+.bpSwitch::before {
+  left: 0;
+}
+
+.bpSwitch::after {
+  right: 0;
+}
+
+.bpSwitch s,
+.bpSwitch u {
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin-top: -5.5px;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.bpSwitch s {
+  left: 20px;
+}
+
+.bpSwitch u {
+  right: 20px;
+}
+
+.bpSwitch i {
+  position: absolute;
+  left: 33px;
+  top: 50%;
+  width: 62px;
+  height: 2px;
+  margin-top: -1px;
+  background: #eaf3ff;
+  transform-origin: 0 50%;
+  transition: transform 0.14s ease;
+  box-shadow: 0 0 4px rgba(143, 216, 255, 0.35);
+}
+
+.bpSwitch span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  text-align: center;
+  font-family: var(--font-jb), monospace;
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  color: #8fd8ff;
+}
+
+.bpSwitch[aria-pressed='true'] i {
+  box-shadow: 0 0 7px rgba(143, 216, 255, 0.7);
+  background: #baE4ff;
+}
+
+/* ── STEEL components: LEDs, switches, fields, meters, module ─────────── */
+
+/* checkbox rows: engraved label + drilled pilot LED */
+.steelLedRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #2c2f34;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.steelLedRow i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #4a1310, #260806 65%);
+  border: 1px solid #6d7178;
+  box-shadow:
+    0 0 0 2.5px #c9ccd1,
+    0 0 0 3.5px #82868d,
+    inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.steelLedRow i.steelLedOn {
+  background: radial-gradient(circle at 40% 30%, #ff8a7a, #e5301c 55%, #a51408);
+  box-shadow:
+    0 0 0 2.5px #c9ccd1,
+    0 0 0 3.5px #82868d,
+    0 0 10px rgba(229, 48, 28, 0.7),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* radio: 3-position slide switch */
+.slide3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slide3 s {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 74px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #060708, #17191c);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.slide3 s i {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: 24px;
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 45%),
+    repeating-linear-gradient(0deg, #45484e 0 2.5px, #26282c 2.5px 5px);
+  border: 1px solid #0b0c0e;
+  box-shadow: 0 2px 3px rgba(10, 12, 15, 0.6);
+  transition: top 0.12s ease;
+}
+
+.slide3 span {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.slide3 em {
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: #7c8087;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.slide3 em.slide3On {
+  color: #17181b;
+  font-weight: 700;
+}
+
+/* buttons: machined caps that depress */
+.steelBtn {
+  padding: 9px 18px;
+  border-radius: 7px;
+  border: 1px solid #5f636a;
+  background:
+    linear-gradient(180deg, #f1f2f4, #c6c9ce 55%, #d6d9dd);
+  color: #24262b;
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.18),
+    0 2px 3px rgba(15, 17, 20, 0.35),
+    0 5px 8px rgba(15, 17, 20, 0.22);
+}
+
+.steelBtn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.35),
+    0 1px 1px rgba(15, 17, 20, 0.3);
+}
+
+.steelBtnDark {
+  background: linear-gradient(180deg, #45484e, #24262b 55%, #33363c);
+  border-color: #0b0c0e;
+  color: #e6e8ec;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.4),
+    0 2px 3px rgba(15, 17, 20, 0.4),
+    0 5px 8px rgba(15, 17, 20, 0.25);
+}
+
+/* number box + input: smoked readout window in the plate */
+.numSteel,
+.in_steel {
+  background: linear-gradient(180deg, #0b0c0e, #17191d);
+  border: 1px solid #5f636a;
+  border-radius: 7px;
+  color: #f2f3f5;
+  caret-color: #e5301c;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.in_steel::placeholder {
+  color: #6b7078;
+}
+
+/* xy pad: smoked scope window recessed into the plate */
+.xySteel {
+  border: 1px solid #5f636a;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 22px),
+    linear-gradient(180deg, #0b0c0e, #17191d);
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.xySteel i,
+.xySteel u {
+  position: absolute;
+  background: rgba(226, 229, 233, 0.55);
+  pointer-events: none;
+}
+
+.xySteel i {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.xySteel u {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.xySteel b {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #f6f7f9, #b6bac0 62%, #8b9097);
+  border: 1px solid #3c4046;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* meter: LED bridge in a smoked recessed window */
+.ledBridge {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  width: 26px;
+  height: 132px;
+  padding: 5px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #0b0c0e, #15171b);
+  border: 1px solid #5f636a;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.ledBridge i {
+  flex: 1;
+  border-radius: 2px;
+  background: #202227;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+.ledBridge i.bridgeLit {
+  background: linear-gradient(180deg, #7dff9c, #2ecc5e);
+  box-shadow: 0 0 7px rgba(46, 204, 94, 0.55);
+}
+
+.ledBridge i.bridgeAmber.bridgeLit {
+  background: linear-gradient(180deg, #ffd27d, #f0a01e);
+  box-shadow: 0 0 7px rgba(240, 160, 30, 0.55);
+}
+
+.ledBridge i.bridgeRed.bridgeLit {
+  background: linear-gradient(180deg, #ff8a7a, #e5301c);
+  box-shadow: 0 0 8px rgba(229, 48, 28, 0.65);
+}
+
+/* pulse orb: drilled pilot LED under a chrome bezel */
+.steelLamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.steelLamp i {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #ff9c8e, #e5301c 50%, #8f1005);
+  border: 1px solid #550903;
+  box-shadow:
+    0 0 0 4px #cdd0d5,
+    0 0 0 5.5px #7e838a,
+    0 0 18px rgba(229, 48, 28, 0.55),
+    inset 0 2px 3px rgba(255, 255, 255, 0.45);
+  transition: opacity 0.1s linear;
+}
+
+.steelLamp span {
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.24em;
+  color: #3d4046;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* macropad: turntable platter with strobe rim */
+.mpPlatter {
+  border-radius: 50%;
+  border: 1px solid #45484e;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.4), transparent 42%),
+    conic-gradient(from 118deg, #6e737b, #cfd3d9 5%, #7c8189 11%, #e9ebef 18%, #767b83 26%, #c3c7cd 33%, #676c74 41%, #dfe2e6 49%, #71767e 57%, #cdd1d7 64%, #7a7f87 71%, #eef0f3 79%, #6b7078 86%, #d5d8dd 93%, #6e737b);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.3),
+    0 4px 7px rgba(15, 17, 20, 0.4),
+    0 12px 20px rgba(15, 17, 20, 0.3);
+}
+
+.mpPlatter s {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(rgba(23, 24, 27, 0.75) 0deg 2deg, transparent 2deg 12deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 62%, #000 63% 70%, transparent 71%);
+  mask: radial-gradient(circle, transparent 0 62%, #000 63% 70%, transparent 71%);
+  pointer-events: none;
+}
+
+.mpPlatter b {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #33363c, #0f1114 70%);
+  border: 1px solid #060708;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.mpPlatter em {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #0b0c0e;
+  border: 1px solid #45484e;
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #f2f3f5;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+/* ── STEEL reskins: select, segmented, progress, viz, tooltip, modal, GE ── */
+
+.sel_steel .select {
+  background: linear-gradient(180deg, #0b0c0e, #17191d);
+  border: 1px solid #5f636a;
+  border-radius: 7px;
+  color: #f2f3f5;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.sel_steel .select em {
+  color: #9ba0a8;
+}
+
+.sel_steel .selectMenu {
+  background: linear-gradient(180deg, #e2e4e8, #c6c9ce);
+  border: 1px solid #6a6e75;
+  border-radius: 7px;
+  box-shadow: 0 10px 22px rgba(15, 17, 20, 0.45);
+}
+
+.sel_steel .selectMenu button {
+  color: #24262b;
+  font-weight: 600;
+}
+
+.sel_steel .selectMenu button:hover {
+  background: rgba(23, 24, 27, 0.1);
+}
+
+.sel_steel .selectMenu .selOn {
+  background: #17191d;
+  color: #f2f3f5;
+}
+
+/* segmented: recessed strip, machined active chiclet */
+.t_steel .segmented {
+  border: 1px solid #5f636a;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #0d0e10, #191b1f);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+
+.t_steel .segmented button {
+  color: #8d9299;
+  font-weight: 600;
+}
+
+.t_steel .segmented .segOn {
+  background: linear-gradient(180deg, #f1f2f4, #c6c9ce 60%, #d6d9dd);
+  color: #17181b !important;
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* progress: recessed slot, LED-red bar */
+.prog_steel {
+  background: linear-gradient(180deg, #0b0c0e, #17191d);
+  border: 1px solid #5f636a;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.prog_steel i {
+  background: linear-gradient(180deg, #ff6a52, #c81e14);
+  box-shadow: 0 0 8px rgba(229, 48, 28, 0.5);
+}
+
+.t_steel .progressDemo span {
+  color: #2c2f34;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* bars + wave: smoked windows with LED cells */
+.t_steel .barsDemo,
+.t_steel .waveDemo {
+  border: 1px solid #5f636a;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #0b0c0e, #15171b);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.t_steel .barsDemo i {
+  background: linear-gradient(180deg, #7dff9c, #2ecc5e);
+  box-shadow: 0 0 5px rgba(46, 204, 94, 0.4);
+}
+
+.t_steel .barsDemo i.hot {
+  background: linear-gradient(180deg, #ff8a7a, #e5301c);
+  box-shadow: 0 0 6px rgba(229, 48, 28, 0.55);
+}
+
+.t_steel .waveDemo i {
+  background: #cfd3d9;
+  box-shadow: 0 0 4px rgba(226, 229, 233, 0.35);
+}
+
+.t_steel .waveDemo span {
+  background: rgba(226, 229, 233, 0.25);
+}
+
+/* spinner: solid steel ring + red arc */
+.sp_steel {
+  border: 3px solid #9ba0a8;
+  border-top-color: #c81e14;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.sp_steel i,
+.sp_steel b {
+  display: none;
+}
+
+/* tooltip: stamped steel tag */
+.tip_steel .tip {
+  background: linear-gradient(180deg, #e8eaed, #c6c9ce);
+  border: 1px solid #6a6e75;
+  border-radius: 4px;
+  color: #17181b;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 4px 8px rgba(15, 17, 20, 0.4);
+}
+
+.tip_steel.tipAnchor {
+  border: 1px solid #6a6e75;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #e6e8ec, #ccd0d5);
+  color: #24262b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(15, 17, 20, 0.3);
+}
+
+/* GenericEditor: 500-series module strip */
+.geModule {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 26px 18px 12px;
+  border-radius: 8px;
+  border: 1px solid #8d9299;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='420'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.004' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='90' height='420' filter='url(%23b)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #dde0e3, #c3c7cc 60%, #ced1d6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 6px 12px rgba(15, 17, 20, 0.35);
+}
+
+.geModule > b {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  transform: translateX(-50%);
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #2c2f34;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.geModule .geCell span {
+  color: #3d4046;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* modal: brushed faceplate dialog (literal colors — outside .t_*) */
+.mSteel {
+  position: relative;
+  width: min(400px, calc(100vw - 48px));
+  padding: 26px 26px 22px;
+  border-radius: 10px;
+  border: 1px solid #82868d;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='420'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.004' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='90' height='420' filter='url(%23b)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.45), transparent 20%, rgba(0, 0, 0, 0.05) 40%, rgba(255, 255, 255, 0.3) 55%, rgba(0, 0, 0, 0.07) 75%, rgba(255, 255, 255, 0.25) 94%),
+    linear-gradient(180deg, #d8dbdf, #c3c7cc 55%, #cdd0d5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.mSteel header {
+  font-family: var(--font-jb), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  color: #24262b;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+}
+
+.mSteel p {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #0b0c0e, #17191d);
+  border: 1px solid #5f636a;
+  color: #d9dce1;
+  font-size: 12.5px;
+  line-height: 1.55;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.mSteel > button {
+  padding: 9px 18px;
+  border-radius: 7px;
+  border: 1px solid #5f636a;
+  background: linear-gradient(180deg, #f1f2f4, #c6c9ce 55%, #d6d9dd);
+  color: #24262b;
+  font-family: var(--font-jb), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.18),
+    0 2px 3px rgba(15, 17, 20, 0.35);
+}
+
+.mScrewTL,
+.mScrewTR,
+.mScrewBL,
+.mScrewBR {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 42%, #494d53 42% 58%, transparent 58%),
+    radial-gradient(circle at 38% 30%, #f0f1f3, #a7abb1 55%, #7e838a);
+  border: 1px solid #6a6e75;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.mScrewTL { left: 9px; top: 9px; }
+.mScrewTR { right: 9px; top: 9px; }
+.mScrewBL { left: 9px; bottom: 9px; }
+.mScrewBR { right: 9px; bottom: 9px; }
+
+/* ── BLUEPRINT components: hatched fills, outlined chrome, callouts ──── */
+
+/* checkbox: drafting boxes — checked gets a section hatch */
+.t_bp .checkRow {
+  color: #cfe0f8;
+}
+
+.t_bp .checkRow i {
+  background: transparent;
+  border: 1.5px solid rgba(234, 243, 255, 0.85);
+  border-radius: 2px;
+  color: #eaf3ff;
+  box-shadow: none;
+}
+
+.t_bp .checkRow i.checkOn {
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.55) 0 1.5px, transparent 1.5px 5px);
+  border-color: #eaf3ff;
+  color: #ffffff;
+}
+
+/* radio: schematic contacts — selected gets the center dot */
+.t_bp .checkRow u {
+  background: transparent;
+  border: 1.5px solid rgba(234, 243, 255, 0.85);
+  box-shadow: none;
+}
+
+.t_bp .checkRow u.radioOn {
+  background: radial-gradient(circle, #8fd8ff 0 3px, transparent 3.5px);
+  border-color: #eaf3ff;
+  box-shadow: none;
+}
+
+/* segmented: outlined cells, active hatched */
+.t_bp .segmented {
+  border: 1px solid rgba(234, 243, 255, 0.55);
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.t_bp .segmented button {
+  color: #a9c4ef;
+  border-left: 1px solid rgba(234, 243, 255, 0.35);
+}
+
+.t_bp .segmented button:first-child {
+  border-left: none;
+}
+
+.t_bp .segmented .segOn {
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.16) 0 1px, transparent 1px 6px);
+  color: #ffffff !important;
+  font-weight: 700;
+  text-shadow:
+    0 0 3px #0f3170,
+    0 0 5px #0f3170,
+    0 1px 4px #0f3170;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(234, 243, 255, 0.7);
+}
+
+/* select: title-block cell + dashed open menu */
+.sel_bp .select {
+  background: transparent;
+  border: 1px solid rgba(234, 243, 255, 0.7);
+  border-radius: 2px;
+  color: #eaf3ff;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.12em;
+  box-shadow: none;
+}
+
+.sel_bp .select em {
+  color: #8fd8ff;
+}
+
+.sel_bp .selectMenu {
+  background: #0f3170;
+  border: 1px dashed rgba(234, 243, 255, 0.6);
+  border-radius: 2px;
+  box-shadow: 0 10px 24px rgba(4, 14, 36, 0.7);
+}
+
+.sel_bp .selectMenu button {
+  color: #cfe0f8;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.1em;
+}
+
+.sel_bp .selectMenu button:hover {
+  background: rgba(143, 216, 255, 0.12);
+}
+
+.sel_bp .selectMenu .selOn {
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.35) 0 1.5px, transparent 1.5px 5px);
+  color: #ffffff;
+}
+
+/* buttons: drawing stamps — solid becomes hatched, outline dashed */
+.t_bp .btnSolid {
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.4) 0 1.5px, transparent 1.5px 5px);
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  color: #ffffff;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.18em;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.t_bp .btnOutline {
+  border: 1px dashed rgba(234, 243, 255, 0.7);
+  border-radius: 2px;
+  color: #cfe0f8;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.18em;
+  background: transparent;
+}
+
+/* number box: dimension callout with leader ticks */
+.numBp {
+  background: transparent;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  color: #ffffff;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.14em;
+  position: relative;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.numBp::before,
+.numBp::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  background: rgba(234, 243, 255, 0.6);
+}
+
+.numBp::before {
+  left: -14px;
+}
+
+.numBp::after {
+  right: -14px;
+}
+
+/* text input: ruled entry line with end ticks */
+.in_bp {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(234, 243, 255, 0.75);
+  border-radius: 0;
+  color: #eaf3ff;
+  caret-color: #8fd8ff;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.1em;
+  box-shadow:
+    -1px 6px 0 -5px rgba(234, 243, 255, 0.75),
+    1px 6px 0 -5px rgba(234, 243, 255, 0.75);
+}
+
+.in_bp::placeholder {
+  color: #7f9dd0;
+}
+
+/* meter: outlined column with section hatch + dimension ticks */
+.bpMeter {
+  display: flex;
+  gap: 7px;
+  height: 132px;
+  align-items: stretch;
+}
+
+.bpMeter > div {
+  position: relative;
+  width: 22px;
+  border: 1.5px solid rgba(234, 243, 255, 0.85);
+  border-radius: 2px;
+  background: transparent;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bpMeter i {
+  display: block;
+  width: 100%;
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.65) 0 1.5px, transparent 1.5px 5px);
+  border-top: 1.5px solid #8fd8ff;
+  transition: height 0.06s linear;
+}
+
+.bpMeter u {
+  width: 6px;
+  background: repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.6) 0 1px, transparent 1px 13.1px);
+}
+
+/* progress: outlined run with hatch fill */
+.prog_bp,
+.t_bp .progressTrack {
+  background: transparent;
+  border: 1px solid rgba(234, 243, 255, 0.75);
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.t_bp .progressTrack i {
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.6) 0 1.5px, transparent 1.5px 5px);
+  border-right: 1.5px solid #8fd8ff;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.t_bp .progressDemo span {
+  color: #bcd9ff;
+  font-family: var(--font-jb), monospace;
+}
+
+/* bars + wave: plotted data in an outlined window */
+.t_bp .barsDemo,
+.t_bp .waveDemo {
+  border: 1px solid rgba(234, 243, 255, 0.55);
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.06) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.06) 0 1px, transparent 1px 12px),
+    transparent;
+  box-shadow: none;
+}
+
+.t_bp .barsDemo i {
+  background: rgba(143, 216, 255, 0.75);
+  box-shadow: none;
+}
+
+.t_bp .barsDemo i.hot {
+  background: #ffffff;
+}
+
+.t_bp .waveDemo i {
+  background: rgba(143, 216, 255, 0.8);
+  box-shadow: none;
+}
+
+.t_bp .waveDemo span {
+  background: rgba(234, 243, 255, 0.4);
+}
+
+/* xy pad: full drafting grid + white crosshair + open square marker */
+.t_bp .xy {
+  border: 1px solid rgba(234, 243, 255, 0.6);
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.07) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.07) 0 1px, transparent 1px 14px),
+    transparent;
+  box-shadow: none;
+}
+
+.t_bp .xy i,
+.t_bp .xy u {
+  background: rgba(234, 243, 255, 0.75);
+  box-shadow: none;
+}
+
+.t_bp .xy b {
+  background: transparent;
+  border: 1.5px solid #8fd8ff;
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+/* pulse orb: dashed sonar rings + plotted center */
+.t_bp .orb span {
+  border: 1px dashed rgba(234, 243, 255, 0.55);
+  background: transparent;
+  box-shadow: none;
+}
+
+.t_bp .orb b {
+  background: #eaf3ff;
+  border: none;
+  box-shadow: 0 0 8px rgba(143, 216, 255, 0.6);
+}
+
+/* spinner: rotating dashed construction circle */
+.sp_bp {
+  border: 1.5px dashed rgba(234, 243, 255, 0.75);
+  border-top-color: #8fd8ff;
+  box-shadow: none;
+}
+
+.sp_bp i,
+.sp_bp b {
+  display: none;
+}
+
+/* macropad survey plot */
+.mpSurvey {
+  border: 1px solid rgba(234, 243, 255, 0.6);
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.07) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.07) 0 1px, transparent 1px 15px),
+    transparent;
+}
+
+.mpSurvey::before {
+  content: '';
+  position: absolute;
+  inset: 14%;
+  border: 1px dashed rgba(234, 243, 255, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mpSurvey::after {
+  content: '';
+  position: absolute;
+  inset: 32%;
+  border: 1px dashed rgba(234, 243, 255, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mpSurvey i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(234, 243, 255, 0.7);
+  pointer-events: none;
+}
+
+.mpSurvey u {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(234, 243, 255, 0.7);
+  pointer-events: none;
+}
+
+.mpSurvey b {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: transparent;
+  border: 1.5px solid #8fd8ff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(143, 216, 255, 0.4);
+}
+
+.mpSurvey em {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: #bcd9ff;
+  pointer-events: none;
+}
+
+/* tooltip: leader-line callout */
+.tip_bp.tipAnchor {
+  border: 1px dashed rgba(234, 243, 255, 0.6);
+  border-radius: 2px;
+  background: transparent;
+  color: #cfe0f8;
+}
+
+.tip_bp .tip {
+  background: #0f3170;
+  border: 1px solid #eaf3ff;
+  border-radius: 2px;
+  color: #eaf3ff;
+  font-family: var(--font-jb), monospace;
+  letter-spacing: 0.12em;
+  box-shadow: none;
+}
+
+.tip_bp .tip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 1px;
+  height: 9px;
+  background: rgba(234, 243, 255, 0.8);
+}
+
+/* GenericEditor: engineering title block */
+.geTitleBlock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  background: rgba(9, 30, 66, 0.35);
+  min-width: 240px;
+}
+
+.geTitleBlock > b {
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(234, 243, 255, 0.6);
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  color: #eaf3ff;
+}
+
+.geTitleBlock > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(234, 243, 255, 0.35);
+}
+
+.geTitleBlock > div:last-child {
+  border-bottom: none;
+}
+
+.geTitleBlock label {
+  width: 44px;
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: #a9c4ef;
+}
+
+.geTitleBlock em {
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 9.5px;
+  color: #8fd8ff;
+}
+
+/* the mini dimension sliders inside the block: hide the big callout */
+.geTitleBlock .fadeBp {
+  height: 22px;
+}
+
+.geTitleBlock .fadeBp em {
+  display: none;
+}
+
+/* modal: drawing sheet (literal colors — renders outside .t_*) */
+.mBp {
+  position: relative;
+  width: min(420px, calc(100vw - 48px));
+  padding: 30px 26px 0;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(234, 243, 255, 0.05) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(0deg, rgba(234, 243, 255, 0.05) 0 1px, transparent 1px 24px),
+    linear-gradient(180deg, #12377a, #0d2c66);
+  box-shadow: 0 24px 60px rgba(2, 8, 22, 0.75);
+  color: #eaf3ff;
+}
+
+.mBp::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(234, 243, 255, 0.35);
+  pointer-events: none;
+}
+
+.mBp p {
+  margin: 0 0 22px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #cfe0f8;
+  font-family: var(--font-jb), monospace;
+}
+
+.mBp footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 -26px;
+  padding: 10px 18px;
+  border-top: 1px solid rgba(234, 243, 255, 0.6);
+  font-family: var(--font-jb), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  color: #a9c4ef;
+}
+
+.mBp footer button {
+  margin-left: auto;
+  padding: 7px 14px;
+  border: 1.5px solid #eaf3ff;
+  border-radius: 2px;
+  background: repeating-linear-gradient(45deg, rgba(143, 216, 255, 0.4) 0 1.5px, transparent 1.5px 5px);
+  color: #ffffff;
+  font-family: var(--font-jb), monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+}

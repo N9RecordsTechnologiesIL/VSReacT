@@ -1,7 +1,7 @@
 'use client'
 
-// THE COMPONENT LIBRARY — every SDK control family, live, in six
-// aesthetics. Each variant strip is ONE component with one shared value:
+// THE COMPONENT LIBRARY — every SDK control family, live, in eight
+// worlds. Each variant strip is ONE component with one shared value:
 // drag any skin and they all move. In your DAW the same geometry is
 // painted by juce::Graphics; colors come from props and theme tokens.
 
@@ -23,11 +23,13 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 const THEMES: Array<[key: string, label: string]> = [
   ['inst', 'INSTRUMENT'],
-  ['metal', 'METAL'],
+  ['metal', 'STEALTH'],
+  ['steel', 'STEEL'],
   ['std', 'STANDARD'],
   ['glass', 'ETHER'],
   ['carbon', 'EMBER'],
   ['neon', 'NEON'],
+  ['bp', 'BLUEPRINT'],
 ]
 
 const CATS: Array<[id: string, label: string]> = [
@@ -183,6 +185,46 @@ function KnobTwin({
     )
   }
 
+  // STEEL — spun stainless: printed tick ring, turned face, hairline pointer
+  if (theme === 'steel') {
+    return (
+      <div className={styles.knobSteel} style={{ width: size + 16, height: size + 16 }} {...h}>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          {Array.from({ length: 13 }, (_, i) => {
+            const a = ((-135 + 22.5 * i) * Math.PI) / 180
+            return (
+              <line
+                key={i}
+                x1={50 + 43 * Math.sin(a)}
+                y1={50 - 43 * Math.cos(a)}
+                x2={50 + 48 * Math.sin(a)}
+                y2={50 - 48 * Math.cos(a)}
+              />
+            )
+          })}
+        </svg>
+        <i aria-hidden="true" />
+        <u style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a drafted dial: dashed construction circle, value arc,
+  // radius pointer, center point, mono readout
+  if (theme === 'bp') {
+    return (
+      <div className={styles.knobBp} style={{ width: size + 16, height: size + 16 }} {...h}>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="47" className={styles.bpDash} />
+          <circle cx="50" cy="50" r="33" className={styles.bpSolid} />
+          <path d={arcPath(value)} className={styles.bpArc} />
+        </svg>
+        <u style={{ transform: `rotate(${angle}deg)` }} aria-hidden="true" />
+        <b>{Math.round(value * 100)}</b>
+      </div>
+    )
+  }
+
   // INSTRUMENT — the arc knob with the pointer cap
   return (
     <div className={styles.knob} style={{ width: size, height: size }} {...h}>
@@ -216,11 +258,12 @@ function HWKnobTwin({
     tabIndex: 0,
   }
 
-  // Structural spread: bezel ring (metal), dot indicator (std), ribbed cap +
-  // wedge (glass), fluted cap (carbon), glow slit + halo (neon).
+  // Structural spread: bezel ring (metal), knurled rim (steel), dot
+  // indicator (std), ribbed cap + wedge (glass), fluted cap (carbon),
+  // glow slit + halo (neon), drafted circles (bp).
   return (
     <div className={`${styles.hwKnob} ${styles[`hw_${theme}`] ?? ''}`} {...h}>
-      {theme === 'metal' ? <s aria-hidden="true" /> : null}
+      {theme === 'metal' || theme === 'steel' ? <s aria-hidden="true" /> : null}
       <svg viewBox="0 0 100 100" aria-hidden="true">
         <path d={arcPath(1)} className={styles.hwTicks} />
       </svg>
@@ -291,6 +334,41 @@ function SliderTwin({
         >
           <u />
         </b>
+      </div>
+    )
+  }
+
+  // STEEL — console fader: thin black slot, printed side ticks, ribbed
+  // black cap with one white index line (no colored fill, like the desk)
+  if (theme === 'steel') {
+    return (
+      <div
+        className={`${styles.fadeSteel} ${vertical ? styles.fadeSteelV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <b style={vertical ? { bottom: `calc(${value * 100}% - 19px)` } : { left: `calc(${value * 100}% - 19px)` }}>
+          <i aria-hidden="true" />
+        </b>
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a dimension line: dashed rail, measured solid run,
+  // open square thumb, mono callout
+  if (theme === 'bp') {
+    return (
+      <div
+        className={`${styles.fadeBp} ${vertical ? styles.fadeBpV : ''}`}
+        style={vertical ? { height: length } : { width: length }}
+        {...h}
+      >
+        <u
+          aria-hidden="true"
+          style={vertical ? { height: `${value * 100}%` } : { width: `${value * 100}%` }}
+        />
+        <b style={vertical ? { bottom: `calc(${value * 100}% - 7px)` } : { left: `calc(${value * 100}% - 7px)` }} />
+        <em>{Math.round(value * 100)}</em>
       </div>
     )
   }
@@ -429,6 +507,32 @@ function CrossfaderTwin({
     )
   }
 
+  // STEEL — console strip: black slot, printed tick scale above, ribbed
+  // cap with the white index line
+  if (theme === 'steel') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfSteel}`} {...h}>
+        <u aria-hidden="true" />
+        <b style={{ left: 3 + value * TRAVEL }}>
+          <i aria-hidden="true" />
+        </b>
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a measurement: double-arrow dimension line, square thumb,
+  // A/B station labels
+  if (theme === 'bp') {
+    return (
+      <div className={`${styles.xfade} ${styles.xfBp}`} {...h}>
+        <span>A</span>
+        <u aria-hidden="true" />
+        <b style={{ left: 3 + value * TRAVEL }} />
+        <span className={styles.xfadeEnd}>B</span>
+      </div>
+    )
+  }
+
   // METAL — engraved ruler ticks + machined handle with a center scribe
   if (theme === 'metal') {
     return (
@@ -485,6 +589,44 @@ function ToggleTwin({
   on: boolean
   onChange: (v: boolean) => void
 }) {
+  // STEEL — panel toggle switch: recessed collar, polished bat lever that
+  // throws left/right, engraved captions
+  if (theme === 'steel') {
+    return (
+      <div className={styles.steelTogWrap}>
+        <em className={!on ? styles.steelTogSide : ''}>OFF</em>
+        <button
+          type="button"
+          className={styles.steelTog}
+          onClick={() => onChange(!on)}
+          aria-pressed={on}
+        >
+          <s aria-hidden="true" />
+          <i style={{ transform: `rotate(${on ? 26 : -26}deg)` }} aria-hidden="true" />
+        </button>
+        <em className={on ? styles.steelTogSide : ''}>ON</em>
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a schematic SPST switch: two contacts, the lever line
+  // closes the circuit when on
+  if (theme === 'bp') {
+    return (
+      <button
+        type="button"
+        className={styles.bpSwitch}
+        onClick={() => onChange(!on)}
+        aria-pressed={on}
+      >
+        <s aria-hidden="true" />
+        <i style={{ transform: `rotate(${on ? 0 : -38}deg)` }} aria-hidden="true" />
+        <u aria-hidden="true" />
+        <span>{on ? 'CLOSED' : 'OPEN'}</span>
+      </button>
+    )
+  }
+
   // METAL — a real bat-lever toggle on a hex-nut collar; the lever tilts
   if (theme === 'metal') {
     return (
@@ -631,6 +773,30 @@ function CheckboxTwin({
     )
   }
 
+  // STEEL — engraved rows with real red pilot LEDs in drilled bezels
+  if (theme === 'steel') {
+    return (
+      <div className={styles.checkStack}>
+        {(
+          [
+            ['OVERSAMPLE', on],
+            ['DITHER', !on],
+          ] as Array<[string, boolean]>
+        ).map(([label, lit]) => (
+          <button
+            key={label}
+            type="button"
+            className={styles.steelLedRow}
+            onClick={() => onChange(!on)}
+          >
+            <i className={lit ? styles.steelLedOn : ''} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   // METAL — latching push-buttons with an inset LED window
   if (theme === 'metal') {
     return (
@@ -711,6 +877,29 @@ function RadioTwin({
           </button>
         ))}
       </div>
+    )
+  }
+
+  // STEEL — a 3-position slide switch, engraved labels beside the slot
+  if (theme === 'steel') {
+    return (
+      <button
+        type="button"
+        className={styles.slide3}
+        onClick={() => onChange((index + 1) % options.length)}
+        aria-label={`Mode: ${options[index]}`}
+      >
+        <s aria-hidden="true">
+          <i style={{ top: `${6 + index * 30}%` }} />
+        </s>
+        <span>
+          {options.map((option, i) => (
+            <em key={option} className={i === index ? styles.slide3On : ''}>
+              {option}
+            </em>
+          ))}
+        </span>
+      </button>
     )
   }
 
@@ -952,6 +1141,17 @@ function XYTwin({
     )
   }
 
+  // STEEL — a smoked scope window recessed into the plate, silver reticle
+  if (theme === 'steel') {
+    return (
+      <div className={`${styles.xy} ${styles.xySteel}`} {...h}>
+        <i style={{ top: `calc(${(1 - xy.y) * 100}% - 0.5px)` }} />
+        <u style={{ left: `calc(${xy.x * 100}% - 0.5px)` }} />
+        <b style={{ left, top }} />
+      </div>
+    )
+  }
+
   // CARBON — chart-recorder paper: ruled grid, two pen needles, no dot
   if (theme === 'carbon') {
     return (
@@ -1002,6 +1202,20 @@ function XYTwin({
 }
 
 function ButtonTwin({ theme = 'inst', onClick }: { theme?: string; onClick: () => void }) {
+  // STEEL — machined silver caps that physically depress, engraved legends
+  if (theme === 'steel') {
+    return (
+      <div className={styles.btnRowGap}>
+        <button type="button" className={styles.steelBtn} onClick={onClick}>
+          APPLY
+        </button>
+        <button type="button" className={`${styles.steelBtn} ${styles.steelBtnDark}`} onClick={onClick}>
+          RESET
+        </button>
+      </div>
+    )
+  }
+
   // METAL — a momentary machined button with a status LED window
   if (theme === 'metal') {
     return (
@@ -1137,9 +1351,21 @@ function NumberBoxTwin({
     )
   }
 
-  // METAL / INSTRUMENT — inset machined vs ink chip
+  // BLUEPRINT — a dimension callout: boxed value with leader ticks
+  if (theme === 'bp') {
+    return (
+      <div className={`${styles.numBox} ${styles.numBp}`} {...h}>
+        {value} BPM
+      </div>
+    )
+  }
+
+  // STEEL / METAL / INSTRUMENT — inset machined vs ink chip
   return (
-    <div className={`${styles.numBox} ${theme === 'metal' ? styles.numMetal : ''}`} {...h}>
+    <div
+      className={`${styles.numBox} ${theme === 'metal' ? styles.numMetal : ''} ${theme === 'steel' ? styles.numSteel : ''}`}
+      {...h}
+    >
       {value} BPM
     </div>
   )
@@ -1249,6 +1475,34 @@ function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: num
         {Array.from({ length: CELLS }, (_, i) => (
           <i key={i} className={(i + 0.5) / CELLS <= clamp01(level) ? styles.blockLit : ''} />
         ))}
+      </div>
+    )
+  }
+
+  // STEEL — an LED bridge: real lamp cells in a recessed smoked window,
+  // green run / amber shoulder / red clip
+  if (theme === 'steel') {
+    const CELLS = 12
+    return (
+      <div className={styles.ledBridge}>
+        {Array.from({ length: CELLS }, (_, i) => {
+          const lit = (i + 0.5) / CELLS <= clamp01(level)
+          const zone = i >= CELLS - 2 ? styles.bridgeRed : i >= CELLS - 5 ? styles.bridgeAmber : ''
+          return <i key={i} className={`${lit ? styles.bridgeLit : ''} ${zone}`} />
+        })}
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a drafted bar: outlined column, section-hatched fill,
+  // dimension ticks
+  if (theme === 'bp') {
+    return (
+      <div className={styles.bpMeter}>
+        <u aria-hidden="true" />
+        <div>
+          <i style={{ height: `${clamp01(level) * 100}%` }} />
+        </div>
       </div>
     )
   }
@@ -1429,6 +1683,16 @@ function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: numbe
     )
   }
 
+  // STEEL — a drilled pilot LED under a chrome bezel ring
+  if (theme === 'steel') {
+    return (
+      <div className={styles.steelLamp}>
+        <i style={{ opacity: 0.3 + clamp01(level) * 0.7 }} />
+        <span>SIG</span>
+      </div>
+    )
+  }
+
   // STANDARD — a minimal pulsing status dot
   if (theme === 'std') {
     return (
@@ -1507,6 +1771,31 @@ function MacroPadTwin({
     )
   }
 
+  // STEEL — a turntable platter: spun disc, strobe dots on the rim,
+  // crosshair reticle + coordinate window
+  if (theme === 'steel') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpPlatter}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <s style={{ transform: `rotate(${(tick * 1.2) % 360}deg)` }} aria-hidden="true" />
+        <b style={cursor} />
+        <em>{`${Math.round(value.x * 100)}·${Math.round(value.y * 100)}`}</em>
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a survey plot: dashed range rings, crosshair station lines,
+  // plotted point with coordinates
+  if (theme === 'bp') {
+    return (
+      <div className={`${styles.macroPad} ${styles.mpSurvey}`} style={{ width: SIZE, height: SIZE }} {...h}>
+        <i style={{ top: `calc(${(1 - value.y) * 100}% - 0.5px)` }} aria-hidden="true" />
+        <u style={{ left: `calc(${value.x * 100}% - 0.5px)` }} aria-hidden="true" />
+        <b style={cursor} />
+        <em>{`x ${value.x.toFixed(2)}  y ${value.y.toFixed(2)}`}</em>
+      </div>
+    )
+  }
+
   // NEON — a starfield: fixed pseudo-random stars whose glow follows y,
   // comet cursor
   if (theme === 'neon') {
@@ -1581,10 +1870,12 @@ function TooltipTwin({ theme = 'inst' }: { theme?: string }) {
   const tips: Record<string, string> = {
     inst: 'Resets to 0 dB',
     metal: 'CAL: −6 dB PAD',
+    steel: 'TRIM ±12 dB',
     std: 'Resets to default',
     glass: 'Hold Shift for fine',
     carbon: 'LAUNCH CONTROL',
     neon: 'reset://0.0dB',
+    bp: 'REF: 0 dB DATUM',
   }
 
   return (
@@ -1611,6 +1902,37 @@ function GenericEditorTwin({
             <label>{name}</label>
             <SliderTwin theme="std" value={value} onChange={set} length={86} />
             <b>{Math.round(value * 100)}%</b>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // STEEL — a 500-series module: brushed strip, engraved title, spun knobs
+  if (theme === 'steel') {
+    return (
+      <div className={styles.geModule}>
+        <b>SAT-500</b>
+        {params.map(([name, value, set]) => (
+          <div key={name} className={styles.geCell}>
+            <KnobTwin theme="steel" value={value} onChange={set} size={36} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // BLUEPRINT — a title block: ruled rows, dimension sliders, mono values
+  if (theme === 'bp') {
+    return (
+      <div className={styles.geTitleBlock}>
+        <b>UNIT-01 / REV C</b>
+        {params.map(([name, value, set]) => (
+          <div key={name}>
+            <label>{name}</label>
+            <SliderTwin theme="bp" value={value} onChange={set} length={74} />
+            <em>{value.toFixed(2)}</em>
           </div>
         ))}
       </div>
@@ -1820,11 +2142,11 @@ export default function ComponentsPage() {
       <section className={styles.hero}>
         <span className={styles.kicker}>THE COMPONENT LIBRARY</span>
         <h1>
-          Every control. Six worlds. <span>Live.</span>
+          Every control. Eight worlds. <span>Live.</span>
         </h1>
         <p>
           Each strip below is <strong>one component</strong> with one shared value — drag any
-          skin and they all move. Instrument, metal, standard, ether, ember, neon: same
+          skin and they all move. Instrument, stealth, steel, standard, ether, ember, neon, blueprint: same
           API, different props and theme tokens. In your DAW, <code>juce::Graphics</code>{' '}
           paints the same geometry natively.
         </p>
@@ -1847,7 +2169,7 @@ export default function ComponentsPage() {
 
             <Family
               title="MacroPad"
-              blurb="Six machines for the same two values: breathing rings, a radar sweep, a clean dial, a particle void, a contour field, a starfield — one drag drives them all."
+              blurb="Eight machines for the same two values: breathing rings, a radar sweep, a turntable platter, a clean dial, a particle void, a contour field, a starfield, a survey plot — one drag drives them all."
               imports={`<ParamMacroPad paramX="granulation" paramY="deepFx" />`}
               docs="/docs/components#controls"
             >
@@ -1870,7 +2192,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Knob"
-              blurb="Six shapes of the same control: arc dial, matte gear cap, flat gauge, hairline gradient ring, tick-scale ember, LED segment ring — one shared value."
+              blurb="Eight shapes of the same control: arc dial, matte gear cap, spun stainless, flat gauge, hairline gradient ring, tick-scale ember, LED segment ring, drafted dial — one shared value."
               imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
               docs="/docs/parameters#controls"
             >
@@ -2007,7 +2329,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Button"
-              blurb={`Solid + outline variants (ghost too), three sizes, hover/active baked in. Pressed ${clicks} times across all six worlds.`}
+              blurb={`Solid + outline variants (ghost too), three sizes, hover/active baked in. Pressed ${clicks} times across all eight worlds.`}
               imports={`<Button label="APPLY" variant="solid|outline|ghost" />`}
               docs="/docs/components#controls"
             >
@@ -2091,7 +2413,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Tooltip"
-              blurb="Six voices for the same hint: ink chip, engraved plate, arrow bubble, black-glass card, ember chip, terminal readout."
+              blurb="Eight voices for the same hint: ink chip, engraved plate, stamped steel tag, arrow bubble, black-glass card, ember chip, terminal readout, leader-line callout."
               imports={`<Tooltip label="Resets to 0 dB">…</Tooltip>`}
               docs="/docs/components#controls"
             >
@@ -2115,7 +2437,7 @@ export default function ComponentsPage() {
 
             <Family
               title="GenericEditor"
-              blurb="The one-line editor in six layouts: value-labelled knobs, a screwed rack strip, a settings form with sliders, an ether deck, an ember rack, a glowing console."
+              blurb="The one-line editor in eight layouts: value-labelled knobs, a screwed rack strip, a 500-series module, a settings form, an ether deck, an ember rack, a glowing console, a title block."
               imports={`render(<GenericEditor />)   // that's the whole editor`}
               docs="/docs/parameters#generic"
             >
@@ -2165,6 +2487,32 @@ export default function ComponentsPage() {
                   CLOSE
                 </button>
               </div>
+            </div>
+          ) : modalOpen === 'steel' ? (
+            // STEEL — a brushed faceplate: corner screws, engraved title,
+            // smoked readout body, machined close cap
+            <div className={`${styles.mBase} ${styles.mSteel}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <em className={styles.mScrewTL} />
+              <em className={styles.mScrewTR} />
+              <em className={styles.mScrewBL} />
+              <em className={styles.mScrewBR} />
+              <header>ABOUT</header>
+              <p>Brushed steel plate — engraved legend, smoked window, drilled screws.</p>
+              <button type="button" onClick={() => setModalOpen(null)}>
+                CLOSE
+              </button>
+            </div>
+          ) : modalOpen === 'bp' ? (
+            // BLUEPRINT — a drawing sheet: border frame, title block footer
+            <div className={`${styles.mBase} ${styles.mBp}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <p>Sheet 1 of 1 — dialog drawn to scale. All dimensions in dB unless noted.</p>
+              <footer>
+                <span>VSREACT / ABOUT</span>
+                <span>SCALE 1:1</span>
+                <button type="button" onClick={() => setModalOpen(null)}>
+                  APPROVE
+                </button>
+              </footer>
             </div>
           ) : modalOpen === 'std' ? (
             // STANDARD — clean card: header / body / footer with two actions

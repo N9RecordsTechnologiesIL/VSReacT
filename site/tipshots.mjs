@@ -1,7 +1,8 @@
 import { chromium } from 'playwright-core'
 import { mkdirSync } from 'node:fs'
 
-mkdirSync('shots2', { recursive: true })
+const OUT = process.env.SHOT_DIR || 'shots2'
+mkdirSync(OUT, { recursive: true })
 
 const browser = await chromium.launch({ channel: 'msedge' })
 const page = await browser.newPage({
@@ -23,7 +24,7 @@ for (let i = 0; i < n; i++) {
   const trigger = tile.getByText(/HOVER ME/i).first()
   await trigger.hover()
   await page.waitForTimeout(600)
-  await fam.screenshot({ path: `shots2/tooltip-hover-${i}.png` })
+  await fam.screenshot({ path: `${OUT}/tooltip-hover-${i}.png` })
   console.log(`shot tooltip-hover-${i}`)
   await page.mouse.move(0, 0)
   await page.waitForTimeout(150)

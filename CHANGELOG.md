@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.0.23 — 2026-07-19
+
+Input & media: pointer-events, image fitting/tinting, dashed borders,
+richer cursors, and text inputs in the Tab order.
+
+### Native (`vsreact` module)
+
+- **`pointerEvents: "none"`** — the node and its whole subtree become
+  transparent to input (decorative overlays stop eating clicks; the
+  CSS your web builds already rely on).
+- **`<Image>` `objectFit`** — `"contain"` (default, unchanged),
+  `"cover"` (clips overflow), `"fill"` (stretches) — and
+  **`tintColor`**, which fills the image's alpha with a solid colour:
+  one white icon PNG, any accent.
+- **`borderStyle: "dashed" | "dotted"`** on the uniform border.
+- **More cursors**: `grab`, `grabbing`, `move`, `ns-resize`,
+  `ew-resize`, `crosshair`, `not-allowed`.
+- **TextInput joins the Tab order** — Tab focuses the hosted editor,
+  Tab from inside it leaves the field and continues the focus cycle,
+  and the cycle stays in sync when an editor is focused by click.
+
+### `@vsreact/core` 0.0.23
+
+- Classes: `pointer-events-none/auto`, `border-solid/dashed/dotted`,
+  `object-contain/cover/fill`, `cursor-grab/grabbing/move/ns-resize/
+  ew-resize/crosshair/not-allowed`. 137 tests.
+
 ## 0.0.22 — 2026-07-19
 
 Typography & keys: text finally behaves like web text.

@@ -292,13 +292,32 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
         if (const auto borderColor = style.getColour ("borderColor"))
         {
             const auto inset = borderWidth * 0.5f;
-            const auto borderPath = roundedRectPath (node.frame.reduced (inset),
-                                                     style.cornerRadius (0) - inset,
-                                                     style.cornerRadius (1) - inset,
-                                                     style.cornerRadius (2) - inset,
-                                                     style.cornerRadius (3) - inset);
-            g.setColour (*borderColor);
-            g.strokePath (borderPath, juce::PathStrokeType (borderWidth));
+            auto borderPath = roundedRectPath (node.frame.reduced (inset),
+                                               style.cornerRadius (0) - inset,
+                                               style.cornerRadius (1) - inset,
+                                               style.cornerRadius (2) - inset,
+                                               style.cornerRadius (3) - inset);
+
+            // CSS border-style dashed / dotted (solid is the default).
+            const auto borderStyle = style.getString ("borderStyle");
+
+            if (borderStyle == "dashed" || borderStyle == "dotted")
+            {
+                const float dash = borderStyle == "dotted" ? borderWidth
+                                                           : borderWidth * 2.5f;
+                const float lengths[] = { dash, juce::jmax (1.0f, borderWidth * 1.5f) };
+
+                juce::Path dashed;
+                juce::PathStrokeType (borderWidth).createDashedStroke (dashed, borderPath,
+                                                                       lengths, 2);
+                g.setColour (*borderColor);
+                g.fillPath (dashed);
+            }
+            else
+            {
+                g.setColour (*borderColor);
+                g.strokePath (borderPath, juce::PathStrokeType (borderWidth));
+            }
         }
     }
 
@@ -564,13 +583,41 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
         image = juce::ImageCache::getFromFile (juce::File (source));
     }
 
-    if (image.isValid())
+    if (! image.isValid())
+        return;
+
+    // objectFit: "contain" (legacy default), "cover", "fill".
+    const auto style = node.effectiveStyle();
+    const auto fit = style.getString ("objectFit");
+
+    auto placement = juce::RectanglePlacement (juce::RectanglePlacement::centred);
+
+    if (fit == "fill")
+        placement = juce::RectanglePlacement (juce::RectanglePlacement::stretchToFit);
+    else if (fit == "cover")
+        placement = juce::RectanglePlacement (juce::RectanglePlacement::centred
+                                              | juce::RectanglePlacement::fillDestination);
+
+    juce::Graphics::ScopedSaveState save (g);
+
+    if (fit == "cover")
+        g.reduceClipRegion (node.frame.toNearestInt()); // cover overflows
+
+    // tintColor: fill the image's alpha with a solid colour (icon tinting).
+    if (const auto tint = style.getColour ("tintColor"))
     {
-        // Low-quality resampling turns bright single pixels into sparkle
-        // when an asset is drawn below its native size.
-        g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
-        g.drawImage (image, node.frame, juce::RectanglePlacement::centred);
+        const auto transform = placement.getTransformToFit (image.getBounds().toFloat(),
+                                                            node.frame);
+        g.reduceClipRegion (image, transform);
+        g.setColour (*tint);
+        g.fillRect (node.frame);
+        return;
     }
+
+    // Low-quality resampling turns bright single pixels into sparkle
+    // when an asset is drawn below its native size.
+    g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
+    g.drawImage (image, node.frame, placement);
 }
 
 } // namespace vsreact

@@ -136,7 +136,10 @@ export default function Page() {
         custom control. Focus is invisible by default; opt into a ring with a{' '}
         <code>focus:</code> variant. <code>onKeyUp</code> (since 0.0.22) fires when a key
         the node saw go down is released — key-repeat arrives as repeated{' '}
-        <code>onKeyDown</code>s, exactly like the web.
+        <code>onKeyDown</code>s, exactly like the web. <code>TextInput</code> joins the
+        Tab order too (since 0.0.23): Tab into it types, Tab leaves it and continues the
+        cycle. And <code>pointer-events-none</code> makes a decorative overlay
+        click-through — the node and its whole subtree stop receiving input.
       </p>
 
       <h2 id="scroll">Scroll containers</h2>

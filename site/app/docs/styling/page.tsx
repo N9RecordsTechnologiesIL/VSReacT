@@ -116,7 +116,10 @@ export default function Page() {
               <code>opacity-*</code> <code>shadow…shadow-xl</code>{' '}
               <code>shadow-inner</code> <code>overflow-hidden</code>{' '}
               <code>overflow-y-scroll</code> <code>aspect-square</code>{' '}
-              <code>cursor-pointer/text/default</code>
+              <code>cursor-pointer/text/default/grab/move/ns-resize/ew-resize/crosshair</code>{' '}
+              <code>pointer-events-none/auto</code>{' '}
+              <code>border-solid/dashed/dotted</code>{' '}
+              <code>object-contain/cover/fill</code>
             </td>
           </tr>
           <tr>

@@ -85,6 +85,8 @@ export function Text(props: TextProps) {
 
 export interface ImageProps extends CommonProps {
   src: string;
+  /** Style keys also work: objectFit ("contain" default | "cover" | "fill")
+      and tintColor (fills the image's alpha with a solid colour). */
 }
 
 export function Image(props: ImageProps) {

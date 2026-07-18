@@ -169,6 +169,53 @@ public:
             expect (back != nullptr && back->id == 4);
         }
 
+        beginTest ("pointerEvents none is transparent to input (subtree)");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0, "width": 100, "height": 100}, "listeners": ["click"]}],
+                ["appendChild", 1, 2],
+                ["create", 3, "view"],
+                ["setProps", 3, {"style": {"position": "absolute", "left": 0, "top": 0, "width": 100, "height": 100, "pointerEvents": "none"}}],
+                ["appendChild", 1, 3],
+                ["create", 4, "view"],
+                ["setProps", 4, {"style": {"width": 100, "height": 100}, "listeners": ["click"]}],
+                ["appendChild", 3, 4]
+            ])");
+            tree.computeLayout (300.0f, 300.0f);
+
+            // Node 3 covers node 2 and even has a clickable child — but the
+            // whole subtree is click-through, so node 2 underneath wins.
+            auto* hit = vsreact::hitTest (*tree.root(), { 50.0f, 50.0f });
+            expect (hit != nullptr && hit->id == 2);
+        }
+
+        beginTest ("textinput joins the focus order");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"listeners": ["keydown"]}],
+                ["appendChild", 1, 2],
+                ["create", 3, "textinput"],
+                ["setProps", 3, {}],
+                ["appendChild", 1, 3]
+            ])");
+            tree.computeLayout (300.0f, 300.0f);
+
+            expect (vsreact::isFocusable (*tree.find (3)));
+
+            auto* next = vsreact::nextFocusable (*tree.root(), 2, false);
+            expect (next != nullptr && next->id == 3);
+        }
+
         beginTest ("web key names");
         {
             expect (vsreact::RootView::keyName (juce::KeyPress (juce::KeyPress::upKey)) == "ArrowUp");

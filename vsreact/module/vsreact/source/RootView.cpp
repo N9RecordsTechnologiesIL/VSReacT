@@ -253,6 +253,26 @@ void RootView::hostComponentFor (Node& node)
             if (type == "focus" || type == "blur")
             {
                 current->focused = type == "focus";
+
+                // Keep the focus cycle in sync: a focused editor is the
+                // focused node, so the next Tab continues from it.
+                if (type == "focus" && focusedNodeId != nodeId)
+                {
+                    if (auto* old = tree.find (focusedNodeId); old != nullptr && focusedNodeId != 0)
+                    {
+                        old->focused = false;
+
+                        if (old->listeners.contains ("blur"))
+                            dispatchNodeEvent (old->id, "blur");
+                    }
+
+                    focusedNodeId = nodeId;
+                }
+                else if (type == "blur" && focusedNodeId == nodeId)
+                {
+                    focusedNodeId = 0;
+                }
+
                 repaint();
             }
 
@@ -389,9 +409,16 @@ void RootView::updateHoverState (juce::Point<float> position)
             break;
     }
 
-    setMouseCursor (cursor == "pointer" ? juce::MouseCursor::PointingHandCursor
-                    : cursor == "text"  ? juce::MouseCursor::IBeamCursor
-                                        : juce::MouseCursor::NormalCursor);
+    setMouseCursor (cursor == "pointer"     ? juce::MouseCursor::PointingHandCursor
+                    : cursor == "text"      ? juce::MouseCursor::IBeamCursor
+                    : cursor == "grab"      ? juce::MouseCursor::DraggingHandCursor
+                    : cursor == "grabbing"  ? juce::MouseCursor::DraggingHandCursor
+                    : cursor == "move"      ? juce::MouseCursor::UpDownLeftRightResizeCursor
+                    : cursor == "ns-resize" ? juce::MouseCursor::UpDownResizeCursor
+                    : cursor == "ew-resize" ? juce::MouseCursor::LeftRightResizeCursor
+                    : cursor == "crosshair" ? juce::MouseCursor::CrosshairCursor
+                    : cursor == "not-allowed" ? juce::MouseCursor::NoCursor
+                                            : juce::MouseCursor::NormalCursor);
 
     repaint();
 }
@@ -597,7 +624,17 @@ void RootView::focusNode (int nodeId)
         if (next->listeners.contains ("focus"))
             dispatchNodeEvent (next->id, "focus");
 
-        grabKeyboardFocus();
+        // Text inputs take real JUCE keyboard focus in their hosted editor;
+        // everything else keys through the RootView.
+        if (next->type == "textinput")
+        {
+            if (const auto host = hostedComponents.find (nodeId); host != hostedComponents.end())
+                host->second->grabKeyboardFocus();
+        }
+        else
+        {
+            grabKeyboardFocus();
+        }
     }
 
     repaint();

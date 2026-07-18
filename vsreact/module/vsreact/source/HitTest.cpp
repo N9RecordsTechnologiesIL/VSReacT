@@ -19,10 +19,16 @@ bool isInteractive (const Node& node)
 
 bool isFocusable (const Node& node)
 {
-    if (node.type == "textinput" || node.type == "native" || node.type == "rawtext")
+    if (node.type == "native" || node.type == "rawtext")
         return false;
 
+    // Text inputs join the Tab order like web <input>s — the hosted
+    // juce::TextEditor takes the actual keyboard focus.
+    if (node.type == "textinput")
+        return true;
+
     return node.listeners.contains ("keydown")
+        || node.listeners.contains ("keyup")
         || node.listeners.contains ("focus")
         || node.listeners.contains ("blur")
         || ! node.focusStyle.isEmpty();
@@ -57,6 +63,11 @@ namespace
         // Transformed nodes paint elsewhere — bring the point back into the
         // node's own (untransformed) space so hits land where pixels are.
         const auto style = node.effectiveStyle();
+
+        // CSS pointer-events: none — the node AND its children are
+        // transparent to input.
+        if (style.getString ("pointerEvents") == "none")
+            return nullptr;
 
         if (style.hasTransform())
             position = position.transformedBy (style.transformFor (node.frame).inverted());

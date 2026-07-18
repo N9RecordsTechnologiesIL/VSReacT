@@ -23,6 +23,9 @@ public:
     {
         editor.setMultiLine (false);
         editor.setReturnKeyStartsNewLine (false);
+        // Tab leaves the field (bubbles up to RootView's focus cycle)
+        // instead of typing a character — the web model.
+        editor.setTabKeyUsedAsCharacter (false);
         editor.setJustification (juce::Justification::centredLeft);
         editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
         editor.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
@@ -39,6 +42,12 @@ public:
     ~TextInputHost() override
     {
         editor.removeListener (this);
+    }
+
+    /** Tab-focus from the RootView cycle lands on the editor itself. */
+    void focusGained (FocusChangeType) override
+    {
+        editor.grabKeyboardFocus();
     }
 
     /** Applies the node's style + props to the editor. */

@@ -464,6 +464,68 @@ public:
                     > inkSpan (renderStyled ("")) + 20);
         }
 
+        beginTest ("dashed borders leave gaps");
+        {
+            const auto edgeInk = [this] (const juce::String& extraStyle)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "view"],
+                    ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                        "borderWidth": 4, "borderColor": "#00ff00")") + extraStyle + R"(}}],
+                    ["appendChild", 0, 1]
+                ])");
+
+                const auto image = renderTree (tree, 120, 60);
+                int ink = 0;
+
+                for (int px = 0; px < 120; ++px)
+                    if (approx (image.getPixelAt (px, 2), juce::Colour (0xff00ff00)))
+                        ++ink;
+
+                return ink;
+            };
+
+            const auto solid = edgeInk ("");
+            const auto dashed = edgeInk (R"(, "borderStyle": "dashed")");
+            expect (solid > 110);
+            expect (dashed > 10 && dashed < solid - 20);
+        }
+
+        beginTest ("objectFit fill stretches, contain letterboxes, tint recolors");
+        {
+            // A 2x1 all-red PNG drawn into a 40x40 image node.
+            juce::Image source (juce::Image::ARGB, 2, 1, true);
+            source.clear (source.getBounds(), juce::Colour (0xffff0000));
+
+            juce::MemoryOutputStream png;
+            juce::PNGImageFormat().writeImageToStream (source, png);
+            const auto uri = "data:image/png;base64,"
+                           + juce::Base64::toBase64 (png.getData(), png.getDataSize());
+
+            const auto renderFit = [&] (const juce::String& extraStyle)
+            {
+                vsreact::ShadowTree tree;
+                tree.applyOpsJson (juce::String (R"([
+                    ["create", 1, "image"],
+                    ["setProps", 1, {"src": ")") + uri + R"(",
+                        "style": {"width": "100%", "height": "100%")" + extraStyle + R"(}}],
+                    ["appendChild", 0, 1]
+                ])");
+                return renderTree (tree, 40, 40);
+            };
+
+            // contain (default): 2:1 image letterboxes — top rows stay black.
+            expect (approx (renderFit ("").getPixelAt (20, 3), juce::Colours::black));
+            // fill: stretches to the full frame.
+            expect (approx (renderFit (R"(, "objectFit": "fill")").getPixelAt (20, 3),
+                            juce::Colour (0xffff0000)));
+            // tint: the red source paints in the tint colour.
+            expect (approx (renderFit (R"(, "objectFit": "fill", "tintColor": "#00ff00")")
+                                .getPixelAt (20, 20),
+                            juce::Colour (0xff00ff00)));
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

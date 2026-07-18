@@ -253,3 +253,12 @@ describe("typography (0.0.22)", () => {
     expect(tw("leading-5").style).toEqual({ lineHeight: 20 });
   });
 });
+
+describe("input & media classes (0.0.23)", () => {
+  test("pointer events, border styles, object fit", () => {
+    expect(tw("pointer-events-none").style).toEqual({ pointerEvents: "none" });
+    expect(tw("border-dashed").style).toEqual({ borderStyle: "dashed" });
+    expect(tw("object-cover").style).toEqual({ objectFit: "cover" });
+    expect(tw("cursor-grab").style).toEqual({ cursor: "grab" });
+  });
+});

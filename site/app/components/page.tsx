@@ -295,7 +295,7 @@ function SliderTwin({
     )
   }
 
-  // METAL — machined slot with a ridged studio fader handle
+  // METAL — recessed slot, red value line, matte cap with an index line
   if (theme === 'metal') {
     return (
       <div
@@ -303,6 +303,11 @@ function SliderTwin({
         style={vertical ? { height: length } : { width: length }}
         {...h}
       >
+        <u
+          className={styles.fadeMetalFill}
+          aria-hidden="true"
+          style={vertical ? { height: `${value * 100}%` } : { width: `${value * 100}%` }}
+        />
         <b
           style={
             vertical
@@ -1865,7 +1870,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Knob"
-              blurb="Six shapes of the same control: arc dial, machined billet cap, flat gauge, hairline gradient ring, tick-scale ember, LED segment ring — one shared value."
+              blurb="Six shapes of the same control: arc dial, matte gear cap, flat gauge, hairline gradient ring, tick-scale ember, LED segment ring — one shared value."
               imports={`<ParamKnob paramId="gain" trackColor valueColor />`}
               docs="/docs/parameters#controls"
             >
@@ -2095,7 +2100,7 @@ export default function ComponentsPage() {
 
             <Family
               title="Modal"
-              blurb="Open each world's dialog: red-bar panel, riveted plate, clean card with footer actions, a black-glass sheet, an ember telemetry panel, a scanlined terminal."
+              blurb="Open each world's dialog: red-bar panel, machine plate, clean card with footer actions, a black-glass sheet, an ember telemetry panel, a scanlined terminal."
               imports={`<Modal open onClose={…} title="ABOUT">…</Modal>`}
               docs="/docs/components#controls"
             >
@@ -2144,7 +2149,7 @@ export default function ComponentsPage() {
       {modalOpen ? (
         <div className={styles.modalBackdrop} onClick={() => setModalOpen(null)} role="presentation">
           {modalOpen === 'metal' ? (
-            // METAL — riveted machine plate with an engraved title bar
+            // METAL — machine plate with a red index bar and inset body
             <div className={`${styles.mBase} ${styles.mMetal}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
               <header>
                 <em />
@@ -2154,7 +2159,7 @@ export default function ComponentsPage() {
                 <em />
               </header>
               <div>
-                <p>Machine plate dialog — brushed panel, riveted corners, inset body.</p>
+                <p>Machine plate dialog — soft-touch panel, red index bar, inset body.</p>
                 <button type="button" className={styles.machBtn} onClick={() => setModalOpen(null)}>
                   <i />
                   CLOSE

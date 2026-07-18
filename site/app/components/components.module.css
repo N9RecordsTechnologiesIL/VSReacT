@@ -8517,3 +8517,478 @@
   background: linear-gradient(90deg, #ff4a1f, #ffb03a);
   box-shadow: 0 0 8px rgba(255, 140, 59, 0.6);
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   FINAL POLISH (vision-verified pass) — part 1: METAL
+   All selectors .t_*-qualified: the original theme blocks use
+   descendant selectors (.t_metal .hwKnob i), which outrank the
+   single-class override layers regardless of file order.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* slider + fader: recessed slot, red value line, matte cap w/ index line */
+.t_metal .fadeMetal::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  bottom: auto;
+  width: auto;
+  height: 8px;
+  margin: -4px 0 0;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #08090b, #101216 60%, #16181c);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.t_metal .fadeMetal::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: -9px;
+  bottom: auto;
+  width: auto;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 12.6px);
+}
+
+.t_metal .fadeMetalFill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #b93527, #ff4a38);
+  box-shadow: 0 0 6px rgba(255, 74, 56, 0.45);
+  pointer-events: none;
+}
+
+.t_metal .fadeMetal b {
+  top: 50%;
+  bottom: auto;
+  width: 26px;
+  height: 34px;
+  margin-top: -17px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #34373c, #1b1d21 45%, #26282d);
+  border: 1px solid #0a0b0d;
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+}
+
+.t_metal .fadeMetal b::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  height: auto;
+  margin: 0 0 0 -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ff6a52, #ff4a38);
+  box-shadow: 0 0 5px rgba(255, 74, 56, 0.6);
+}
+
+.t_metal .fadeMetal b i {
+  display: none;
+}
+
+/* vertical variant — must re-derive every box property the horizontal
+   rules set, because the element carries both classes */
+.t_metal .fadeMetalV::before {
+  left: 50%;
+  right: auto;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  height: auto;
+  margin: 0 0 0 -4px;
+  background: linear-gradient(90deg, #08090b, #101216 60%, #16181c);
+}
+
+.t_metal .fadeMetalV::after {
+  left: auto;
+  right: -11px;
+  top: 2px;
+  bottom: 2px;
+  width: 5px;
+  height: auto;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.14) 0 1.5px, transparent 1.5px 12.6px);
+}
+
+.t_metal .fadeMetalV .fadeMetalFill {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 0;
+  width: 3px;
+  margin: 0 0 0 -1.5px;
+  background: linear-gradient(0deg, #b93527, #ff4a38);
+}
+
+.t_metal .fadeMetalV b {
+  top: auto;
+  margin-top: 0;
+  left: 50%;
+  right: auto;
+  width: 34px;
+  height: 26px;
+  margin-left: -17px;
+}
+
+.t_metal .fadeMetalV b::after {
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  bottom: auto;
+  width: auto;
+  height: 3px;
+  margin: -1.5px 0 0;
+  background: linear-gradient(90deg, #ff6a52, #ff4a38);
+}
+
+/* hardware knob: matte dome in a recessed dish (kills the chrome ball) */
+.t_metal .hwKnob s {
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, #17181b, #202226 80%);
+  border: none;
+  box-shadow:
+    inset 0 5px 12px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.t_metal .hwKnob svg {
+  display: none;
+}
+
+.t_metal .hwKnob i {
+  inset: 9%;
+  background: radial-gradient(circle at 38% 28%, #34373c, #17191c 64%, #121417);
+  border: 1px solid #0b0c0e;
+  box-shadow:
+    0 18px 30px rgba(0, 0, 0, 0.6),
+    0 6px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.45);
+}
+
+.t_metal .hwKnob u::after {
+  top: 12%;
+  width: 3px;
+  height: 16%;
+  border: none;
+  border-radius: 2px;
+  background: #ff4a38;
+  box-shadow: 0 0 6px rgba(255, 74, 56, 0.6);
+}
+
+/* number box + text input: matte wells, not chrome */
+.t_metal .numMetal,
+.t_metal .in_metal {
+  background: #101114;
+  border: 1px solid #0b0c0e;
+  border-radius: 9px;
+  color: #d9dce1;
+  caret-color: #ff4a38;
+  text-shadow: none;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* spinner: solid dark ring + red arc (kills the dashed ring) */
+.t_metal .sp_metal {
+  border: 3px solid #101114;
+  border-top-color: #ff4a38;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.t_metal .sp_metal i,
+.t_metal .sp_metal b {
+  display: none;
+}
+
+/* radar: soft sweep with a bright leading edge, small hot blips */
+.t_metal .radar,
+.t_metal .mpRadar {
+  border: none;
+  background: radial-gradient(circle at 50% 38%, #141518, #1e2024 82%);
+  box-shadow:
+    inset 0 5px 14px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.t_metal .radar i,
+.t_metal .mpRadar i {
+  background: conic-gradient(from 0deg, rgba(255, 74, 56, 0.5), rgba(255, 74, 56, 0.1) 42deg, transparent 70deg);
+}
+
+.t_metal .radar b,
+.t_metal .mpRadar b {
+  width: 6px;
+  height: 6px;
+  border: none;
+  border-radius: 50%;
+  background: #ff6a52;
+  box-shadow: 0 0 7px rgba(255, 74, 56, 0.8);
+}
+
+/* toggle: readable slot well, brighter ball, red when engaged */
+.t_metal .batToggle s {
+  left: 50%;
+  top: auto;
+  bottom: 14px;
+  width: 54px;
+  height: 24px;
+  margin-left: -27px;
+  border-radius: 999px;
+  background: #0b0c0f;
+  border: 1px solid #08090b;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.t_metal .batToggle i b {
+  background: radial-gradient(circle at 38% 28%, #4a4e55, #23262b 62%, #1a1c20);
+  border: 1px solid #0a0b0d;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+}
+
+.t_metal .batToggle[aria-pressed='true'] i b {
+  background: radial-gradient(circle at 38% 28%, #ff8577, #ff4a38 62%, #cf3325);
+  box-shadow:
+    0 0 12px rgba(255, 74, 56, 0.55),
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* ── FINAL POLISH part 2: ETHER / EMBER / STANDARD ─────────────────── */
+
+/* ETHER type-selector toggle: full reset, two ghost letters + underline */
+.t_glass .rocker {
+  width: auto;
+  height: auto;
+  padding: 2px;
+  gap: 16px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.t_glass .rocker b {
+  flex: none;
+  width: auto;
+  padding: 2px 3px 7px;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #6f6a8c;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-shadow: none;
+}
+
+.t_glass .rockerDown {
+  color: #eae6ff !important;
+  text-shadow: 0 0 12px rgba(160, 125, 255, 0.9);
+  border-bottom-color: #a07dff !important;
+}
+
+/* ETHER crossfader: hairline rail + glowing dot, no fill block */
+.t_glass .xfPlast {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.t_glass .xfPlast::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.t_glass .xfPlastA {
+  display: none;
+}
+
+.t_glass .xfPlast b {
+  width: 24px;
+  top: 0;
+  bottom: 0;
+  border: none;
+  border-radius: 0;
+  background: radial-gradient(circle, #efeaff 0 4px, rgba(160, 125, 255, 0.5) 5.5px, transparent 9px);
+  box-shadow: none;
+  filter: drop-shadow(0 0 8px rgba(160, 125, 255, 0.8));
+}
+
+.t_glass .xfPlast span {
+  color: #6f6a8c;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+/* STANDARD GenericEditor: proper circular thumbs on the mini sliders */
+.t_std .geForm .fadeStd {
+  height: 8px;
+  border-radius: 999px;
+}
+
+.t_std .geForm .fadeStd b {
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  bottom: auto;
+  margin-top: -9px;
+  border-radius: 50%;
+  border: 2px solid #2f6df6;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(28, 31, 38, 0.35);
+}
+
+/* EMBER gauge: arcs back on the dial — thin strokes, no fat floaters */
+.t_carbon .vuArc {
+  stroke: #6b543a;
+  stroke-width: 2;
+}
+
+.t_carbon .vuArcHot {
+  stroke: #ff5a2a;
+  stroke-width: 2.5;
+  stroke-linecap: butt;
+}
+
+.t_carbon .vu svg line {
+  stroke: #8f7157;
+  stroke-width: 1.6;
+}
+
+.t_carbon .vu i {
+  width: 2.5px;
+  background: linear-gradient(180deg, #ffd9a0, #ff7a2f);
+  box-shadow: 0 0 6px rgba(255, 140, 59, 0.6);
+}
+
+/* EMBER GenericEditor rack: heat strip on the top edge only */
+.t_carbon .gePanel {
+  border: 1px solid #1d150e;
+  border-image: none;
+  border-radius: 10px;
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(255, 90, 31, 0.1), transparent 60%),
+    #16100a;
+  box-shadow:
+    inset 0 2px 0 #ff6e28,
+    inset 0 1px 0 rgba(255, 210, 160, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* EMBER sliders: warm, evenly cut tick rows */
+.t_carbon .fadeVint {
+  background: repeating-linear-gradient(90deg, rgba(255, 140, 59, 0.4) 0 1.5px, transparent 1.5px 12.85px);
+  background-size: 100% 5px;
+  background-repeat: no-repeat;
+}
+
+.t_carbon .fadeVintV {
+  background: repeating-linear-gradient(0deg, rgba(255, 140, 59, 0.4) 0 1.5px, transparent 1.5px 12.85px);
+  background-size: 5px 100%;
+  background-repeat: no-repeat;
+}
+
+/* EMBER crossfader: warm ticks + index line on the cap */
+.t_carbon .xfVint u {
+  background: repeating-linear-gradient(90deg, rgba(255, 140, 59, 0.4) 0 1.5px, transparent 1.5px 10px);
+}
+
+.t_carbon .xfVint b {
+  background: radial-gradient(circle at 40% 28%, #33291f, #150f0a 70%);
+  border: 1px solid #060402;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.t_carbon .xfVint b::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ffd9a0, #ff7a2f);
+  box-shadow: 0 0 5px rgba(255, 140, 59, 0.5);
+}
+
+/* EMBER turbine progress: bladed rotor, volt spokes, machined hub */
+.t_carbon .reelProgress i {
+  background: repeating-conic-gradient(#1c130c 0deg 30deg, #0e0906 30deg 60deg);
+  border: 2px solid #060402;
+  box-shadow:
+    inset 0 0 0 3px #241a12,
+    inset 0 0 10px rgba(0, 0, 0, 0.7),
+    0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.t_carbon .reelProgress i::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #33291f, #130e09 70%);
+  border: 1px solid #060402;
+}
+
+.t_carbon .reelProgress i b {
+  width: 4px;
+  height: 11px;
+  margin: -5.5px 0 0 -2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ffd9a0, #ff7a2f);
+  box-shadow: 0 0 5px rgba(255, 140, 59, 0.6);
+}
+
+/* EMBER pads: hairline crosshairs instead of hot bars */
+.t_carbon .mpChart i,
+.t_carbon .mpChart u {
+  background: rgba(255, 140, 59, 0.75);
+  box-shadow: 0 0 3px rgba(255, 140, 59, 0.25);
+}
+
+.t_carbon .mpChart s {
+  background: #ffd9a0;
+  box-shadow: 0 0 10px rgba(255, 140, 59, 0.9);
+}
+
+.t_carbon .xyVint i,
+.t_carbon .xyVint u {
+  background: rgba(255, 140, 59, 0.8);
+  box-shadow: 0 0 3px rgba(255, 140, 59, 0.25);
+}

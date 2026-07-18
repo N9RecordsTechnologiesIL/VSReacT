@@ -19,6 +19,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "playwright-core": "^1.61.1",
     "typescript": "^5"
   }
 }

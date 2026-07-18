@@ -223,6 +223,9 @@ public:
     explicit ChannelEditor (ChannelProcessor& p)
         : AudioProcessorEditor (&p), processor (p), bridge (p.state)
     {
+        // Put YOUR project's API key here (PostHog → Settings → Project).
+        // It's a client-side ingestion token, but it's yours — don't ship
+        // someone else's, and don't commit a real one to a public repo.
         vsreact::PostHogBridge::Options analytics;
         analytics.apiKey = "phc_YOUR_PROJECT_API_KEY";
         analytics.host = "https://eu.i.posthog.com";

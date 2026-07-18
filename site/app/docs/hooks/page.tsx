@@ -106,6 +106,8 @@ formatMs(1250)        // "1.25 s"
 formatPercent(0.42)   // "42%"
 formatSemitones(7)    // "+7 st"
 midiNoteName(60)      // "C4"
+midiNoteToHz(69)      // 440 — feed your oscillator from PianoKeyboard
+hzToMidiNote(440)     // 69
 mapRange(v, 0, 1, -60, 6)   // linear remap, optional clamp`}</Code>
       <p>
         Pure functions, made for <code>NumberBox</code>’s <code>format</code> prop and value

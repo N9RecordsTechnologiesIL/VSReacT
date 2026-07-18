@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.0.13 — 2026-07-18
+
+The synth tier — the envelope editor and the wheels. JS-only; native
+module unchanged from 0.0.9.
+
+### New components
+
+- **`<ADSREnvelope>` / `<ParamADSREnvelope>`** — the classic
+  four-corner envelope editor: a filled curve with draggable handles
+  for the attack peak, the decay/sustain corner (both axes at once),
+  and the release corner. The Param twin drives four host parameters
+  with per-handle gestures. The pure `adsrLevelAt` sampler is exported.
+- **`<PitchBend>` / `<ParamPitchBend>`** — the pitch wheel: drag from
+  center, springs back to rest on release; the Param twin writes
+  0.5 ± bend/2 and closes the gesture at dead center.
+- **`<ModWheel>` / `<ParamModWheel>`** — the mod wheel: a vertical
+  strip that stays where you leave it.
+
+### Pitch math
+
+- **`midiNoteToHz` / `hzToMidiNote`** — equal-temperament conversion
+  (69 ↔ 440); feed an oscillator straight from `PianoKeyboard`.
+
+### `@vsreact/posthog` 0.0.3
+
+- **`group(type, key, props?)`** — group analytics: `$groupidentify`
+  plus `$groups` stamped on every later event (cleared by `reset()`).
+- **`alias(id)`** and **`setOnce(props)`** — link a licence key or old
+  install id; write person properties only if unset.
+- **`init({ beforeSend })`** — scrub or veto events before they queue:
+  return the edited event, or null to drop it.
+- **`debug(true)`** — log every capture and flush to the console.
+
+### Site
+
+- Gallery: ADSREnvelope and PitchBend/ModWheel families, interactive
+  in all eight worlds.
+
 ## 0.0.12 — 2026-07-18
 
 The perform tier — play your plugin, not just tweak it. JS-only;

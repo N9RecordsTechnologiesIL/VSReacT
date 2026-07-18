@@ -12550,3 +12550,310 @@
   background: #a07dff;
   box-shadow: 0 0 12px rgba(160, 125, 255, 0.6);
 }
+
+/* ══ SYNTH families — ADSREnvelope + PitchBend/ModWheel twins ══ */
+
+/* — ADSR: bottom-anchored column fill + three corner handles — */
+.adsr {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 4px 3px 3px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.adsr i {
+  flex: 1;
+  min-height: 2px;
+  border-radius: 1px;
+  background: var(--acc);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.adsr b {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 2;
+}
+
+.adsr b::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #f2f4f6;
+  border: 1px solid rgba(0, 0, 0, 0.65);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* STANDARD — light card */
+.adsr_std {
+  background: #e9eaee;
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.adsr_std i {
+  opacity: 0.55;
+}
+
+/* STEEL — black-glass window in a chrome bezel, red fill */
+.adsr_steel {
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #040505, #101214);
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.95),
+    0 0 0 3px #d0d3d8,
+    0 0 0 4.5px #7e838a,
+    0 3px 7px rgba(15, 17, 20, 0.35);
+}
+
+.adsr_steel i {
+  opacity: 0.8;
+  background: linear-gradient(180deg, #ff5a44, #c81e14 60%, #8f1109);
+}
+
+.adsr_steel b::after {
+  background: linear-gradient(180deg, #eef0f3, #c3c6cc 55%, #9ba0a7);
+  border-color: #33363c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 3px rgba(10, 12, 15, 0.6);
+}
+
+/* BLUEPRINT — ink columns on paper */
+.adsr_bp {
+  border-radius: 0;
+  background: rgba(10, 37, 89, 0.3);
+  border: 1px solid rgba(234, 243, 255, 0.6);
+}
+
+.adsr_bp i {
+  opacity: 0.6;
+  background: #eaf3ff;
+  border-radius: 0;
+}
+
+.adsr_bp b::after {
+  background: #0f3170;
+  border: 1px solid rgba(234, 243, 255, 0.9);
+  box-shadow: none;
+}
+
+/* NEON — glowing columns */
+.adsr_neon i {
+  opacity: 0.75;
+  box-shadow: 0 0 7px var(--acc);
+}
+
+/* ETHER — violet glass */
+.adsr_glass {
+  background: rgba(8, 6, 18, 0.75);
+  border-color: rgba(160, 125, 255, 0.3);
+}
+
+.adsr_glass i {
+  opacity: 0.7;
+}
+
+/* EMBER — heat columns */
+.adsr_carbon i {
+  opacity: 0.7;
+  background: linear-gradient(180deg, #ffb36b, #ff8c3b 55%, #b4581d);
+}
+
+/* — wheels: pitch (center mark, springs back) + mod (holds) — */
+.wheels {
+  display: flex;
+  gap: 18px;
+}
+
+.wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.wheel > div {
+  position: relative;
+  width: 30px;
+  height: 94px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.wheel u {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+.wheel b {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 18px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #454b52, #33383e 55%, #2b3036);
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 4px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.wheel b i {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 50%;
+  margin-top: -1.25px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--acc);
+}
+
+.wheelSnap {
+  transition: top 0.32s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.wheel em {
+  font-style: normal;
+  font-family: var(--font-jb), monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--tx, #8b8f96);
+  opacity: 0.65;
+}
+
+/* STANDARD — light slots, white bevel thumbs */
+.wheels_std .wheel > div {
+  background: #dcdee3;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.wheels_std .wheel u {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.wheels_std .wheel b {
+  background: #ffffff;
+  border-color: #c6c9cf;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.wheels_std .wheel em {
+  color: #52525b;
+  opacity: 1;
+}
+
+/* STEEL — near-black routed channel, bright stacked-fin cap */
+.wheels_steel .wheel > div {
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #101214, #060708 45%, #14161a 80%, #1d2024);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.wheels_steel .wheel u {
+  background: #000;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.wheels_steel .wheel b {
+  left: 2px;
+  right: 2px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #23262b;
+  background:
+    linear-gradient(90deg, rgba(5, 6, 8, 0.45), rgba(5, 6, 8, 0.08) 20%, rgba(255, 255, 255, 0.1) 50%, rgba(5, 6, 8, 0.08) 80%, rgba(5, 6, 8, 0.45)),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0 1px, rgba(255, 255, 255, 0.1) 1px 2px, rgba(4, 5, 7, 0.7) 2px 3.5px, rgba(255, 255, 255, 0.06) 3.5px 5px),
+    linear-gradient(180deg, #6f737a, #c9ccd2 28%, #eceef1 50%, #b6b9c0 74%, #5f636a);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.45),
+    0 3px 5px rgba(10, 12, 15, 0.5),
+    0 8px 13px rgba(10, 12, 15, 0.28);
+}
+
+.wheels_steel .wheel b i {
+  display: none;
+}
+
+.wheels_steel .wheel em {
+  color: rgba(15, 17, 20, 0.66);
+  opacity: 1;
+}
+
+/* BLUEPRINT — dashed slots, solid ink thumbs */
+.wheels_bp .wheel > div {
+  border-radius: 0;
+  background: rgba(10, 37, 89, 0.25);
+  border: 1px dashed rgba(234, 243, 255, 0.55);
+  box-shadow: none;
+}
+
+.wheels_bp .wheel u {
+  background: rgba(234, 243, 255, 0.5);
+}
+
+.wheels_bp .wheel b {
+  border-radius: 0;
+  background: rgba(234, 243, 255, 0.85);
+  border: 1px solid rgba(234, 243, 255, 0.9);
+  box-shadow: none;
+}
+
+.wheels_bp .wheel b i {
+  background: rgba(10, 37, 89, 0.85);
+}
+
+.wheels_bp .wheel em {
+  color: rgba(234, 243, 255, 0.75);
+  opacity: 1;
+}
+
+/* ETHER / NEON / EMBER — material accents on the dark base */
+.wheels_glass .wheel b {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(160, 125, 255, 0.45);
+}
+
+.wheels_neon .wheel b {
+  background: #0b1a1e;
+  border-color: rgba(45, 226, 230, 0.5);
+}
+
+.wheels_neon .wheel b i {
+  box-shadow: 0 0 8px var(--acc);
+}
+
+.wheels_carbon .wheel b {
+  background: linear-gradient(180deg, #342514, #241a0e);
+  border-color: rgba(0, 0, 0, 0.7);
+}

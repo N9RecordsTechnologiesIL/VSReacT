@@ -15,6 +15,9 @@ export interface PostHogInitOptions {
   /** Start with capturing disabled (a user privacy setting the plugin
       persists). Default false. */
   optOut?: boolean;
+  /** Scrub or veto events before they queue: return the (edited) event
+      to keep it, or null to drop it. */
+  beforeSend?: (event: PostHogEvent) => PostHogEvent | null;
 }
 
 export interface PostHogEvent {
@@ -24,7 +27,7 @@ export interface PostHogEvent {
 }
 
 const LIB = "@vsreact/posthog";
-const LIB_VERSION = "0.0.2";
+const LIB_VERSION = "0.0.3";
 
 function uuid(): string {
   // RFC4122-ish v4 — good enough for anonymous ids inside a plugin.
@@ -44,6 +47,9 @@ export class PostHogClient {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private initialised = false;
   private isOptedOut = false;
+  private isDebug = false;
+  private groups: Record<string, string> = {};
+  private beforeSend: ((event: PostHogEvent) => PostHogEvent | null) | null = null;
 
   /** Pulls the persistent distinct id from the native PostHogBridge and
       starts a session. Safe to call once at app start. */
@@ -51,6 +57,7 @@ export class PostHogClient {
     this.flushAt = options.flushAt ?? 10;
     this.flushIntervalMs = options.flushIntervalMs ?? 10_000;
     this.isOptedOut = options.optOut ?? false;
+    this.beforeSend = options.beforeSend ?? null;
     if (options.defaultProperties) this.superProperties = { ...options.defaultProperties };
 
     const config = native.call("posthog:config");
@@ -101,14 +108,20 @@ export class PostHogClient {
     return this.isOptedOut;
   }
 
+  /** Logs every capture and flush to the console — dev builds only. */
+  debug(on = true): void {
+    this.isDebug = on;
+  }
+
   capture(event: string, properties: Record<string, unknown> = {}): void {
     if (this.isOptedOut) return;
     if (!this.initialised) this.init();
 
-    this.queue.push({
+    let entry: PostHogEvent | null = {
       event,
       properties: {
         ...this.superProperties,
+        ...(Object.keys(this.groups).length > 0 ? { $groups: { ...this.groups } } : {}),
         ...properties,
         distinct_id: this.distinctId,
         $session_id: this.sessionId,
@@ -116,7 +129,18 @@ export class PostHogClient {
         $lib_version: LIB_VERSION,
       },
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    if (this.beforeSend !== null) {
+      entry = this.beforeSend(entry);
+      if (entry === null) {
+        if (this.isDebug) console.log(`[posthog] beforeSend dropped "${event}"`);
+        return;
+      }
+    }
+
+    if (this.isDebug) console.log(`[posthog] capture "${entry.event}"`, entry.properties);
+    this.queue.push(entry);
 
     if (this.queue.length >= this.flushAt) this.flush();
     else this.armTimer();
@@ -133,9 +157,31 @@ export class PostHogClient {
     this.distinctId = newDistinctId;
   }
 
+  /** Links another id to this user (a licence key, an old install id). */
+  alias(aliasId: string): void {
+    this.capture("$create_alias", { alias: aliasId, distinct_id: this.distinctId });
+  }
+
   /** Sets person properties. */
   set(properties: Record<string, unknown>): void {
     this.capture("$set", { $set: properties });
+  }
+
+  /** Sets person properties only if they are not already set. */
+  setOnce(properties: Record<string, unknown>): void {
+    this.capture("$set_once", { $set_once: properties });
+  }
+
+  /** Group analytics: every later event carries `$groups[type] = key`,
+      and the group's own properties update via $groupidentify —
+      `posthog.group("studio", "abbey-road", { seats: 4 })`. */
+  group(type: string, key: string, groupProperties?: Record<string, unknown>): void {
+    this.groups[type] = key;
+    this.capture("$groupidentify", {
+      $group_type: type,
+      $group_key: key,
+      ...(groupProperties ? { $group_set: groupProperties } : {}),
+    });
   }
 
   /** Reports an error to PostHog error tracking as a `$exception`
@@ -161,12 +207,14 @@ export class PostHogClient {
     });
   }
 
-  /** New anonymous identity + fresh session; clears super properties. */
+  /** New anonymous identity + fresh session; clears super properties
+      and groups. */
   reset(): void {
     this.flush();
     this.distinctId = uuid();
     this.sessionId = uuid();
     this.superProperties = {};
+    this.groups = {};
   }
 
   /** Hands everything queued to the native bridge immediately. */
@@ -179,6 +227,7 @@ export class PostHogClient {
     if (this.queue.length === 0) return;
 
     const batch = this.queue.splice(0);
+    if (this.isDebug) console.log(`[posthog] flush ${batch.length} event(s)`);
     native.call("posthog:send", { batch });
   }
 

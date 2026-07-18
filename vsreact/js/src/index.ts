@@ -95,6 +95,24 @@ export type { PianoKeyboardProps } from "./keyboard";
 export { StepSequencer } from "./sequencer";
 export type { StepSequencerProps } from "./sequencer";
 export {
+  ADSREnvelope,
+  ParamADSREnvelope,
+  PitchBend,
+  ModWheel,
+  ParamModWheel,
+  ParamPitchBend,
+  adsrLevelAt,
+} from "./synth";
+export type {
+  ADSRKey,
+  ADSREnvelopeProps,
+  ParamADSREnvelopeProps,
+  PitchBendProps,
+  ModWheelProps,
+  ParamModWheelProps,
+  ParamPitchBendProps,
+} from "./synth";
+export {
   mapRange,
   formatDb,
   formatHz,
@@ -102,6 +120,8 @@ export {
   formatPercent,
   formatSemitones,
   midiNoteName,
+  midiNoteToHz,
+  hzToMidiNote,
 } from "./format";
 export {
   MacroPad,

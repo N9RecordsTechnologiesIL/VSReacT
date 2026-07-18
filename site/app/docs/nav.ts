@@ -84,7 +84,7 @@ export const DOCS: DocPage[] = [
       ['nativeview', '<NativeView>'],
     ],
     keywords:
-      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead native escape hatch',
+      'primitives div view text image input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring native escape hatch',
   },
   {
     slug: 'styling',
@@ -137,7 +137,7 @@ export const DOCS: DocPage[] = [
       ['format', 'Value formatting'],
     ],
     keywords:
-      'usetoggle useprevious usedebounced usethrottled useinterval usehover userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename maprange db hz khz decibel readout format',
+      'usetoggle useprevious usedebounced usethrottled useinterval usehover userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename midinotetohz hztomidinote frequency tuning maprange db hz khz decibel readout format',
   },
   {
     slug: 'parameters',
@@ -175,7 +175,7 @@ export const DOCS: DocPage[] = [
       ['errors', 'Error tracking & sessions'],
     ],
     keywords:
-      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy bridge',
+      'posthog analytics telemetry usage events capture identify tracking metrics parameter_changed usecaptureonmount usecaptureonunmount useeditorsession useposthogparameters errorboundary captureexception exception error tracking optout optin consent privacy alias setonce group groups groupidentify beforesend scrub sanitize debug bridge',
   },
   {
     slug: 'cpp-api',

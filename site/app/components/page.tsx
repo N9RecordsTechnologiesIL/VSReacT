@@ -1750,6 +1750,97 @@ function SeqTwin({ theme = 'inst', step }: { theme?: string; step: number }) {
   )
 }
 
+function AdsrTwin({ theme = 'inst' }: { theme?: string }) {
+  const [env, setEnv] = useState({ a: 0.35, d: 0.45, s: 0.55, r: 0.4 })
+  const W = 208
+  const H = 84
+  const SEG = W * 0.27
+  const PAD = 5
+  const SPAN = H - PAD * 2
+
+  const level = (x: number) => {
+    const ax = env.a * SEG
+    const dw = env.d * SEG
+    const rx = W - env.r * SEG
+    if (x <= ax) return ax === 0 ? 1 : x / ax
+    if (x <= ax + dw) return 1 - (1 - env.s) * ((x - ax) / (dw || 1))
+    if (x <= rx) return env.s
+    return env.r === 0 ? 0 : Math.max(0, env.s * (1 - (x - rx) / (env.r * SEG)))
+  }
+
+  const dragA = useDrag((dx) => setEnv((e) => ({ ...e, a: clamp01(e.a + dx / SEG) })))
+  const dragDS = useDrag((dx, dy) =>
+    setEnv((e) => ({ ...e, d: clamp01(e.d + dx / SEG), s: clamp01(e.s - dy / SPAN) })),
+  )
+  const dragR = useDrag((dx) => setEnv((e) => ({ ...e, r: clamp01(e.r - dx / SEG) })))
+
+  const dots: Array<[x: number, y: number, drag: ReturnType<typeof useDrag>]> = [
+    [env.a * SEG, PAD, dragA],
+    [env.a * SEG + env.d * SEG, PAD + (1 - env.s) * SPAN, dragDS],
+    [W - env.r * SEG, PAD + (1 - env.s) * SPAN, dragR],
+  ]
+
+  return (
+    <div className={`${styles.adsr} ${styles[`adsr_${theme}`] ?? ''}`} style={{ width: W, height: H }}>
+      {Array.from({ length: 36 }, (_, i) => (
+        <i
+          key={i}
+          style={{ height: `${Math.max(2, level(((i + 0.5) / 36) * W) * 92)}%` }}
+        />
+      ))}
+      {dots.map(([x, y, drag], i) => (
+        <b key={i} style={{ left: x - 8, top: y - 8 }} {...drag} />
+      ))}
+    </div>
+  )
+}
+
+function WheelsTwin({ theme = 'inst' }: { theme?: string }) {
+  const [bend, setBend] = useState(0)
+  const [bending, setBending] = useState(false)
+  const [mod, setMod] = useState(0.62)
+  const TRAVEL = 76
+
+  const bendDrag = useDrag((_dx, dy) => setBend((b) => Math.max(-1, Math.min(1, b - dy / (TRAVEL / 2)))))
+  const modDrag = useDrag((_dx, dy) => setMod((m) => clamp01(m - dy / TRAVEL)))
+
+  return (
+    <div className={`${styles.wheels} ${styles[`wheels_${theme}`] ?? ''}`}>
+      <div className={styles.wheel}>
+        <div
+          {...bendDrag}
+          onPointerDown={(e) => {
+            setBending(true)
+            bendDrag.onPointerDown(e)
+          }}
+          onPointerUp={(e) => {
+            setBending(false)
+            setBend(0)
+            bendDrag.onPointerUp(e)
+          }}
+        >
+          <u />
+          <b
+            className={bending ? '' : styles.wheelSnap}
+            style={{ top: `calc(${(1 - (bend + 1) / 2) * 100}% - ${(1 - (bend + 1) / 2) * 18}px)` }}
+          >
+            <i />
+          </b>
+        </div>
+        <em>PITCH</em>
+      </div>
+      <div className={styles.wheel}>
+        <div {...modDrag}>
+          <b style={{ top: `calc(${(1 - mod) * 100}% - ${(1 - mod) * 18}px)` }}>
+            <i />
+          </b>
+        </div>
+        <em>MOD</em>
+      </div>
+    </div>
+  )
+}
+
 function OrbTwin({ theme = 'inst', level, tick }: { theme?: string; level: number; tick: number }) {
   // METAL — a radar scope: machined bezel, rotating sweep, fixed blips
   if (theme === 'metal') {
@@ -2517,6 +2608,24 @@ export default function ComponentsPage() {
               docs="/docs/components#controls"
             >
               <AllThemes render={(t) => <SeqTwin theme={t} step={seqStep} />} />
+            </Family>
+
+            <Family
+              title="ADSREnvelope"
+              blurb="The four-corner envelope editor — drag the attack peak, the decay/sustain corner, and the release corner."
+              imports={`<ParamADSREnvelope attackId="a" decayId="d" sustainId="s" releaseId="r" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <AdsrTwin theme={t} />} />
+            </Family>
+
+            <Family
+              title="PitchBend / ModWheel"
+              blurb="The performance wheels — pitch springs back to center on release, mod stays where you leave it."
+              imports={`<PitchBend onChange={bend} />  <ParamModWheel paramId="mod" />`}
+              docs="/docs/components#controls"
+            >
+              <AllThemes render={(t) => <WheelsTwin theme={t} />} />
             </Family>
           </section>
 

@@ -121,6 +121,67 @@ describe("posthog client", () => {
     expect(second.value).toBe("string failure");
   });
 
+  test("alias links the current identity", () => {
+    posthog.alias("licence-XYZ");
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect(event.event).toBe("$create_alias");
+    expect(event.properties.alias).toBe("licence-XYZ");
+    expect(event.properties.distinct_id).toBe("anon-123");
+  });
+
+  test("setOnce writes $set_once person properties", () => {
+    posthog.setOnce({ first_seen_version: "1.2.0" });
+    posthog.flush();
+
+    const event = sends()[0].args.batch[0];
+    expect(event.event).toBe("$set_once");
+    expect(event.properties.$set_once).toEqual({ first_seen_version: "1.2.0" });
+  });
+
+  test("group stamps $groups on later events and fires $groupidentify", () => {
+    posthog.group("studio", "abbey-road", { seats: 4 });
+    posthog.capture("mixdown");
+    posthog.flush();
+
+    const batch = sends()[0].args.batch;
+    expect(batch[0].event).toBe("$groupidentify");
+    expect(batch[0].properties.$group_type).toBe("studio");
+    expect(batch[0].properties.$group_key).toBe("abbey-road");
+    expect(batch[0].properties.$group_set).toEqual({ seats: 4 });
+    expect(batch[1].properties.$groups).toEqual({ studio: "abbey-road" });
+
+    posthog.reset();
+    posthog.capture("after_reset");
+    posthog.flush();
+    const after = sends().flatMap((s) => s.args.batch).find((e: any) => e.event === "after_reset");
+    expect(after.properties.$groups).toBeUndefined();
+  });
+
+  test("beforeSend can scrub and veto events", () => {
+    posthog.init({
+      flushAt: 10,
+      flushIntervalMs: 60_000,
+      beforeSend: (event) => {
+        if (event.event === "secret") return null;
+        delete event.properties.password;
+        return event;
+      },
+    });
+    nativeCalls.length = 0;
+
+    posthog.capture("secret");
+    posthog.capture("kept", { password: "hunter2", ok: true });
+    posthog.flush();
+
+    const batch = sends()[0].args.batch;
+    expect(batch).toHaveLength(1);
+    expect(batch[0].event).toBe("kept");
+    expect("password" in batch[0].properties).toBe(false);
+    expect(batch[0].properties.ok).toBe(true);
+  });
+
   test("getSessionId is stable within a session", () => {
     const a = posthog.getSessionId();
     posthog.capture("x");

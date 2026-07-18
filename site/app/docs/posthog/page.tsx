@@ -87,9 +87,20 @@ render(<App />);`}</Code>
       <Code title="TSX">{`posthog.capture("preset_loaded", { preset: "Warm Tape" });
 posthog.register({ daw: hostName });          // stamped on every event
 posthog.identify("user-123", { plan: "pro" }); // tie to a known user
+posthog.alias("licence-XYZ");                  // link another id
 posthog.set({ favourite_mode: "TUBE" });       // person properties
+posthog.setOnce({ first_version: "1.2.0" });   // only if unset
+posthog.group("studio", "abbey-road");         // group analytics
+posthog.debug(true);                           // log captures (dev builds)
 posthog.flush();                               // force-send now
 posthog.reset();                               // fresh anonymous identity`}</Code>
+      <Code title="scrub before anything queues">{`posthog.init({
+  beforeSend: (event) => {
+    if (event.event === "internal_debug") return null;   // veto
+    delete event.properties.project_path;                // scrub
+    return event;
+  },
+});`}</Code>
       <ul>
         <li>
           Events queue in JS and flush at 10 events or 10 seconds (tune with{' '}

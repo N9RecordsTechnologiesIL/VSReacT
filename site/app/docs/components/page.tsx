@@ -295,6 +295,27 @@ export default function Page() {
           </tr>
           <tr>
             <td>
+              <code>&lt;ADSREnvelope&gt;</code>
+            </td>
+            <td>Envelopes</td>
+            <td>
+              The four-corner envelope editor — drag the attack peak, the decay/sustain
+              corner, and the release corner; <code>ParamADSREnvelope</code> drives four
+              host parameters.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>&lt;PitchBend&gt;</code> / <code>&lt;ModWheel&gt;</code>
+            </td>
+            <td>Wheels</td>
+            <td>
+              The performance wheels: pitch springs back to center on release, mod stays
+              where you leave it; <code>Param</code> twins for both.
+            </td>
+          </tr>
+          <tr>
+            <td>
               <code>&lt;Button&gt;</code>
             </td>
             <td>Actions</td>

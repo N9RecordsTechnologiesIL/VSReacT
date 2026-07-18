@@ -60,3 +60,14 @@ export function midiNoteName(note: number): string {
   const n = Math.round(note);
   return `${NOTE_NAMES[((n % 12) + 12) % 12]}${Math.floor(n / 12) - 1}`;
 }
+
+/** A MIDI note as a frequency (equal temperament): 69 → 440. Feed your
+    oscillator straight from PianoKeyboard's onNoteOn. */
+export function midiNoteToHz(note: number, a4 = 440): number {
+  return a4 * Math.pow(2, (note - 69) / 12);
+}
+
+/** The nearest MIDI note for a frequency: 440 → 69. */
+export function hzToMidiNote(hz: number, a4 = 440): number {
+  return Math.round(69 + 12 * Math.log2(hz / a4));
+}

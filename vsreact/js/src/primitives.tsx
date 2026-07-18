@@ -24,6 +24,22 @@ export interface WheelEventPayload {
   dy: number;
 }
 
+/** Web-style key event: key names match KeyboardEvent.key ("ArrowUp",
+    "Enter", "Escape", " ", "a"). */
+export interface KeyEventPayload {
+  key: string;
+  shift: boolean;
+  ctrl: boolean;
+  alt: boolean;
+  meta: boolean;
+}
+
+/** Root-space pointer position. */
+export interface MouseMovePayload {
+  x: number;
+  y: number;
+}
+
 export interface CommonProps {
   className?: string;
   style?: Style;
@@ -41,6 +57,13 @@ export interface CommonProps {
   onDragStart?: (e: DragEventPayload) => void;
   onDrag?: (e: DragEventPayload) => void;
   onDragEnd?: (e: DragEventPayload) => void;
+  onMouseMove?: (e: MouseMovePayload) => void;
+  /** Declaring onKeyDown (or onFocus/onBlur, or a focus: style variant)
+      makes the node focusable: click focuses it, Tab cycles, keys arrive
+      here with web KeyboardEvent.key names. */
+  onKeyDown?: (e: KeyEventPayload) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   /** Fires after layout whenever this node's root-space rect changes —
       the foundation for popovers, menus, and tooltips. */
   onLayout?: (rect: LayoutRect) => void;

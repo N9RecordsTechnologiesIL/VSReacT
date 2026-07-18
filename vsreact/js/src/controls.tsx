@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
+import type { KeyEventPayload } from "./primitives";
 import { useParameter, useParameterList } from "./parameters";
 import { useSpring } from "./animation";
 import { useLayoutRect } from "./hooks";
@@ -14,6 +15,31 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 /** Vertical-drag-to-value mapping shared by Knob (and tested in isolation). */
 export function dragToValue(startValue: number, dy: number, sensitivity = 0.005): number {
   return clamp01(startValue - dy * sensitivity);
+}
+
+/** Web <input type="range"> keyboard model for a normalized control:
+    arrows ±0.01 (shift = ±0.001 fine), PageUp/Down ±0.1, Home/End 0/1.
+    Returns the new value, or null for keys the control doesn't own. */
+export function sliderKeyTarget(value: number, e: KeyEventPayload): number | null {
+  const step = e.shift ? 0.001 : 0.01;
+  switch (e.key) {
+    case "ArrowUp":
+    case "ArrowRight":
+      return clamp01(value + step);
+    case "ArrowDown":
+    case "ArrowLeft":
+      return clamp01(value - step);
+    case "PageUp":
+      return clamp01(value + 0.1);
+    case "PageDown":
+      return clamp01(value - 0.1);
+    case "Home":
+      return 0;
+    case "End":
+      return 1;
+    default:
+      return null;
+  }
 }
 
 const ARC_START = -135;
@@ -97,6 +123,14 @@ export function Knob({
           disabled || wheelSensitivity === 0
             ? undefined
             : (e) => nudge(clamped + e.dy * wheelSensitivity)
+        }
+        onKeyDown={
+          disabled
+            ? undefined
+            : (e) => {
+                const target = sliderKeyTarget(clamped, e);
+                if (target !== null) nudge(target);
+              }
         }
       >
         {text !== undefined ? (
@@ -205,6 +239,12 @@ export function Slider({
     disabled || wheelSensitivity === 0
       ? undefined
       : (e: { dy: number }) => nudge(clamped + e.dy * wheelSensitivity);
+  const onKeyDown = disabled
+    ? undefined
+    : (e: KeyEventPayload) => {
+        const target = sliderKeyTarget(clamped, e);
+        if (target !== null) nudge(target);
+      };
 
   if (vertical) {
     return (
@@ -217,6 +257,7 @@ export function Slider({
           onDragEnd={onDragEnd}
           onDoubleClick={onDoubleClick}
           onWheel={onWheel}
+          onKeyDown={onKeyDown}
         >
           <View
             className="absolute w-[4] rounded-full left-[7] top-0 bottom-0"
@@ -255,6 +296,7 @@ export function Slider({
         onDragEnd={onDragEnd}
         onDoubleClick={onDoubleClick}
         onWheel={onWheel}
+        onKeyDown={onKeyDown}
       >
         <View className="h-[4] rounded-full" style={{ backgroundColor: trackColor }} />
         <View
@@ -357,6 +399,13 @@ export function Toggle({
           className={`relative rounded-full ${disabled ? "opacity-40" : "cursor-pointer"}`}
           style={{ width: trackWidth, height: size, backgroundColor: on ? onColor : trackColor }}
           onClick={disabled ? undefined : () => onChange(!on)}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") onChange(!on);
+                }
+          }
         >
           <View
             className="absolute rounded-full"
@@ -477,6 +526,19 @@ export function XYPad({
                 )
         }
         onDragEnd={disabled ? undefined : () => onEnd?.()}
+        onKeyDown={
+          disabled
+            ? undefined
+            : (e) => {
+                const step = e.shift ? 0.001 : 0.01;
+                const dx = e.key === "ArrowRight" ? step : e.key === "ArrowLeft" ? -step : 0;
+                const dy = e.key === "ArrowUp" ? step : e.key === "ArrowDown" ? -step : 0;
+                if (dx === 0 && dy === 0) return;
+                onBegin?.();
+                onChange(clamp01(cxv + dx), clamp01(cyv + dy));
+                onEnd?.();
+              }
+        }
       >
         <View
           className="absolute left-0 right-0 h-[1]"

@@ -226,3 +226,11 @@ describe("per-side borders + inner shadow (0.0.19)", () => {
     });
   });
 });
+
+describe("zIndex (0.0.20)", () => {
+  test("z classes", () => {
+    expect(tw("z-10").style).toEqual({ zIndex: 10 });
+    expect(tw("z-[3]").style).toEqual({ zIndex: 3 });
+    expect(tw("-z-1").style).toEqual({ zIndex: -1 });
+  });
+});

@@ -30,6 +30,8 @@ const eventPropNames: Record<string, string> = {
   onMouseLeave: "mouseleave",
   onMouseDown: "mousedown",
   onMouseUp: "mouseup",
+  onMouseMove: "mousemove",
+  onKeyDown: "keydown",
   onDragStart: "dragstart",
   onDrag: "drag",
   onDragEnd: "dragend",

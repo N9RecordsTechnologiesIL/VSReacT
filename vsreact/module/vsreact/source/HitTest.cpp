@@ -17,6 +17,36 @@ bool isInteractive (const Node& node)
         || node.style.has ("cursor");
 }
 
+bool isFocusable (const Node& node)
+{
+    if (node.type == "textinput" || node.type == "native" || node.type == "rawtext")
+        return false;
+
+    return node.listeners.contains ("keydown")
+        || node.listeners.contains ("focus")
+        || node.listeners.contains ("blur")
+        || ! node.focusStyle.isEmpty();
+}
+
+std::vector<Node*> paintOrdered (const std::vector<Node*>& children)
+{
+    std::vector<Node*> ordered (children.begin(), children.end());
+
+    const auto zIndexOf = [] (const Node* node)
+    {
+        return node->effectiveStyle().getFloat ("zIndex", 0.0f);
+    };
+
+    const bool anyZ = std::any_of (ordered.begin(), ordered.end(),
+                                   [&] (const Node* n) { return zIndexOf (n) != 0.0f; });
+
+    if (anyZ)
+        std::stable_sort (ordered.begin(), ordered.end(),
+                          [&] (const Node* a, const Node* b) { return zIndexOf (a) < zIndexOf (b); });
+
+    return ordered;
+}
+
 namespace
 {
     Node* hitTestNode (Node& node, juce::Point<float> position)
@@ -24,18 +54,27 @@ namespace
         if (node.type == "rawtext")
             return nullptr;
 
+        // Transformed nodes paint elsewhere — bring the point back into the
+        // node's own (untransformed) space so hits land where pixels are.
+        const auto style = node.effectiveStyle();
+
+        if (style.hasTransform())
+            position = position.transformedBy (style.transformFor (node.frame).inverted());
+
         const bool contains = node.frame.contains (position);
 
         // Clipping (hidden or scroll) nodes clip their children's hit areas too.
-        if ((node.style.overflowHidden() || node.isScrollable()) && ! contains)
+        if ((style.overflowHidden() || node.isScrollable()) && ! contains)
             return nullptr;
 
         // Children of a scrolled node live at frame - scrollY on screen, so
         // test them against the point shifted back into unscrolled space.
         const auto childPosition = position.translated (0.0f, node.scrollY);
 
-        // Later siblings paint on top, so test them first.
-        for (auto it = node.children.rbegin(); it != node.children.rend(); ++it)
+        // Topmost first: reversed paint order (zIndex, then tree order).
+        const auto ordered = paintOrdered (node.children);
+
+        for (auto it = ordered.rbegin(); it != ordered.rend(); ++it)
             if (auto* hit = hitTestNode (**it, childPosition))
                 return hit;
 
@@ -63,11 +102,22 @@ namespace
 
         return (contains && node.isScrollable()) ? &node : nullptr;
     }
+
+    void collectFocusables (Node& node, std::vector<Node*>& out)
+    {
+        if (isFocusable (node))
+            out.push_back (&node);
+
+        for (auto* child : node.children)
+            collectFocusables (*child, out);
+    }
 }
 
 Node* hitTest (Node& root, juce::Point<float> position)
 {
-    for (auto it = root.children.rbegin(); it != root.children.rend(); ++it)
+    const auto ordered = paintOrdered (root.children);
+
+    for (auto it = ordered.rbegin(); it != ordered.rend(); ++it)
         if (auto* hit = hitTestNode (**it, position))
             return hit;
 
@@ -79,6 +129,34 @@ Node* hitTestScrollable (Node& root, juce::Point<float> position)
     for (auto it = root.children.rbegin(); it != root.children.rend(); ++it)
         if (auto* found = scrollableNodeAt (**it, position))
             return found;
+
+    return nullptr;
+}
+
+Node* nextFocusable (Node& root, int currentId, bool backwards)
+{
+    std::vector<Node*> focusables;
+    collectFocusables (root, focusables);
+
+    if (focusables.empty())
+        return nullptr;
+
+    const auto current = std::find_if (focusables.begin(), focusables.end(),
+                                       [currentId] (const Node* n) { return n->id == currentId; });
+
+    if (current == focusables.end())
+        return backwards ? focusables.back() : focusables.front();
+
+    const auto index = static_cast<size_t> (std::distance (focusables.begin(), current));
+    const auto count = focusables.size();
+    return focusables[backwards ? (index + count - 1) % count : (index + 1) % count];
+}
+
+Node* nearestFocusable (Node* node)
+{
+    for (; node != nullptr; node = node->parent)
+        if (isFocusable (*node))
+            return node;
 
     return nullptr;
 }

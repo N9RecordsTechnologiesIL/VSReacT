@@ -98,7 +98,7 @@ export const DOCS: DocPage[] = [
       ['style-prop', 'The style prop'],
       ['arcs', 'Arc painting (knobs)'],
     ],
-    keywords: 'tailwind classname colors palette hover active focus variants theme arbitrary size inset negative margin flex gap rounded border shadow cx clsx arc',
+    keywords: 'tailwind classname colors palette hover active focus variants theme arbitrary size inset negative margin flex gap rounded border shadow cx clsx arc gradient gradients conic radial linear from via to repeat rotate scale translate transform zindex z clip clippath polygon inner textshadow glow',
   },
   {
     slug: 'events',
@@ -107,12 +107,13 @@ export const DOCS: DocPage[] = [
     headings: [
       ['pointer', 'Pointer events'],
       ['drag', 'Drag gestures'],
+      ['keyboard', 'Keyboard & focus'],
       ['scroll', 'Scroll containers'],
       ['layout', 'Layout feedback — onLayout'],
       ['cursor', 'Cursors'],
     ],
     keywords:
-      'click double dblclick doubleclick mouse hover onclick drag gesture dx dy scroll wheel onwheel overflow cursor bubbling onlayout layout rect useoverlay overlay popover tooltip uselayoutrect reset default',
+      'click double dblclick doubleclick mouse hover onclick drag gesture dx dy scroll wheel onwheel overflow cursor bubbling onlayout layout rect useoverlay overlay popover tooltip uselayoutrect reset default keyboard keydown onkeydown focus blur tab arrow arrows focusable sliderkeytarget mousemove onmousemove',
   },
   {
     slug: 'animation',

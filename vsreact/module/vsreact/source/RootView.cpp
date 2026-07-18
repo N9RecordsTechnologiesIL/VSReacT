@@ -13,12 +13,15 @@ RootView::RootView (RootOptions optionsIn, NativeRegistry registryIn)
 
     tree.onNodePropsChanged = [this] (Node& node) { hostComponentFor (node); };
 
+    setWantsKeyboardFocus (true);
+
     tree.onNodeRemoved = [this] (Node& node)
     {
         hostedComponents.erase (node.id);
 
         if (hoveredNodeId == node.id) hoveredNodeId = 0;
         if (activeNodeId == node.id)  activeNodeId = 0;
+        if (focusedNodeId == node.id) focusedNodeId = 0;
     };
 
     scheduler.onFire = [this] (int id)
@@ -393,7 +396,26 @@ void RootView::updateHoverState (juce::Point<float> position)
     repaint();
 }
 
-void RootView::mouseMove (const juce::MouseEvent& e)  { updateHoverState (e.position); }
+void RootView::mouseMove (const juce::MouseEvent& e)
+{
+    updateHoverState (e.position);
+
+    if (auto* hit = vsreact::hitTest (*tree.root(), e.position))
+    {
+        for (auto* node = hit; node != nullptr; node = node->parent)
+        {
+            if (node->listeners.contains ("mousemove"))
+            {
+                auto* payload = new juce::DynamicObject();
+                payload->setProperty ("x", e.position.x);
+                payload->setProperty ("y", e.position.y);
+                dispatchNodeEvent (node->id, "mousemove", juce::var (payload));
+                break;
+            }
+        }
+    }
+}
+
 void RootView::mouseEnter (const juce::MouseEvent& e) { updateHoverState (e.position); }
 
 void RootView::mouseExit (const juce::MouseEvent&)
@@ -437,6 +459,10 @@ void RootView::mouseDown (const juce::MouseEvent& e)
             break;
         }
     }
+
+    // Click-to-focus: nearest focusable ancestor, or blur on empty space.
+    auto* focusable = vsreact::nearestFocusable (hit);
+    focusNode (focusable != nullptr ? focusable->id : 0);
 
     auto* target = nearestPressTarget (hit);
 
@@ -546,6 +572,93 @@ void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheel
     syncHostedComponents();
     updateHoverState (e.position);
     repaint();
+}
+
+//==============================================================================
+void RootView::focusNode (int nodeId)
+{
+    if (focusedNodeId == nodeId)
+        return;
+
+    if (auto* old = tree.find (focusedNodeId); old != nullptr && focusedNodeId != 0)
+    {
+        old->focused = false;
+
+        if (old->listeners.contains ("blur"))
+            dispatchNodeEvent (old->id, "blur");
+    }
+
+    focusedNodeId = nodeId;
+
+    if (auto* next = tree.find (nodeId); next != nullptr && nodeId != 0)
+    {
+        next->focused = true;
+
+        if (next->listeners.contains ("focus"))
+            dispatchNodeEvent (next->id, "focus");
+
+        grabKeyboardFocus();
+    }
+
+    repaint();
+}
+
+juce::String RootView::keyName (const juce::KeyPress& key)
+{
+    const auto code = key.getKeyCode();
+
+    if (code == juce::KeyPress::upKey)        return "ArrowUp";
+    if (code == juce::KeyPress::downKey)      return "ArrowDown";
+    if (code == juce::KeyPress::leftKey)      return "ArrowLeft";
+    if (code == juce::KeyPress::rightKey)     return "ArrowRight";
+    if (code == juce::KeyPress::returnKey)    return "Enter";
+    if (code == juce::KeyPress::escapeKey)    return "Escape";
+    if (code == juce::KeyPress::backspaceKey) return "Backspace";
+    if (code == juce::KeyPress::deleteKey)    return "Delete";
+    if (code == juce::KeyPress::tabKey)       return "Tab";
+    if (code == juce::KeyPress::homeKey)      return "Home";
+    if (code == juce::KeyPress::endKey)       return "End";
+    if (code == juce::KeyPress::pageUpKey)    return "PageUp";
+    if (code == juce::KeyPress::pageDownKey)  return "PageDown";
+    if (code == juce::KeyPress::spaceKey)     return " ";
+
+    const auto character = key.getTextCharacter();
+    return character != 0 ? juce::String::charToString (character) : juce::String();
+}
+
+bool RootView::keyPressed (const juce::KeyPress& key)
+{
+    if (key.getKeyCode() == juce::KeyPress::tabKey)
+    {
+        if (auto* next = vsreact::nextFocusable (*tree.root(), focusedNodeId,
+                                                 key.getModifiers().isShiftDown()))
+        {
+            focusNode (next->id);
+            return true;
+        }
+
+        return false;
+    }
+
+    if (auto* node = tree.find (focusedNodeId); node != nullptr && focusedNodeId != 0
+        && node->listeners.contains ("keydown"))
+    {
+        const auto name = keyName (key);
+
+        if (name.isEmpty())
+            return false;
+
+        auto* payload = new juce::DynamicObject();
+        payload->setProperty ("key", name);
+        payload->setProperty ("shift", key.getModifiers().isShiftDown());
+        payload->setProperty ("ctrl", key.getModifiers().isCtrlDown());
+        payload->setProperty ("alt", key.getModifiers().isAltDown());
+        payload->setProperty ("meta", key.getModifiers().isCommandDown());
+        dispatchNodeEvent (focusedNodeId, "keydown", juce::var (payload));
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace vsreact

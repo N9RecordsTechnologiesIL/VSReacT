@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.0.20 — 2026-07-19
+
+Keyboard, stacking, and shapes: the last big structural gaps between
+"React that happens to render in JUCE" and how a UI behaves on the web.
+
+### Native (`vsreact` module)
+
+- **Keyboard focus for any View.** Declaring `onKeyDown` (or
+  `onFocus`/`onBlur`, or a `focus:` style variant) makes a node
+  focusable: click focuses, Tab / Shift-Tab cycle focusables in tree
+  order (wrapping), clicking empty space blurs, and keys arrive as web
+  `KeyboardEvent.key` names (`"ArrowUp"`, `"Enter"`, `"Escape"`, `" "`,
+  `"a"`) with `shift/ctrl/alt/meta` flags. Unhandled keys fall through
+  to the host. `focusStyle` (the `focus:` variant) paints on the
+  focused node.
+- **`zIndex`** — reorders both painting and hit-testing among siblings
+  (stable: tree order breaks ties).
+- **`clipPolygon`** — CSS `clip-path: polygon()` as a flat
+  `[x, y, …]` percent array; shapes background, borders, shadows, and
+  overflow clipping. Beveled 7-segment digits are now a style, not a
+  sprite.
+- **`gradientRepeat: N`** — repeating gradients of any type (knurl
+  rings, scanlines).
+- **Transform-aware hit testing** — rotated/scaled/translated nodes now
+  receive input where they paint; the 0.0.19 "visual-only" caveat is
+  gone.
+- **`onMouseMove`** on any node (root-space x/y).
+
+### `@vsreact/core` 0.0.20
+
+- `onKeyDown` / `onMouseMove` props + `KeyEventPayload` /
+  `MouseMovePayload` types; `onFocus`/`onBlur` now work on every View.
+- **Built-in controls are keyboard-accessible**: Knob, Slider, Toggle,
+  XYPad (and Param* twins) follow the web `<input type="range">` model —
+  arrows ±1%, Shift = ±0.1% fine, PageUp/Down ±10%, Home/End to the
+  stops, Enter/Space flips a Toggle. `sliderKeyTarget` is exported for
+  custom controls.
+- `z-10` / `z-[3]` / `-z-1` classes.
+- 132 tests.
+
 ## 0.0.19 — 2026-07-19
 
 Web-parity round: the CSS features whose absence forced DirtyDelay to

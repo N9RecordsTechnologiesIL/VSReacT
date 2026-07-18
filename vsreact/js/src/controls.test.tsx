@@ -15,7 +15,7 @@ const defaultNativeCall = (name: string, argsJson: string) => {
 };
 (globalThis as Record<string, any>).__vsreact_nativeCall = defaultNativeCall;
 
-import { render, unmount, Slider, Toggle, XYPad, Segmented, ParamSegmented, ParamToggle } from "./index";
+import { render, unmount, Knob, Slider, Toggle, XYPad, Segmented, ParamSegmented, ParamToggle } from "./index";
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
@@ -771,5 +771,52 @@ describe("0.0.11 — flagship visuals", () => {
     );
     expect(bar).toBeDefined();
     expect(bar[2].style.top).toBeCloseTo(0.5 * 95);
+  });
+});
+
+describe("keyboard control model (0.0.20)", () => {
+  test("Knob responds to arrows / paging / Home-End via keydown", () => {
+    const seen: number[] = [];
+    render(<Knob value={0.5} onChange={(v) => seen.push(v)} />);
+
+    const id = nodeWithListener("keydown");
+    const press = (key: string, shift = false) =>
+      dispatch({ kind: "event", nodeId: id, type: "keydown", payload: { key, shift, ctrl: false, alt: false, meta: false } });
+
+    press("ArrowUp");
+    expect(seen.at(-1)).toBeCloseTo(0.51);
+    press("ArrowDown", true);
+    expect(seen.at(-1)).toBeCloseTo(0.499);
+    press("PageUp");
+    expect(seen.at(-1)).toBeCloseTo(0.6);
+    press("Home");
+    expect(seen.at(-1)).toBe(0);
+    press("End");
+    expect(seen.at(-1)).toBe(1);
+    const count = seen.length;
+    press("Escape");
+    expect(seen.length).toBe(count); // unowned keys ignored
+  });
+
+  test("Toggle flips on Enter and Space", () => {
+    const seen: boolean[] = [];
+    render(<Toggle on={false} onChange={(v) => seen.push(v)} />);
+
+    const id = nodeWithListener("keydown");
+    dispatch({ kind: "event", nodeId: id, type: "keydown", payload: { key: "Enter", shift: false, ctrl: false, alt: false, meta: false } });
+    expect(seen.at(-1)).toBe(true);
+    dispatch({ kind: "event", nodeId: id, type: "keydown", payload: { key: " ", shift: false, ctrl: false, alt: false, meta: false } });
+    expect(seen.at(-1)).toBe(true); // controlled: still !on
+  });
+
+  test("XYPad arrows move both axes", () => {
+    const seen: Array<[number, number]> = [];
+    render(<XYPad x={0.5} y={0.5} onChange={(x, y) => seen.push([x, y])} />);
+
+    const id = nodeWithListener("keydown");
+    dispatch({ kind: "event", nodeId: id, type: "keydown", payload: { key: "ArrowRight", shift: false, ctrl: false, alt: false, meta: false } });
+    expect(seen.at(-1)?.[0]).toBeCloseTo(0.51);
+    dispatch({ kind: "event", nodeId: id, type: "keydown", payload: { key: "ArrowDown", shift: false, ctrl: false, alt: false, meta: false } });
+    expect(seen.at(-1)?.[1]).toBeCloseTo(0.49);
   });
 });

@@ -89,6 +89,93 @@ public:
             auto* hit = vsreact::hitTest (*tree.root(), { 25.0f, 25.0f });
             expect (hit != nullptr && hit->id == 1);
         }
+
+        beginTest ("transformed nodes hit where they paint");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0,
+                                            "width": 60, "height": 60, "translateX": 200},
+                                  "listeners": ["click"]}],
+                ["appendChild", 1, 2]
+            ])");
+            tree.computeLayout (300.0f, 300.0f);
+
+            // The node paints at x 200..260 — the hit should follow it there
+            // and no longer land at the untransformed rect.
+            auto* hit = vsreact::hitTest (*tree.root(), { 230.0f, 30.0f });
+            expect (hit != nullptr && hit->id == 2);
+            expect (vsreact::hitTest (*tree.root(), { 30.0f, 30.0f }) == nullptr);
+        }
+
+        beginTest ("zIndex reorders hits");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0, "width": 100, "height": 100, "zIndex": 5}, "listeners": ["click"]}],
+                ["appendChild", 1, 2],
+                ["create", 3, "view"],
+                ["setProps", 3, {"style": {"position": "absolute", "left": 0, "top": 0, "width": 100, "height": 100}, "listeners": ["click"]}],
+                ["appendChild", 1, 3]
+            ])");
+            tree.computeLayout (300.0f, 300.0f);
+
+            // Without zIndex node 3 (later sibling) would win; zIndex 5 puts
+            // node 2 on top.
+            auto* hit = vsreact::hitTest (*tree.root(), { 50.0f, 50.0f });
+            expect (hit != nullptr && hit->id == 2);
+        }
+
+        beginTest ("focus order walks focusables in tree order and wraps");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"listeners": ["keydown"]}],
+                ["appendChild", 1, 2],
+                ["create", 3, "view"],
+                ["setProps", 3, {"listeners": ["click"]}],
+                ["appendChild", 1, 3],
+                ["create", 4, "view"],
+                ["setProps", 4, {"listeners": ["focus", "keydown"]}],
+                ["appendChild", 1, 4]
+            ])");
+            tree.computeLayout (300.0f, 300.0f);
+
+            expect (! vsreact::isFocusable (*tree.find (3))); // click only
+            expect (vsreact::isFocusable (*tree.find (2)));
+
+            auto* first = vsreact::nextFocusable (*tree.root(), 0, false);
+            expect (first != nullptr && first->id == 2);
+
+            auto* second = vsreact::nextFocusable (*tree.root(), 2, false);
+            expect (second != nullptr && second->id == 4);
+
+            auto* wrapped = vsreact::nextFocusable (*tree.root(), 4, false);
+            expect (wrapped != nullptr && wrapped->id == 2);
+
+            auto* back = vsreact::nextFocusable (*tree.root(), 2, true);
+            expect (back != nullptr && back->id == 4);
+        }
+
+        beginTest ("web key names");
+        {
+            expect (vsreact::RootView::keyName (juce::KeyPress (juce::KeyPress::upKey)) == "ArrowUp");
+            expect (vsreact::RootView::keyName (juce::KeyPress (juce::KeyPress::returnKey)) == "Enter");
+            expect (vsreact::RootView::keyName (juce::KeyPress (juce::KeyPress::spaceKey)) == " ");
+            expect (vsreact::RootView::keyName (juce::KeyPress ((int) 'A', {}, 'a')) == "a");
+        }
     }
 };
 

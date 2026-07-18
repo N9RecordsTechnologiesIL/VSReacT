@@ -108,6 +108,35 @@ export default function Page() {
   );
 }`}</Code>
 
+      <h2 id="keyboard">Keyboard &amp; focus (since 0.0.20)</h2>
+      <p>
+        Declaring <code>onKeyDown</code> (or <code>onFocus</code>/<code>onBlur</code>, or
+        a <code>focus:</code> style variant) makes a View <strong>focusable</strong>:
+        clicking it focuses it, <kbd>Tab</kbd>/<kbd>Shift-Tab</kbd> cycle focusables in
+        tree order, clicking empty space blurs. Keys arrive with web{' '}
+        <code>KeyboardEvent.key</code> names (<code>&quot;ArrowUp&quot;</code>,{' '}
+        <code>&quot;Enter&quot;</code>, <code>&quot;Escape&quot;</code>,{' '}
+        <code>&quot; &quot;</code>, <code>&quot;a&quot;</code>) plus{' '}
+        <code>shift/ctrl/alt/meta</code> flags. Unhandled keys fall through to the host.
+      </p>
+      <Code title="arrow keys nudge, exactly like the web version">{`<View
+  className="cursor-pointer focus:border-lime-400 focus:border-2 rounded-lg"
+  onKeyDown={(e) => {
+    if (e.key === "ArrowUp") onChange(clamp01(value + (e.shift ? 0.001 : 0.01)));
+    if (e.key === "ArrowDown") onChange(clamp01(value - (e.shift ? 0.001 : 0.01)));
+  }}
+/>`}</Code>
+      <p>
+        The built-in <code>Knob</code>, <code>Slider</code>, <code>Toggle</code>, and{' '}
+        <code>XYPad</code> (and their <code>Param*</code> twins) are keyboard-accessible
+        out of the box — arrows ±1% (<kbd>Shift</kbd> = ±0.1% fine),{' '}
+        <kbd>PageUp/Down</kbd> ±10%, <kbd>Home/End</kbd> to the stops, and{' '}
+        <kbd>Enter</kbd>/<kbd>Space</kbd> flips a Toggle — the{' '}
+        <code>sliderKeyTarget</code> helper is exported if you want the same model on a
+        custom control. Focus is invisible by default; opt into a ring with a{' '}
+        <code>focus:</code> variant.
+      </p>
+
       <h2 id="scroll">Scroll containers</h2>
       <p>
         Give a View <code>overflow-y-scroll</code> and a bounded height: children lay out at

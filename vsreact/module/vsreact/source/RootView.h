@@ -56,7 +56,16 @@ public:
     void mouseDoubleClick (const juce::MouseEvent& e) override;
     void mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
 
+    // Keyboard: Tab / Shift-Tab cycle focusable nodes; other keys go to the
+    // focused node's onKeyDown as web-style names ("ArrowUp", "Enter", "a").
+    bool keyPressed (const juce::KeyPress& key) override;
+
+    /** Web KeyboardEvent.key name for a JUCE key press ("ArrowUp", "Enter",
+        "Escape", " ", "a"). Exposed for tests. */
+    static juce::String keyName (const juce::KeyPress& key);
+
 private:
+    void focusNode (int nodeId);
     void initialiseRuntime();
     void teardownRuntime();
     void handleFlush (const juce::String& opsJson);
@@ -79,6 +88,7 @@ private:
     std::map<int, std::unique_ptr<juce::Component>> hostedComponents;
 
     int hoveredNodeId = 0, activeNodeId = 0;
+    int focusedNodeId = 0;
     int dragNodeId = 0;
     juce::Point<float> dragStartPosition;
     bool dragging = false;

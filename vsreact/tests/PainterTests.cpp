@@ -297,6 +297,62 @@ public:
             expect (reddish > 40);
         }
 
+        beginTest ("zIndex reorders painting");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%"}}],
+                ["appendChild", 0, 1],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 0, "top": 0, "width": "100%", "height": "100%", "backgroundColor": "#ff0000", "zIndex": 5}}],
+                ["appendChild", 1, 2],
+                ["create", 3, "view"],
+                ["setProps", 3, {"style": {"position": "absolute", "left": 0, "top": 0, "width": "100%", "height": "100%", "backgroundColor": "#0000ff"}}],
+                ["appendChild", 1, 3]
+            ])");
+
+            // Later sibling would normally cover; zIndex 5 keeps red on top.
+            const auto image = renderTree (tree, 60, 60);
+            expect (approx (image.getPixelAt (30, 30), juce::Colour (0xffff0000)));
+        }
+
+        beginTest ("clipPolygon shapes the background");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%", "backgroundColor": "#00ff00",
+                                            "clipPolygon": [50, 0, 100, 100, 0, 100]}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            // Triangle: apex top-centre — corners stay unpainted, centre fills.
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 60), juce::Colour (0xff00ff00)));
+            expect (approx (image.getPixelAt (3, 3), juce::Colours::black));
+            expect (approx (image.getPixelAt (97, 3), juce::Colours::black));
+        }
+
+        beginTest ("gradientRepeat tiles the stops");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%",
+                    "gradientType": "linear", "gradientAngle": 180,
+                    "gradientFrom": "#ff0000", "gradientTo": "#0000ff",
+                    "gradientRepeat": 2}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            // Two tiles: red at the very top AND again just past halfway.
+            const auto image = renderTree (tree, 100, 100);
+            expect (approx (image.getPixelAt (50, 2), juce::Colour (0xffff0000), 30));
+            expect (approx (image.getPixelAt (50, 52), juce::Colour (0xffff0000), 40));
+            expect (approx (image.getPixelAt (50, 48), juce::Colour (0xff0000ff), 40));
+        }
+
         beginTest ("text renders in its color");
         {
             vsreact::ShadowTree tree;

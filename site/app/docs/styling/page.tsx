@@ -86,8 +86,16 @@ export default function Page() {
             <td>
               <code>rotate-45</code> <code>-rotate-90</code> <code>rotate-[10.5]</code>{' '}
               <code>scale-95</code> <code>scale-[1.25]</code>{' '}
-              <code>translate-x-4</code> <code>-translate-y-2</code> — paint-time only:
-              layout and hit areas stay at the untransformed rect
+              <code>translate-x-4</code> <code>-translate-y-2</code> — layout is
+              untransformed, but painting <em>and hit-testing</em> follow the transform
+              (since 0.0.20)
+            </td>
+          </tr>
+          <tr>
+            <td>Stacking</td>
+            <td>
+              <code>z-10</code> <code>z-[3]</code> <code>-z-1</code> — reorders both
+              painting and hit-testing among siblings (tree order breaks ties)
             </td>
           </tr>
           <tr>
@@ -200,9 +208,20 @@ configureTheme({
         <li>
           <strong>Transforms</strong> — <code>rotate</code> (degrees), <code>scale</code>,{' '}
           <code>translateX/Y</code>, applied about the frame centre in CSS order
-          (translate → rotate → scale); children inherit. Paint-time only: hit areas and
-          layout stay at the untransformed rect, so keep interactive surfaces
-          untransformed.
+          (translate → rotate → scale); children inherit. Layout is untransformed, but
+          since 0.0.20 hit-testing follows the transform, so rotated controls receive
+          input where they actually paint.
+        </li>
+        <li>
+          <strong>Clip polygons</strong> — <code>clipPolygon</code>: a flat{' '}
+          <code>[x, y, x, y, …]</code> array in percent of the frame (CSS{' '}
+          <code>clip-path: polygon()</code>). Shapes the background, borders, shadows,
+          and overflow clipping — beveled LED segments, chamfered plates, meters.
+        </li>
+        <li>
+          <strong>Repeating gradients</strong> — <code>gradientRepeat: N</code> tiles the
+          stop pattern N times across the span (any gradient type): knurl rings,
+          scanlines, ruler ticks.
         </li>
       </ul>
       <Code title="a bare arc, no Knob component">{`<View

@@ -137,6 +137,22 @@ std::optional<Style::Gradient> Style::gradient() const
 
     std::stable_sort (gradient.stops.begin(), gradient.stops.end(),
                       [] (const auto& a, const auto& b) { return a.first < b.first; });
+
+    // CSS repeating-*-gradient: tile the stop pattern N times across the span.
+    const auto repeat = juce::jlimit (1, 64, (int) getFloat ("gradientRepeat", 1.0f));
+
+    if (repeat > 1)
+    {
+        std::vector<std::pair<float, juce::Colour>> tiled;
+        tiled.reserve (gradient.stops.size() * (size_t) repeat);
+
+        for (int k = 0; k < repeat; ++k)
+            for (const auto& [offset, colour] : gradient.stops)
+                tiled.emplace_back (((float) k + offset) / (float) repeat, colour);
+
+        gradient.stops = std::move (tiled);
+    }
+
     return gradient;
 }
 

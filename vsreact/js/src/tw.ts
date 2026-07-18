@@ -310,6 +310,10 @@ function resolveClass(cls: string): Style | undefined {
       const n = Number(rest);
       return Number.isFinite(n) ? { flex: n } : undefined;
     }
+    case "z": {
+      const z = rest.startsWith("[") ? parseLength(rest) : Number(rest);
+      return typeof z === "number" && Number.isFinite(z) ? { zIndex: negate(z) } : undefined;
+    }
     default:
       return undefined;
   }

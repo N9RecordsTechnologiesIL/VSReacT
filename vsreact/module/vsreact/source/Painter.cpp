@@ -1,4 +1,5 @@
 #include "Painter.h"
+#include "HitTest.h"
 
 #include <map>
 
@@ -171,7 +172,7 @@ juce::Path Painter::roundedRectPath (juce::Rectangle<float> r,
 
 void Painter::paint (juce::Graphics& g, const Node& root)
 {
-    for (const auto* child : root.children)
+    for (const auto* child : paintOrdered (root.children))
         paintNode (g, *child);
 }
 
@@ -198,9 +199,34 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
     if (style.hasTransform())
         g.addTransform (style.transformFor (node.frame));
 
-    const auto path = roundedRectPath (node.frame,
-                                       style.cornerRadius (0), style.cornerRadius (1),
-                                       style.cornerRadius (2), style.cornerRadius (3));
+    // clipPolygon ([x,y,x,y,… in % of the frame], CSS clip-path: polygon())
+    // replaces the rounded rect as the node's shape.
+    juce::Path path;
+
+    if (const auto* polygon = style.values.getVarPointer ("clipPolygon");
+        polygon != nullptr && polygon->isArray() && polygon->getArray()->size() >= 6)
+    {
+        const auto& points = *polygon->getArray();
+
+        for (int i = 0; i + 1 < points.size(); i += 2)
+        {
+            const auto x = node.frame.getX() + node.frame.getWidth() * (float) (double) points[i] / 100.0f;
+            const auto y = node.frame.getY() + node.frame.getHeight() * (float) (double) points[i + 1] / 100.0f;
+
+            if (i == 0)
+                path.startNewSubPath (x, y);
+            else
+                path.lineTo (x, y);
+        }
+
+        path.closeSubPath();
+    }
+    else
+    {
+        path = roundedRectPath (node.frame,
+                                style.cornerRadius (0), style.cornerRadius (1),
+                                style.cornerRadius (2), style.cornerRadius (3));
+    }
 
     if (const auto shadowColor = style.getColour ("shadowColor"))
     {
@@ -327,17 +353,19 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
     if (style.overflowHidden() || scrollable)
         g.reduceClipRegion (path);
 
+    const auto ordered = paintOrdered (node.children);
+
     if (scrollable && node.scrollY != 0.0f)
     {
         juce::Graphics::ScopedSaveState scrollState (g);
         g.addTransform (juce::AffineTransform::translation (0.0f, -node.scrollY));
 
-        for (const auto* child : node.children)
+        for (const auto* child : ordered)
             paintNode (g, *child);
     }
     else
     {
-        for (const auto* child : node.children)
+        for (const auto* child : ordered)
             paintNode (g, *child);
     }
 

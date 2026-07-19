@@ -48,11 +48,12 @@ export default function Page() {
               <code>onWheel</code>
             </td>
             <td>
-              <code>{'{dy}'}</code>
+              <code>{'{dy, dx}'}</code>
             </td>
             <td>
               Controls get first refusal on the wheel; scroll containers keep it otherwise.{' '}
-              <code>dy</code> is the notch fraction (~0.1/notch).
+              <code>dy</code> is the notch fraction (~0.1/notch); <code>dx</code> is nonzero
+              on trackpads and tilt wheels.
             </td>
           </tr>
           <tr>
@@ -144,13 +145,20 @@ export default function Page() {
 
       <h2 id="scroll">Scroll containers</h2>
       <p>
-        Give a View <code>overflow-y-scroll</code> and a bounded height: children lay out at
-        full size, the mouse wheel scrolls, the painter clips and draws a thumb. Set the{' '}
-        <code>scrollTop</code> prop to reset the offset programmatically (say, when switching
-        tabs).
+        Give a View <code>overflow-auto</code> (or <code>overflow-y-scroll</code> /{' '}
+        <code>overflow-x-scroll</code>) and a bounded size: children lay out at full size,
+        the mouse wheel scrolls, the painter clips and draws thumbs. Both axes work — an
+        axis engages when its content actually overflows. Trackpads scroll horizontally
+        with their real <code>deltaX</code>; mice map <kbd>Shift</kbd>+wheel to horizontal,
+        like the web. Set <code>scrollTop</code> / <code>scrollLeft</code> to reset the
+        offsets programmatically (say, when switching tabs).
       </p>
       <Code title="TSX">{`<View className="flex-1 overflow-y-scroll gap-2 p-3" scrollTop={0}>
   {items.map((item) => <Row key={item.id} item={item} />)}
+</View>
+
+<View className="h-24 overflow-x-scroll flex-row gap-2" scrollLeft={0}>
+  {steps.map((step) => <StepCell key={step.id} step={step} />)}
 </View>`}</Code>
 
       <h2 id="layout">Layout feedback — onLayout</h2>

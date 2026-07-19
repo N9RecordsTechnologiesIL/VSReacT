@@ -34,12 +34,24 @@ float Node::contentHeight() const
     return maxBottom - frame.getY() + paddingBottom;
 }
 
-float Node::accumulatedAncestorScroll() const
+float Node::contentWidth() const
 {
-    float total = 0.0f;
+    float maxRight = frame.getX();
+
+    for (const auto* child : children)
+        if (child->yoga != nullptr)
+            maxRight = juce::jmax (maxRight, child->frame.getRight());
+
+    const auto paddingRight = style.getFloat ("paddingRight", style.getFloat ("padding", 0.0f));
+    return maxRight - frame.getX() + paddingRight;
+}
+
+juce::Point<float> Node::accumulatedAncestorScroll() const
+{
+    juce::Point<float> total;
 
     for (const auto* ancestor = parent; ancestor != nullptr; ancestor = ancestor->parent)
-        total += ancestor->scrollY;
+        total += juce::Point<float> (ancestor->scrollX, ancestor->scrollY);
 
     return total;
 }
@@ -208,8 +220,13 @@ void ShadowTree::setProps (int id, const juce::var& props)
             node->listeners.add (listener.toString());
 
     if (const auto* object = props.getDynamicObject())
+    {
         if (object->hasProperty ("scrollTop"))
             node->scrollY = static_cast<float> (static_cast<double> (props["scrollTop"]));
+
+        if (object->hasProperty ("scrollLeft"))
+            node->scrollX = static_cast<float> (static_cast<double> (props["scrollLeft"]));
+    }
 
     if (node->yoga != nullptr)
     {

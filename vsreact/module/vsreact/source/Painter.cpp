@@ -1,5 +1,8 @@
 #include "Painter.h"
 #include "HitTest.h"
+#include "TextSelection.h"
+#include "Blur.h"
+#include "WebpImage.h"
 
 #include <juce_gui_basics/juce_gui_basics.h> // Drawable::parseSVGPath
 
@@ -172,13 +175,63 @@ juce::Path Painter::roundedRectPath (juce::Rectangle<float> r,
     return p;
 }
 
+namespace
+{
+    // Set while paint() targets an image buffer; backdrop nodes sample it.
+    // Painting is message-thread-only, so a file-static is safe.
+    const juce::Image* activeCanvas = nullptr;
+}
+
 void Painter::paint (juce::Graphics& g, const Node& root)
 {
     for (const auto* child : paintOrdered (root.children))
         paintNode (g, *child);
 }
 
-void Painter::paintNode (juce::Graphics& g, const Node& node)
+void Painter::paint (juce::Graphics& g, const Node& root, const juce::Image& canvas)
+{
+    activeCanvas = &canvas;
+    paint (g, root);
+    activeCanvas = nullptr;
+}
+
+bool Painter::treeHasBackdrop (const Node& node)
+{
+    static const juce::Identifier key ("backdropBlurRadius");
+
+    if (node.style.has (key) || node.hoverStyle.has (key)
+        || node.activeStyle.has (key) || node.focusStyle.has (key))
+        return true;
+
+    for (const auto* child : node.children)
+        if (treeHasBackdrop (*child))
+            return true;
+
+    return false;
+}
+
+void Painter::paintBlurred (juce::Graphics& g, const Node& node, int radius)
+{
+    // CSS filter: blur() — render the node and its subtree offscreen, blur,
+    // composite. Padded so the blur has room to bleed past the frame.
+    const auto bounds = node.frame.getSmallestIntegerContainer().expanded (radius * 2);
+
+    if (bounds.isEmpty())
+        return;
+
+    juce::Image offscreen (juce::Image::ARGB, bounds.getWidth(), bounds.getHeight(), true);
+
+    {
+        juce::Graphics offscreenGraphics (offscreen);
+        offscreenGraphics.setOrigin (-bounds.getPosition());
+        paintNode (offscreenGraphics, node, true);
+    }
+
+    stackBlur (offscreen, radius);
+    g.drawImageAt (offscreen, bounds.getX(), bounds.getY());
+}
+
+void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
 {
     if (node.type == "rawtext" || node.type == "svgpath")
         return;   // painted by their text / svg parent
@@ -192,6 +245,16 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
     // CSS visibility: hidden — keeps layout, paints nothing (subtree too).
     if (style.getString ("visibility") == "hidden")
         return;
+
+    if (! skipOwnBlur)
+    {
+        if (const auto blurRadius = juce::roundToInt (style.getFloat ("blurRadius", 0.0f));
+            blurRadius > 0)
+        {
+            paintBlurred (g, node, blurRadius);
+            return;
+        }
+    }
 
     juce::Graphics::ScopedSaveState save (g);
 
@@ -241,6 +304,37 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
                                        { juce::roundToInt (style.getFloat ("shadowOffsetX", 0.0f)),
                                          juce::roundToInt (style.getFloat ("shadowOffsetY", 0.0f)) });
         shadow.drawForPath (g, path);
+    }
+
+    // CSS backdrop-filter: blur() — sample what's already painted beneath
+    // this node from the frame buffer, blur it, and lay it down clipped to
+    // the node's shape; the (usually translucent) background then tints it.
+    if (const auto backdropRadius = juce::roundToInt (style.getFloat ("backdropBlurRadius", 0.0f));
+        backdropRadius > 0 && activeCanvas != nullptr)
+    {
+        // The canvas holds screen-space pixels: the frame minus any
+        // ancestor scroll (transforms are not compensated — documented).
+        const auto scroll = node.accumulatedAncestorScroll();
+        const auto screenRect = node.frame.translated (-scroll.x, -scroll.y)
+                                    .getSmallestIntegerContainer();
+        const auto region = screenRect.getIntersection (activeCanvas->getBounds());
+
+        if (! region.isEmpty())
+        {
+            // The canvas must be a SoftwareImageType image — native images
+            // don't reliably expose in-flight writes while a Graphics is
+            // attached (RootView::paint creates the right kind).
+            auto sample = activeCanvas->getClippedImage (region).createCopy();
+            stackBlur (sample, backdropRadius);
+
+            juce::Graphics::ScopedSaveState backdropState (g);
+            g.reduceClipRegion (path);
+            g.drawImageAt (sample,
+                           node.frame.getSmallestIntegerContainer().getX()
+                               + (region.getX() - screenRect.getX()),
+                           node.frame.getSmallestIntegerContainer().getY()
+                               + (region.getY() - screenRect.getY()));
+        }
     }
 
     if (const auto gradient = style.gradient())
@@ -382,10 +476,10 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
 
     const auto ordered = paintOrdered (node.children);
 
-    if (scrollable && node.scrollY != 0.0f)
+    if (scrollable && (node.scrollY != 0.0f || node.scrollX != 0.0f))
     {
         juce::Graphics::ScopedSaveState scrollState (g);
-        g.addTransform (juce::AffineTransform::translation (0.0f, -node.scrollY));
+        g.addTransform (juce::AffineTransform::translation (-node.scrollX, -node.scrollY));
 
         for (const auto* child : ordered)
             paintNode (g, *child);
@@ -396,12 +490,10 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
             paintNode (g, *child);
     }
 
-    // Scrollbar thumb.
+    // Scrollbar thumbs.
     if (scrollable)
     {
-        const auto extent = node.maxScroll();
-
-        if (extent > 0.0f)
+        if (const auto extent = node.maxScroll(); extent > 0.0f)
         {
             const auto frameH = node.frame.getHeight();
             const auto thumbH = juce::jmax (24.0f, frameH * frameH / node.contentHeight());
@@ -411,6 +503,17 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
             g.setColour (juce::Colour (0x30ffffff));
             g.fillRoundedRectangle (node.frame.getRight() - 5.0f, thumbY, 3.0f, thumbH, 1.5f);
         }
+
+        if (const auto extent = node.maxScrollX(); extent > 0.0f)
+        {
+            const auto frameW = node.frame.getWidth();
+            const auto thumbW = juce::jmax (24.0f, frameW * frameW / node.contentWidth());
+            const auto thumbX = node.frame.getX()
+                              + (node.scrollX / extent) * (frameW - thumbW);
+
+            g.setColour (juce::Colour (0x30ffffff));
+            g.fillRoundedRectangle (thumbX, node.frame.getBottom() - 5.0f, thumbW, 3.0f, 1.5f);
+        }
     }
 
     if (needsLayer)
@@ -419,28 +522,12 @@ void Painter::paintNode (juce::Graphics& g, const Node& node)
 
 void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style)
 {
-    auto text = node.textContent();
+    // CSS text-transform lives in TextSelection::visibleText so selection
+    // geometry and painted glyphs always agree.
+    const auto text = TextSelection::visibleText (node, style);
 
     if (text.isEmpty())
         return;
-
-    // CSS text-transform.
-    const auto caseTransform = style.getString ("textTransform");
-
-    if (caseTransform == "uppercase")
-        text = text.toUpperCase();
-    else if (caseTransform == "lowercase")
-        text = text.toLowerCase();
-    else if (caseTransform == "capitalize")
-    {
-        auto words = juce::StringArray::fromTokens (text, " ", {});
-
-        for (auto& word : words)
-            if (word.isNotEmpty())
-                word = word.substring (0, 1).toUpperCase() + word.substring (1);
-
-        text = words.joinIntoString (" ");
-    }
 
     const auto font = style.font();
     const auto colour = style.getColour ("color").value_or (juce::Colours::white);
@@ -502,6 +589,15 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
 
     const auto y = node.frame.getY()
                  + juce::jmax (0.0f, (node.frame.getHeight() - layout.getHeight()) * 0.5f);
+
+    // Selection highlight under everything (userSelect:"text" nodes).
+    if (node.selEnd > node.selStart)
+    {
+        g.setColour (style.getColour ("selectionColor").value_or (juce::Colour (0x593390ff)));
+
+        for (const auto& rect : TextSelection::selectionRects (node, node.selStart, node.selEnd))
+            g.fillRect (rect);
+    }
 
     // Glyph-shaped glow (CSS text-shadow), drawn under the fill.
     if (const auto glowColor = style.getColour ("textShadowColor"))
@@ -651,8 +747,8 @@ void Painter::paintSvg (juce::Graphics& g, const Node& node)
 
 juce::Image Painter::decodeDataUriImage (const juce::String& source)
 {
-    // data:image/png;base64,<payload> — PNG/JPEG/GIF (whatever
-    // juce::ImageFileFormat knows). Non-base64 payloads are not images.
+    // data:image/png;base64,<payload> — PNG/JPEG/GIF via juce::ImageFileFormat,
+    // WebP via the vendored decoder. Non-base64 payloads are not images.
     const auto comma = source.indexOfChar (',');
 
     if (comma <= 0 || ! source.substring (0, comma).endsWith (";base64"))
@@ -663,7 +759,12 @@ juce::Image Painter::decodeDataUriImage (const juce::String& source)
     if (! juce::Base64::convertFromBase64 (decoded, source.substring (comma + 1)))
         return {};
 
-    return juce::ImageFileFormat::loadFrom (decoded.getData(), decoded.getDataSize());
+    auto image = juce::ImageFileFormat::loadFrom (decoded.getData(), decoded.getDataSize());
+
+    if (! image.isValid())
+        image = decodeWebPImage (decoded.getData(), decoded.getDataSize());
+
+    return image;
 }
 
 void Painter::paintImage (juce::Graphics& g, const Node& node)
@@ -691,7 +792,27 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
     }
     else
     {
-        image = juce::ImageCache::getFromFile (juce::File (source));
+        // WebP files aren't in juce::ImageFileFormat's registry — decode
+        // manually, cached under the path's hash so it happens once.
+        const juce::File file (source);
+        const auto webpHash = ("webp:" + file.getFullPathName()).hashCode64();
+        image = juce::ImageCache::getFromHashCode (webpHash);
+
+        if (! image.isValid())
+            image = juce::ImageCache::getFromFile (file);
+
+        if (! image.isValid())
+        {
+            juce::MemoryBlock bytes;
+
+            if (file.loadFileAsData (bytes) && looksLikeWebP (bytes.getData(), bytes.getSize()))
+            {
+                image = decodeWebPImage (bytes.getData(), bytes.getSize());
+
+                if (image.isValid())
+                    juce::ImageCache::addImageToCache (image, webpHash);
+            }
+        }
     }
 
     if (! image.isValid())

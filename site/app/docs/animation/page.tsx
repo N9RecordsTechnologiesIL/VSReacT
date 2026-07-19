@@ -19,6 +19,38 @@ export default function Page() {
         separate animation system to learn.
       </p>
 
+      <h2 id="transitions">CSS-style transitions (since 0.0.26)</h2>
+      <p>
+        The declarative path: put <code>transition</code> classes on a node and its style
+        changes tween from the currently displayed values instead of jumping — mid-flight
+        re-renders retarget smoothly, exactly like the web.
+      </p>
+      <Code title="TSX">{`<View
+  className={cx(
+    "h-2 rounded-full transition-colors duration-300 ease-out",
+    hot ? "bg-red-500" : "bg-zinc-700",
+  )}
+/>`}</Code>
+      <ul>
+        <li>
+          <code>transition</code> animates opacity, colors, transforms, and blur;{' '}
+          <code>transition-all/colors/opacity/transform/none</code> scope it.
+        </li>
+        <li>
+          <code>duration-*</code> and <code>delay-*</code> are literal milliseconds;{' '}
+          <code>ease-linear/in/out/in-out</code> pick the curve.
+        </li>
+        <li>
+          Keyframe presets: <code>animate-spin</code>, <code>animate-pulse</code>, and{' '}
+          <code>animate-bounce</code> loop until the class comes off.
+        </li>
+        <li>
+          Honest limit: native <code>hover:</code>/<code>active:</code>/<code>focus:</code>{' '}
+          merges apply in C++ without a JS round-trip, so they can&apos;t transition —
+          animate hover with <code>onMouseEnter</code> state when you need it smooth.
+        </li>
+      </ul>
+
       <h2 id="usetween">useTween</h2>
       <Code title="a splash entrance">{`import { useTween, lerp, Easing } from "@vsreact/core";
 

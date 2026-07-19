@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.0.26 — 2026-07-19
+
+The honest-gaps round: everything the FAQ said the web could do and
+VSReacT couldn't — WebP, blur/backdrop filters, text selection, CSS
+transitions/animations, horizontal scroll — ships here.
+
+### Native (`vsreact` module)
+
+- **WebP decoding** — `<Image>` now takes `.webp` files and
+  `data:image/webp` URIs (lossy VP8, lossless VP8L, alpha) via a
+  vendored decode-only libwebp 1.6.0 (`third_party/libwebp`,
+  BSD-3-Clause, no pthread dependency). Animated WebP renders its
+  primary frame.
+- **`blurRadius`** (CSS `filter: blur`) — the node and its subtree
+  render offscreen, get a fast O(n) stack blur, and composite back
+  (padded so the softness bleeds past the frame, like the web).
+- **`backdropBlurRadius`** (CSS `backdrop-filter: blur`) — frosted
+  glass: when a tree contains a backdrop node the RootView paints into
+  a frame buffer, and the node samples, blurs, and re-lays the pixels
+  beneath it, clipped to its rounded shape. Tint it with a translucent
+  background on the same node.
+- **Opt-in text selection** — `userSelect: "text"` on a `<Text>` makes
+  it selectable: drag selects character ranges (painted highlight,
+  `selectionColor` style key to theme it), double-click selects a
+  word, Ctrl/Cmd+C copies the *visible* (post-textTransform) text,
+  Escape or clicking away clears, I-beam cursor on hover. Selection
+  geometry mirrors the painter's TextLayout exactly. Text stays
+  non-selectable by default; interactive controls win over selection;
+  `truncate`/`line-clamp` text is excluded.
+- **Horizontal scroll** — `overflow: "scroll"` containers now scroll
+  both axes (each engages when its content overflows): trackpad
+  `deltaX`, Shift+wheel for mice (web convention), a bottom scrollbar
+  thumb, `scrollLeft` prop, scroll-aware hit-testing and hosted
+  component sync. Wheel listener payloads gain `dx`.
+
+### `@vsreact/core` 0.0.26
+
+- **CSS-style transitions** — `transition` /
+  `transition-all/colors/opacity/transform/none`, `duration-*`,
+  `delay-*`, `ease-linear/in/out/in-out`: style changes tween from
+  their *currently displayed* values (mid-flight retargeting included)
+  on one shared 16ms driver, landing exactly on target. Native
+  hover:/active: merges don't transition (documented) — animate hover
+  with `onMouseEnter` state.
+- **Keyframe presets** — `animate-spin`, `animate-pulse`,
+  `animate-bounce` loop until the class comes off or the node
+  unmounts; `animate-none` stops.
+- **`<Text selectable>`** + `select-text`/`select-none` classes.
+- Classes: `blur-sm…3xl`, `blur-[n]`, `backdrop-blur-sm…3xl`,
+  `backdrop-blur-[n]`, `overflow-x-scroll`, `overflow-auto` variants.
+- `scrollLeft` prop; `WheelEventPayload.dx`. 157 tests.
+
 ## 0.0.25 — 2026-07-19
 
 Layout & robustness: the display/visibility split, self-relative

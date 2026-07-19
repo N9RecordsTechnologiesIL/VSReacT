@@ -18,10 +18,11 @@ export interface LayoutRect {
   height: number;
 }
 
-/** Mouse-wheel payload. dy is JUCE's notch fraction (~0.1 per notch,
-    positive = wheel up). */
+/** Mouse-wheel payload. Deltas are JUCE's notch fraction (~0.1 per notch,
+    dy positive = wheel up; dx nonzero on trackpads/tilt wheels). */
 export interface WheelEventPayload {
   dy: number;
+  dx: number;
 }
 
 /** Web-style key event: key names match KeyboardEvent.key ("ArrowUp",
@@ -44,8 +45,10 @@ export interface CommonProps {
   className?: string;
   style?: Style;
   children?: ReactNode;
-  /** Resets the scroll offset of an overflow-y-scroll container. */
+  /** Resets the vertical scroll offset of an overflow-scroll container. */
   scrollTop?: number;
+  /** Resets the horizontal scroll offset of an overflow-scroll container. */
+  scrollLeft?: number;
   onClick?: () => void;
   onDoubleClick?: () => void;
   /** Wheel over this node (controls win the wheel over scroll containers). */
@@ -77,9 +80,14 @@ export function View(props: CommonProps) {
 
 export interface TextProps extends Omit<CommonProps, "children"> {
   children?: ReactNode; // strings/numbers (and fragments of them)
+  /** Opt this text into selection (drag to select, double-click for a word,
+      Ctrl/Cmd+C copies). Text is NOT selectable by default. Equivalent to
+      the `select-text` class / `userSelect: "text"` style key. */
+  selectable?: boolean;
 }
 
-export function Text(props: TextProps) {
+export function Text({ selectable, ...props }: TextProps) {
+  if (selectable) props = { ...props, style: { userSelect: "text", ...props.style } };
   return createElement("vs-text", props);
 }
 

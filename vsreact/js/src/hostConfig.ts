@@ -3,6 +3,7 @@
 
 import { DefaultEventPriority } from "react-reconciler/constants";
 import { queueOp, flushOps, setHandlers, removeHandlers, type EventHandler } from "./bridge";
+import { commitProps, releaseNode } from "./transitions";
 import { tw, type Style } from "./tw";
 
 export interface Instance {
@@ -82,7 +83,8 @@ function normalizeProps(props: Record<string, unknown>): {
 function applyProps(instance: Instance, props: Record<string, unknown>): void {
   const { payload, handlers } = normalizeProps(props);
   setHandlers(instance.id, handlers);
-  queueOp(["setProps", instance.id, payload]);
+  // The transition engine queues the op — tweened when the style asks for it.
+  commitProps(instance.id, payload);
 }
 
 export const hostConfig = {
@@ -157,6 +159,7 @@ export const hostConfig = {
 
   detachDeletedInstance(instance: Instance): void {
     removeHandlers(instance.id);
+    releaseNode(instance.id);
   },
 
   getCurrentEventPriority: () => DefaultEventPriority,

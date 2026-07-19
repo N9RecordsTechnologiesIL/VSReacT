@@ -9,7 +9,8 @@ target_sources(VSReacTTests
         PainterTests.cpp
         HitTestTests.cpp
         HostedComponentTests.cpp
-        Phase2Tests.cpp)
+        Phase2Tests.cpp
+        GapsTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

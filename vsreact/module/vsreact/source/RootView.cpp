@@ -1,6 +1,7 @@
 #include "RootView.h"
 #include "HitTest.h"
 #include "TextInputHost.h"
+#include "TextSelection.h"
 
 namespace vsreact
 {
@@ -22,6 +23,12 @@ RootView::RootView (RootOptions optionsIn, NativeRegistry registryIn)
         if (hoveredNodeId == node.id) hoveredNodeId = 0;
         if (activeNodeId == node.id)  activeNodeId = 0;
         if (focusedNodeId == node.id) focusedNodeId = 0;
+
+        if (selectionNodeId == node.id)
+        {
+            selectionNodeId = 0;
+            selectingText = false;
+        }
     };
 
     scheduler.onFire = [this] (int id)
@@ -173,7 +180,8 @@ void RootView::dispatchLayoutEvents()
     {
         if (node.listeners.contains ("layout"))
         {
-            const auto rect = node.frame.translated (0.0f, -node.accumulatedAncestorScroll());
+            const auto scroll = node.accumulatedAncestorScroll();
+            const auto rect = node.frame.translated (-scroll.x, -scroll.y);
 
             if (! node.layoutReported || rect != node.reportedLayout)
             {
@@ -205,8 +213,9 @@ void RootView::syncHostedComponents()
     {
         if (const auto* node = tree.find (nodeId))
         {
+            const auto scroll = node->accumulatedAncestorScroll();
             component->setBounds (node->frame
-                                      .translated (0.0f, -node->accumulatedAncestorScroll())
+                                      .translated (-scroll.x, -scroll.y)
                                       .toNearestInt());
 
             // Hosted JUCE components always draw above painted content, so
@@ -330,6 +339,26 @@ void RootView::dispatchNodeEvent (int nodeId, const juce::String& type, const ju
 //==============================================================================
 void RootView::paint (juce::Graphics& g)
 {
+    // backdrop-filter needs to read back what's painted beneath a node, so
+    // trees that use it render into a frame buffer and blit. Everyone else
+    // keeps the direct path.
+    if (getWidth() > 0 && getHeight() > 0 && Painter::treeHasBackdrop (*tree.root()))
+    {
+        // Software image type: backdrop sampling reads the buffer while its
+        // Graphics is still alive — native (DIB/CoreGraphics) images don't
+        // reliably expose in-flight writes to BitmapData readers.
+        juce::Image buffer (juce::Image::ARGB, getWidth(), getHeight(), true,
+                            juce::SoftwareImageType());
+
+        {
+            juce::Graphics bufferGraphics (buffer);
+            Painter::paint (bufferGraphics, *tree.root(), buffer);
+        }
+
+        g.drawImageAt (buffer, 0, 0);
+        return;
+    }
+
     Painter::paint (g, *tree.root());
 }
 
@@ -421,6 +450,15 @@ void RootView::updateHoverState (juce::Point<float> position)
             break;
     }
 
+    // Selectable text reads as text: I-beam unless something explicit won.
+    if (cursor.isEmpty())
+        for (auto* node = tree.find (hoveredNodeId); node != nullptr && node->id != 0; node = node->parent)
+            if (node->isSelectableText())
+            {
+                cursor = "text";
+                break;
+            }
+
     setMouseCursor (cursor == "pointer"     ? juce::MouseCursor::PointingHandCursor
                     : cursor == "text"      ? juce::MouseCursor::IBeamCursor
                     : cursor == "grab"      ? juce::MouseCursor::DraggingHandCursor
@@ -499,6 +537,26 @@ void RootView::mouseDown (const juce::MouseEvent& e)
         }
     }
 
+    // Text selection: any press clears the old one; selectable text anchors
+    // a new one unless a control claimed the drag gesture (controls win).
+    clearSelection();
+
+    if (dragNodeId == 0)
+    {
+        for (auto* node = hit; node != nullptr; node = node->parent)
+        {
+            if (node->isSelectableText())
+            {
+                const auto scroll = node->accumulatedAncestorScroll();
+                selectionNodeId = node->id;
+                selectionAnchor = TextSelection::caretIndexAt (*node, e.position + scroll);
+                node->selStart = node->selEnd = selectionAnchor;
+                selectingText = true;
+                break;
+            }
+        }
+    }
+
     // Click-to-focus: nearest focusable ancestor, or blur on empty space.
     auto* focusable = vsreact::nearestFocusable (hit);
     focusNode (focusable != nullptr ? focusable->id : 0);
@@ -519,6 +577,20 @@ void RootView::mouseDown (const juce::MouseEvent& e)
 
 void RootView::mouseDrag (const juce::MouseEvent& e)
 {
+    if (selectingText)
+    {
+        if (auto* selected = tree.find (selectionNodeId); selected != nullptr && selectionNodeId != 0)
+        {
+            const auto scroll = selected->accumulatedAncestorScroll();
+            const auto caret = TextSelection::caretIndexAt (*selected, e.position + scroll);
+            selected->selStart = juce::jmin (selectionAnchor, caret);
+            selected->selEnd = juce::jmax (selectionAnchor, caret);
+            repaint();
+        }
+
+        return; // a selection drag is not a control drag
+    }
+
     auto* node = tree.find (dragNodeId);
 
     if (node == nullptr || dragNodeId == 0)
@@ -541,6 +613,8 @@ void RootView::mouseDrag (const juce::MouseEvent& e)
 
 void RootView::mouseUp (const juce::MouseEvent& e)
 {
+    selectingText = false; // the selection itself stays until the next press
+
     const auto pressedId = activeNodeId;
     const bool wasDragging = dragging;
 
@@ -577,6 +651,26 @@ void RootView::mouseDoubleClick (const juce::MouseEvent& e)
 {
     auto* hit = vsreact::hitTest (*tree.root(), e.position);
 
+    // Double-click selects the word under the pointer on selectable text.
+    for (auto* node = hit; node != nullptr; node = node->parent)
+    {
+        if (node->isSelectableText())
+        {
+            const auto scroll = node->accumulatedAncestorScroll();
+            const auto text = TextSelection::visibleText (*node);
+            const auto caret = juce::jlimit (0, juce::jmax (0, text.length() - 1),
+                                             TextSelection::caretIndexAt (*node, e.position + scroll));
+            const auto range = TextSelection::wordRangeAt (text, caret);
+
+            clearSelection();
+            selectionNodeId = node->id;
+            node->selStart = range.getStart();
+            node->selEnd = range.getEnd();
+            repaint();
+            break;
+        }
+    }
+
     if (auto* listener = nearestListener (hit, "dblclick"))
         dispatchNodeEvent (listener->id, "dblclick");
 }
@@ -591,6 +685,7 @@ void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheel
     {
         auto* payload = new juce::DynamicObject();
         payload->setProperty ("dy", wheel.deltaY);
+        payload->setProperty ("dx", wheel.deltaX);
         dispatchNodeEvent (listener->id, "wheel", juce::var (payload));
         return;
     }
@@ -600,13 +695,27 @@ void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheel
     if (scrollable == nullptr)
         return;
 
-    const auto extent = scrollable->maxScroll();
+    // Trackpads report a real deltaX; mice map Shift+wheel to horizontal
+    // (the web convention).
+    auto deltaX = wheel.deltaX;
+    auto deltaY = wheel.deltaY;
 
-    if (extent <= 0.0f)
+    if (deltaX == 0.0f && e.mods.isShiftDown())
+        std::swap (deltaX, deltaY);
+
+    const auto extentY = scrollable->maxScroll();
+    const auto extentX = scrollable->maxScrollX();
+
+    if (extentY <= 0.0f && extentX <= 0.0f)
         return;
 
-    scrollable->scrollY = juce::jlimit (0.0f, extent,
-                                        scrollable->scrollY - wheel.deltaY * 400.0f);
+    if (extentY > 0.0f)
+        scrollable->scrollY = juce::jlimit (0.0f, extentY,
+                                            scrollable->scrollY - deltaY * 400.0f);
+
+    if (extentX > 0.0f)
+        scrollable->scrollX = juce::jlimit (0.0f, extentX,
+                                            scrollable->scrollX - deltaX * 400.0f);
 
     syncHostedComponents();
     updateHoverState (e.position);
@@ -614,6 +723,22 @@ void RootView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWheel
 }
 
 //==============================================================================
+void RootView::clearSelection()
+{
+    selectingText = false;
+
+    if (selectionNodeId == 0)
+        return;
+
+    if (auto* node = tree.find (selectionNodeId))
+    {
+        node->selStart = node->selEnd = 0;
+        repaint();
+    }
+
+    selectionNodeId = 0;
+}
+
 void RootView::focusNode (int nodeId)
 {
     if (focusedNodeId == nodeId)
@@ -677,6 +802,23 @@ juce::String RootView::keyName (const juce::KeyPress& key)
 
 bool RootView::keyPressed (const juce::KeyPress& key)
 {
+    // Ctrl/Cmd+C copies the active text selection (the visible, painted text).
+    if (key == juce::KeyPress ('c', juce::ModifierKeys::commandModifier, 0))
+    {
+        if (auto* node = tree.find (selectionNodeId); node != nullptr && selectionNodeId != 0
+            && node->selEnd > node->selStart)
+        {
+            const auto text = TextSelection::visibleText (*node);
+            juce::SystemClipboard::copyTextToClipboard (
+                text.substring (node->selStart, node->selEnd));
+            return true;
+        }
+    }
+
+    // Escape drops the selection but still reaches the focused node.
+    if (key.getKeyCode() == juce::KeyPress::escapeKey)
+        clearSelection();
+
     if (key.getKeyCode() == juce::KeyPress::tabKey)
     {
         if (auto* next = vsreact::nextFocusable (*tree.root(), focusedNodeId,

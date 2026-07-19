@@ -51,20 +51,25 @@ export default function Page() {
 
       <h2 id="gaps">What can the web do that VSReacT can&apos;t (yet)?</h2>
       <p>
-        The honest list, as of 0.0.25: no WebP decoding (PNG/JPEG/GIF/BMP only), no
-        blur/backdrop filters, no text selection outside <code>&lt;TextInput&gt;</code>,
-        no CSS animations/transitions (use <code>useTween</code>/<code>useSpring</code>),
-        and scroll containers are vertical-only. Everything else you&apos;d reach for —
-        gradients (incl. conic and repeating), all three shadow kinds, transforms with
-        correct hit-testing, clip polygons, zIndex, keyboard focus and Tab order,
-        pointer-events, SVG paths, ellipsis/line-clamp — is in.
+        The 0.0.25 list — WebP, blur/backdrop filters, text selection, CSS
+        animations/transitions, horizontal scroll — shipped in full in 0.0.26. The honest
+        remainder is now edge cases: animated WebP decodes its primary frame only;
+        text selection is per-<code>&lt;Text&gt;</code> (no cross-node ranges) and opt-in
+        by design; transitions can&apos;t animate the native <code>hover:</code>/
+        <code>active:</code> merges (they never round-trip through JS — use{' '}
+        <code>onMouseEnter</code> state); <code>backdrop-blur</code> inside transformed or
+        semi-transparent subtrees samples the untransformed frame. Everything else
+        you&apos;d reach for — gradients (incl. conic and repeating), all three shadow
+        kinds, filters, transforms with correct hit-testing, clip polygons, zIndex,
+        keyboard focus and Tab order, pointer-events, SVG paths, ellipsis/line-clamp,
+        two-axis scrolling — is in.
       </p>
 
       <h2 id="licensing">What licenses am I agreeing to?</h2>
       <p>
         VSReacT itself is MIT. Vendored engines keep their permissive licenses (QuickJS-ng:
-        MIT, Yoga: MIT). JUCE has its own commercial/GPL terms you must satisfy for plugin
-        distribution.
+        MIT, Yoga: MIT, libwebp: BSD-3-Clause). JUCE has its own commercial/GPL terms you
+        must satisfy for plugin distribution.
       </p>
 
       <Pager current="faq" />

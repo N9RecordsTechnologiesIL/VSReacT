@@ -69,6 +69,7 @@ public:
 
 private:
     void focusNode (int nodeId);
+    void clearSelection();
     void sendResizeEvent();
     void initialiseRuntime();
     void teardownRuntime();
@@ -97,6 +98,11 @@ private:
     int dragNodeId = 0;
     juce::Point<float> dragStartPosition;
     bool dragging = false;
+
+    // Active text selection (one at a time, userSelect:"text" nodes).
+    int selectionNodeId = 0;
+    int selectionAnchor = 0;
+    bool selectingText = false;
     bool bundleLoaded = false;
     juce::Time bundleModificationTime;
 

@@ -51,7 +51,13 @@ const staticClasses: Record<string, Style> = {
   "overflow-hidden": { overflow: "hidden" },
   "overflow-visible": { overflow: "visible" },
   "overflow-y-scroll": { overflow: "scroll" },
+  "overflow-x-scroll": { overflow: "scroll" },
   "overflow-scroll": { overflow: "scroll" },
+  // overflow:"scroll" only engages the axes whose content actually
+  // overflows, so auto is the same key.
+  "overflow-auto": { overflow: "scroll" },
+  "overflow-y-auto": { overflow: "scroll" },
+  "overflow-x-auto": { overflow: "scroll" },
   "w-full": { width: "100%" },
   "h-full": { height: "100%" },
   "text-left": { textAlign: "left" },
@@ -91,6 +97,8 @@ const staticClasses: Record<string, Style> = {
   "cursor-not-allowed": { cursor: "not-allowed" },
   "pointer-events-none": { pointerEvents: "none" },
   "pointer-events-auto": { pointerEvents: "auto" },
+  "select-text": { userSelect: "text" },
+  "select-none": { userSelect: "none" },
   hidden: { display: "none" },
   invisible: { visibility: "hidden" },
   visible: { visibility: "visible" },
@@ -109,6 +117,22 @@ const staticClasses: Record<string, Style> = {
   "object-contain": { objectFit: "contain" },
   "object-cover": { objectFit: "cover" },
   "object-fill": { objectFit: "fill" },
+  blur: { blurRadius: 8 },
+  "blur-none": { blurRadius: 0 },
+  "blur-sm": { blurRadius: 4 },
+  "blur-md": { blurRadius: 12 },
+  "blur-lg": { blurRadius: 16 },
+  "blur-xl": { blurRadius: 24 },
+  "blur-2xl": { blurRadius: 40 },
+  "blur-3xl": { blurRadius: 64 },
+  "backdrop-blur": { backdropBlurRadius: 8 },
+  "backdrop-blur-none": { backdropBlurRadius: 0 },
+  "backdrop-blur-sm": { backdropBlurRadius: 4 },
+  "backdrop-blur-md": { backdropBlurRadius: 12 },
+  "backdrop-blur-lg": { backdropBlurRadius: 16 },
+  "backdrop-blur-xl": { backdropBlurRadius: 24 },
+  "backdrop-blur-2xl": { backdropBlurRadius: 40 },
+  "backdrop-blur-3xl": { backdropBlurRadius: 64 },
   shadow: { shadowColor: "#00000066", shadowRadius: 4, shadowOffsetY: 1 },
   "shadow-sm": { shadowColor: "#00000066", shadowRadius: 4, shadowOffsetY: 1 },
   "shadow-md": { shadowColor: "#00000066", shadowRadius: 8, shadowOffsetY: 2 },
@@ -129,6 +153,20 @@ const staticClasses: Record<string, Style> = {
   "bg-gradient-to-tl": { gradientType: "linear", gradientAngle: 315 },
   "bg-gradient-radial": { gradientType: "radial" },
   "bg-gradient-conic": { gradientType: "conic" },
+  transition: { transitionProperty: "default", transitionDuration: 150 },
+  "transition-all": { transitionProperty: "all", transitionDuration: 150 },
+  "transition-colors": { transitionProperty: "colors", transitionDuration: 150 },
+  "transition-opacity": { transitionProperty: "opacity", transitionDuration: 150 },
+  "transition-transform": { transitionProperty: "transform", transitionDuration: 150 },
+  "transition-none": { transitionProperty: "none" },
+  "ease-linear": { transitionEasing: "linear" },
+  "ease-in": { transitionEasing: "ease-in" },
+  "ease-out": { transitionEasing: "ease-out" },
+  "ease-in-out": { transitionEasing: "ease-in-out" },
+  "animate-spin": { animationName: "spin", animationDuration: 1000 },
+  "animate-pulse": { animationName: "pulse", animationDuration: 2000 },
+  "animate-bounce": { animationName: "bounce", animationDuration: 1000 },
+  "animate-none": { animationName: "none" },
 };
 
 const textSizes: Record<string, number> = {
@@ -329,6 +367,22 @@ function resolveClass(cls: string): Style | undefined {
       const n = Number(rest);
       return Number.isFinite(n) ? { opacity: n / 100 } : undefined;
     }
+    case "blur": {
+      // Named sizes live in staticClasses; arbitrary is px: blur-[6].
+      if (rest.startsWith("[")) {
+        const radius = parseLength(rest);
+        if (typeof radius === "number") return { blurRadius: radius };
+      }
+      return undefined;
+    }
+    case "backdrop": {
+      // backdrop-blur-[6] (named backdrop-blur-* sizes are static classes)
+      if (rest.startsWith("blur-[")) {
+        const radius = parseLength(rest.slice("blur-".length));
+        if (typeof radius === "number") return { backdropBlurRadius: radius };
+      }
+      return undefined;
+    }
     case "leading": {
       if (rest.startsWith("[")) {
         const px = parseLength(rest);
@@ -356,6 +410,19 @@ function resolveClass(cls: string): Style | undefined {
     case "flex": {
       const n = Number(rest);
       return Number.isFinite(n) ? { flex: n } : undefined;
+    }
+    case "duration": {
+      // Milliseconds, literal (duration-150, duration-[320]).
+      const ms = rest.startsWith("[") ? parseLength(rest) : Number(rest);
+      return typeof ms === "number" && Number.isFinite(ms) && ms >= 0
+        ? { transitionDuration: ms }
+        : undefined;
+    }
+    case "delay": {
+      const ms = rest.startsWith("[") ? parseLength(rest) : Number(rest);
+      return typeof ms === "number" && Number.isFinite(ms) && ms >= 0
+        ? { transitionDelay: ms }
+        : undefined;
     }
     case "z": {
       const z = rest.startsWith("[") ? parseLength(rest) : Number(rest);

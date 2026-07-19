@@ -140,7 +140,10 @@ public:
         beginTest ("accumulated ancestor scroll");
         {
             tree.find (1)->scrollY = 30.0f;
-            expectEquals (tree.find (3)->accumulatedAncestorScroll(), 30.0f);
+            tree.find (1)->scrollX = 10.0f;
+            const auto scroll = tree.find (3)->accumulatedAncestorScroll();
+            expectEquals (scroll.y, 30.0f);
+            expectEquals (scroll.x, 10.0f);
         }
     }
 };

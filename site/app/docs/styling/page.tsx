@@ -124,11 +124,36 @@ export default function Page() {
             <td>
               <code>opacity-*</code> <code>shadow…shadow-xl</code>{' '}
               <code>shadow-inner</code> <code>overflow-hidden</code>{' '}
-              <code>overflow-y-scroll</code> <code>aspect-square</code>{' '}
+              <code>overflow-y-scroll</code> <code>overflow-x-scroll</code>{' '}
+              <code>overflow-auto</code> <code>aspect-square</code>{' '}
               <code>cursor-pointer/text/default/grab/move/ns-resize/ew-resize/crosshair</code>{' '}
               <code>pointer-events-none/auto</code>{' '}
+              <code>select-text/none</code>{' '}
               <code>border-solid/dashed/dotted</code>{' '}
               <code>object-contain/cover/fill</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Filters</td>
+            <td>
+              <code>blur-sm…blur-3xl</code> <code>blur-[6]</code> (CSS filter: blur — the
+              node and its subtree render offscreen and soften){' '}
+              <code>backdrop-blur-sm…backdrop-blur-3xl</code>{' '}
+              <code>backdrop-blur-[10]</code> (frosted glass: blurs whatever is painted
+              beneath the node — pair with a translucent <code>bg-*</code> tint)
+            </td>
+          </tr>
+          <tr>
+            <td>Motion</td>
+            <td>
+              <code>transition</code> <code>transition-all/colors/opacity/transform/none</code>{' '}
+              <code>duration-150</code> <code>delay-75</code>{' '}
+              <code>ease-linear/in/out/in-out</code> — style changes tween from their
+              currently displayed values instead of jumping. Presets:{' '}
+              <code>animate-spin</code> <code>animate-pulse</code>{' '}
+              <code>animate-bounce</code> <code>animate-none</code>. One honest limit:
+              native <code>hover:</code>/<code>active:</code> merges don&apos;t transition —
+              animate hover with <code>onMouseEnter</code> state instead
             </td>
           </tr>
           <tr>

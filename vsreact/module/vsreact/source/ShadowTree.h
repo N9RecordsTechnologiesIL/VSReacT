@@ -25,7 +25,12 @@ struct Node
 
     bool hovered = false, active = false, focused = false;
     juce::Rectangle<float> frame;   // absolute (unscrolled) within the root, set by computeLayout
-    float scrollY = 0.0f;           // scroll offset for overflow:"scroll" nodes
+    float scrollY = 0.0f;           // scroll offsets for overflow:"scroll" nodes
+    float scrollX = 0.0f;
+
+    // Active text selection (userSelect:"text" nodes) — character range into
+    // the node's visible textContent(). Owned by RootView, painted by Painter.
+    int selStart = 0, selEnd = 0;
 
     // Last rect delivered to a "layout" listener — layout events fire only
     // when this changes (RootView::dispatchLayoutEvents).
@@ -43,12 +48,26 @@ struct Node
     /** Height of the content inside this node (children extent + bottom padding). */
     float contentHeight() const;
 
+    /** Width of the content inside this node (children extent + right padding). */
+    float contentWidth() const;
+
     /** How far this node can scroll (content beyond its frame). */
     float maxScroll() const { return juce::jmax (0.0f, contentHeight() - frame.getHeight()); }
+    float maxScrollX() const { return juce::jmax (0.0f, contentWidth() - frame.getWidth()); }
 
-    /** Sum of every ancestor's scrollY — the visual offset applied to this
-        node's absolute frame by scrolled containers above it. */
-    float accumulatedAncestorScroll() const;
+    /** Whether this text node opted into selection (userSelect:"text").
+        numberOfLines/truncated text stays unselectable — its fitted glyphs
+        don't match the selection geometry. */
+    bool isSelectableText() const
+    {
+        return type == "text"
+            && style.getString ("userSelect") == "text"
+            && style.getFloat ("numberOfLines", 0.0f) <= 0.0f;
+    }
+
+    /** Sum of every ancestor's scroll offsets — the visual offset applied to
+        this node's absolute frame by scrolled containers above it. */
+    juce::Point<float> accumulatedAncestorScroll() const;
 };
 
 /** The retained C++ mirror of the React tree. Applies mutation batches from

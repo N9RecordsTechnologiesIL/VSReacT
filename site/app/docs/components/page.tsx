@@ -41,14 +41,27 @@ export default function Page() {
       <Code title="TSX">{`<Text className="text-2xl font-bold tracking-tight text-center">
   {gainDb.toFixed(1)} dB
 </Text>`}</Code>
+      <p>
+        Text is <strong>not selectable by default</strong> — plugin UIs are controls, and
+        stray drags shouldn&apos;t highlight labels. Opt a node in with{' '}
+        <code>selectable</code> (or the <code>select-text</code> class): drag selects,
+        double-click grabs a word, <kbd>Ctrl/Cmd+C</kbd> copies the visible text,{' '}
+        <kbd>Escape</kbd> or clicking away clears. The highlight colour is themeable via
+        the <code>selectionColor</code> style key. Selection is per-node (one Text at a
+        time) and skips <code>truncate</code>/<code>line-clamp</code> text.
+      </p>
+      <Code title="TSX">{`<Text selectable className="font-mono text-[11] text-zinc-400">
+  {presetUrl}
+</Text>`}</Code>
 
       <h2 id="image">&lt;Image src&gt;</h2>
       <p>
         Paints an image from a file path or a base64 <code>data:</code> URI (since 0.0.18),
-        scaled to its layout box. Formats are JUCE&apos;s built-ins — PNG, JPEG, GIF, BMP;
-        <strong> WebP is not supported</strong>. Plugin editors are fixed-size, so export
-        assets at the exact pixels you draw them at — a 1:1 blit always beats runtime
-        rescaling. Since 0.0.23: <code>objectFit</code> (<code>&quot;contain&quot;</code>{' '}
+        scaled to its layout box. Formats: PNG, JPEG, GIF, BMP via JUCE&apos;s built-ins,
+        and <strong>WebP since 0.0.26</strong> (lossy VP8, lossless VP8L, alpha — decoded
+        by a vendored libwebp; animated WebP shows its primary frame only). Plugin editors
+        are fixed-size, so export assets at the exact pixels you draw them at — a 1:1 blit
+        always beats runtime rescaling. Since 0.0.23: <code>objectFit</code> (<code>&quot;contain&quot;</code>{' '}
         default, <code>&quot;cover&quot;</code> clips overflow, <code>&quot;fill&quot;</code>{' '}
         stretches — or the <code>object-*</code> classes) and <code>tintColor</code>, which
         fills the image&apos;s alpha with a solid colour — one white icon PNG, any accent.

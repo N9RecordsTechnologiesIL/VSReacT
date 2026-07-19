@@ -14,7 +14,8 @@ bool isInteractive (const Node& node)
     return ! node.listeners.isEmpty()
         || ! node.hoverStyle.isEmpty()
         || ! node.activeStyle.isEmpty()
-        || node.style.has ("cursor");
+        || node.style.has ("cursor")
+        || node.isSelectableText();
 }
 
 bool isFocusable (const Node& node)
@@ -79,9 +80,9 @@ namespace
         if ((style.overflowHidden() || node.isScrollable()) && ! contains)
             return nullptr;
 
-        // Children of a scrolled node live at frame - scrollY on screen, so
+        // Children of a scrolled node live at frame - scroll on screen, so
         // test them against the point shifted back into unscrolled space.
-        const auto childPosition = position.translated (0.0f, node.scrollY);
+        const auto childPosition = position.translated (node.scrollX, node.scrollY);
 
         // Topmost first: reversed paint order (zIndex, then tree order).
         const auto ordered = paintOrdered (node.children);
@@ -106,7 +107,7 @@ namespace
         if ((node.style.overflowHidden() || node.isScrollable()) && ! contains)
             return nullptr;
 
-        const auto childPosition = position.translated (0.0f, node.scrollY);
+        const auto childPosition = position.translated (node.scrollX, node.scrollY);
 
         for (auto it = node.children.rbegin(); it != node.children.rend(); ++it)
             if (auto* found = scrollableNodeAt (**it, childPosition))

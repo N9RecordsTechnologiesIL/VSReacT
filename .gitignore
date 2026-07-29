@@ -16,3 +16,7 @@ dist/
 vsreact/js/dist/
 vsreact/js/*.tgz
 CLAUDE.md
+
+# generated per-example: base64-inlined assets + screenshot-verify captures
+vsreact/examples/*/ui/src/_assets.ts
+vsreact/examples/*/ui/shot*.png

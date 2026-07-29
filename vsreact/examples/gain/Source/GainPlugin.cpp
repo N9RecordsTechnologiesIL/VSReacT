@@ -117,7 +117,7 @@ public:
         root = std::make_unique<vsreact::RootView> (std::move (options));
         bridge.attach (*root);
         addAndMakeVisible (*root);
-        setSize (420, 290);
+        setSize (768, 512); // PlainGain plate aspect (1536×1024 ÷ 2)
     }
 
     void resized() override

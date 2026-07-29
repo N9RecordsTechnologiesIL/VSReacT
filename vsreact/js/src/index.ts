@@ -41,7 +41,7 @@ export type { ButtonProps } from "./button";
 export { Bars, Waveform, useRollingBuffer, pushRolling } from "./visualizers";
 export type { BarsProps, WaveformProps } from "./visualizers";
 export { configureTheme, tw } from "./tw";
-export type { Style, ResolvedClasses } from "./tw";
+export type { Style, StyleValue, ResolvedClasses } from "./tw";
 export { registerFont, type FontSpec } from "./fonts";
 export { Canvas, type CanvasProps } from "./canvas";
 export { cx } from "./cx";

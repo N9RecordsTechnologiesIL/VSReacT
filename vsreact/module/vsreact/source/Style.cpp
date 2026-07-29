@@ -1,7 +1,20 @@
 #include "Style.h"
+#include "FontRegistry.h"
 
 namespace vsreact
 {
+
+namespace
+{
+    // Set by RootView before each paint. Not owned. Style::font() consults it
+    // before falling back to a system font-name lookup.
+    const FontRegistry* activeFontRegistry = nullptr;
+}
+
+void Style::setActiveFontRegistry (const FontRegistry* registry) noexcept
+{
+    activeFontRegistry = registry;
+}
 
 std::optional<juce::Colour> parseCssColor (const juce::String& text)
 {
@@ -231,9 +244,18 @@ juce::Font Style::font() const
     if (fontName == "monospace")
         fontName = juce::Font::getDefaultMonospacedFontName();
 
-    auto options = juce::FontOptions { size }.withStyle (weight >= 600 ? "Bold" : "Regular");
+    // A family registered via registerFont() wins over the system lookup —
+    // that's the only way a bundled brand font can render at all.
+    juce::Typeface::Ptr registered;
 
-    if (fontName.isNotEmpty())
+    if (activeFontRegistry != nullptr && fontName.isNotEmpty())
+        registered = activeFontRegistry->find (fontName, weight);
+
+    auto options = registered != nullptr
+                     ? juce::FontOptions {}.withTypeface (registered).withHeight (size)
+                     : juce::FontOptions { size }.withStyle (weight >= 600 ? "Bold" : "Regular");
+
+    if (registered == nullptr && fontName.isNotEmpty())
         options = options.withName (fontName);
 
     auto font = juce::Font (options);

@@ -112,6 +112,20 @@ struct JsRuntime::Impl
         return JS_NewString (c, json.toRawUTF8());
     }
 
+    static JSValue jsRegisterFont (JSContext* c, JSValue, int argc, JSValue* argv)
+    {
+        auto& impl = self (c);
+
+        if (argc >= 3 && impl.cbs.onRegisterFont != nullptr)
+        {
+            int32_t weight = 400;
+            JS_ToInt32 (c, &weight, argv[2]);
+            impl.cbs.onRegisterFont (toString (c, argv[0]), toString (c, argv[1]), weight);
+        }
+
+        return JS_UNDEFINED;
+    }
+
     static JSValue jsLog (JSContext* c, JSValue, int argc, JSValue* argv)
     {
         auto& impl = self (c);
@@ -162,6 +176,7 @@ struct JsRuntime::Impl
 
         reg ("__vsreact_flush", jsFlush, 1);
         reg ("__vsreact_nativeCall", jsNativeCall, 2);
+        reg ("__vsreact_registerFont", jsRegisterFont, 3);
         reg ("__vsreact_log", jsLog, 2);
         reg ("__vsreact_setTimer", jsSetTimer, 2);
         reg ("__vsreact_clearTimer", jsClearTimer, 1);

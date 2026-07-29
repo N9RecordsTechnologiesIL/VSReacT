@@ -2,6 +2,7 @@
 
 #include "JsRuntime.h"
 #include "Scheduler.h"
+#include "FontRegistry.h"
 #include "ShadowTree.h"
 #include "Painter.h"
 #include "NativeRegistry.h"
@@ -89,6 +90,7 @@ private:
     ShadowTree tree;
     Scheduler scheduler;
     ErrorOverlay errorOverlay;
+    FontRegistry fontRegistry;   // typefaces registered from JS (registerFont)
 
     std::map<int, std::unique_ptr<juce::Component>> hostedComponents;
 

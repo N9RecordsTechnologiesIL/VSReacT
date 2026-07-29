@@ -25,6 +25,10 @@ public:
             JSON-encoded back to JS synchronously. */
         std::function<juce::var (const juce::String& name, const juce::var& args)> onNativeCall;
 
+        /** JS called __vsreact_registerFont(family, src, weight) — src is a
+            file path or a base64 `data:` URI. */
+        std::function<void (const juce::String& family, const juce::String& src, int weight)> onRegisterFont;
+
         std::function<void (const juce::String& level, const juce::String& message)> onLog;
 
         std::function<void (int id, int ms)> onSetTimer;

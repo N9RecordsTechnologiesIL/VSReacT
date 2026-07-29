@@ -10,7 +10,8 @@ target_sources(VSReacTTests
         HitTestTests.cpp
         HostedComponentTests.cpp
         Phase2Tests.cpp
-        GapsTests.cpp)
+        GapsTests.cpp
+        FontRegistryTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

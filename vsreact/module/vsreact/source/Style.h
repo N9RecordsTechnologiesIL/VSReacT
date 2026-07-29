@@ -60,9 +60,15 @@ struct Style
     float borderSideWidth (int side) const; // 0 top, 1 right, 2 bottom, 3 left
     bool hasPerSideBorder() const;
 
-    /** Text font from fontSize / fontWeight / letterSpacing. */
+    /** Text font from fontSize / fontWeight / letterSpacing. Resolves
+        fontFamily against the active FontRegistry (registerFont) first, then
+        falls back to a system font-name lookup. */
     juce::Font font() const;
     juce::Justification textAlign() const;
+
+    /** Set by RootView before painting so font() can resolve registered
+        families. Not owned; pass nullptr to clear. */
+    static void setActiveFontRegistry (const class FontRegistry* registry) noexcept;
 
     /** Applies every supported layout key to a yoga node, resetting the
         supported properties to defaults first so prop updates never leak

@@ -88,6 +88,17 @@ void RootView::initialiseRuntime()
 
     callbacks.onNativeCall = [this] (const juce::String& name, const juce::var& args) -> juce::var
     {
+        // JS-driven editor resize (useEditorSize). Already on the message
+        // thread; setSize triggers resized(), which sends "resize" back so
+        // useRootSize observes the size the host actually granted.
+        if (name == "vsreact:resize")
+        {
+            const int w = (int) args.getProperty ("width", getWidth());
+            const int h = (int) args.getProperty ("height", getHeight());
+            setSize (juce::jmax (1, w), juce::jmax (1, h));
+            return juce::var();
+        }
+
         return options.onNativeCall != nullptr ? options.onNativeCall (name, args) : juce::var();
     };
 

@@ -13,7 +13,8 @@ target_sources(VSReacTTests
         GapsTests.cpp
         FontRegistryTests.cpp
         CanvasTests.cpp
-        KnobShaderBench.cpp)
+        KnobShaderBench.cpp
+        PainterKeysTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

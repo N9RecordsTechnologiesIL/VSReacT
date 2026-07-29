@@ -307,6 +307,33 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         shadow.drawForPath (g, path);
     }
 
+    // boxShadow: [{ color, radius, offsetX, offsetY, inset? }, …] — CSS stacks
+    // multiple shadows on one node. Outer entries paint behind the background
+    // here; inset entries paint over it below. Last array entry is drawn first
+    // (underneath), matching CSS paint order.
+    if (const auto* box = style.values.getVarPointer ("boxShadow");
+        box != nullptr && box->isArray())
+    {
+        const auto& entries = *box->getArray();
+
+        for (int i = entries.size() - 1; i >= 0; --i)
+        {
+            const auto& e = entries.getReference (i);
+
+            if (! e.isObject() || (bool) e.getProperty ("inset", false))
+                continue;
+
+            if (const auto col = parseCssColor (e.getProperty ("color", "#000000").toString()))
+            {
+                const juce::DropShadow shadow (*col,
+                    juce::roundToInt ((float) (double) e.getProperty ("radius", 4.0)),
+                    { juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
+                      juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)) });
+                shadow.drawForPath (g, path);
+            }
+        }
+    }
+
     // CSS backdrop-filter: blur() — sample what's already painted beneath
     // this node from the frame buffer, blur it, and lay it down clipped to
     // the node's shape; the (usually translucent) background then tints it.
@@ -348,6 +375,27 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         g.fillPath (path);
     }
 
+    // backgroundLayers: [{ …gradient spec | backgroundColor }, …] — stacked
+    // fills painted in array order (last entry on top), each reusing the same
+    // gradient/colour parsing as the primary background. Lets one node carry
+    // the multi-layer metallic caps the reference art uses.
+    if (const auto* layers = style.values.getVarPointer ("backgroundLayers");
+        layers != nullptr && layers->isArray())
+    {
+        for (const auto& layer : *layers->getArray())
+        {
+            const auto ls = Style::fromVar (layer);
+
+            if (const auto lg = ls.gradient())
+                fillGradient (g, path, node.frame, *lg);
+            else if (const auto lc = ls.getColour ("backgroundColor"))
+            {
+                g.setColour (*lc);
+                g.fillPath (path);
+            }
+        }
+    }
+
     // CSS box-shadow inset: shadow of the inverse region, clipped inside.
     if (const auto insetColor = style.getColour ("insetShadowColor"))
     {
@@ -367,6 +415,41 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
                                        { juce::roundToInt (style.getFloat ("insetShadowOffsetX", 0.0f)),
                                          juce::roundToInt (style.getFloat ("insetShadowOffsetY", 0.0f)) });
         shadow.drawForPath (g, ring);
+    }
+
+    // Inset entries of the boxShadow array (over the background, clipped in).
+    if (const auto* box = style.values.getVarPointer ("boxShadow");
+        box != nullptr && box->isArray())
+    {
+        const auto& entries = *box->getArray();
+
+        for (int i = entries.size() - 1; i >= 0; --i)
+        {
+            const auto& e = entries.getReference (i);
+
+            if (! e.isObject() || ! (bool) e.getProperty ("inset", false))
+                continue;
+
+            const auto col = parseCssColor (e.getProperty ("color", "#000000").toString());
+            if (! col)
+                continue;
+
+            const auto radius = (float) (double) e.getProperty ("radius", 4.0);
+            const auto margin = radius * 2.0f + 8.0f;
+
+            juce::Path ring;
+            ring.setUsingNonZeroWinding (false);
+            ring.addRectangle (node.frame.expanded (margin));
+            ring.addPath (path);
+
+            juce::Graphics::ScopedSaveState insetState (g);
+            g.reduceClipRegion (path);
+
+            const juce::DropShadow shadow (*col, juce::roundToInt (radius),
+                { juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
+                  juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)) });
+            shadow.drawForPath (g, ring);
+        }
     }
 
     if (style.hasPerSideBorder())
@@ -536,6 +619,65 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
     const auto colour = style.getColour ("color").value_or (juce::Colours::white);
     const bool strike = style.getString ("textDecoration") == "line-through";
     const auto maxLines = (int) style.getFloat ("numberOfLines", 0.0f);
+
+    // textStroke (CSS paint-order: stroke — a dark outline under the fill) and
+    // textLength (scale a single line horizontally to a fixed width, like SVG
+    // textLength/lengthAdjust) both need a glyph path, so they share one
+    // single-line branch. Readouts painted over reference art use these.
+    const auto strokeColour = style.getColour ("textStrokeColor");
+    const auto strokeWidth = style.getFloat ("textStrokeWidth", 0.0f);
+    const auto textLength = style.getFloat ("textLength", 0.0f);
+    const bool glyphBranch = maxLines <= 0
+                          && (textLength > 0.0f || (strokeColour && strokeWidth > 0.0f));
+
+    if (glyphBranch)
+    {
+        juce::GlyphArrangement glyphs;
+        glyphs.addLineOfText (font, text, 0.0f, 0.0f); // baseline at y=0
+
+        const auto box = glyphs.getBoundingBox (0, -1, true);
+        const auto naturalW = box.getWidth();
+        const auto scaleX = (textLength > 0.0f && naturalW > 0.0f) ? textLength / naturalW : 1.0f;
+        const auto drawnW = naturalW * scaleX;
+
+        // Horizontal anchor within the frame from textAlign; readouts centre.
+        const auto flags = style.textAlign().getFlags();
+        float leftX = node.frame.getX();
+        if (flags & juce::Justification::horizontallyCentred)
+            leftX = node.frame.getCentreX() - drawnW * 0.5f;
+        else if (flags & juce::Justification::right)
+            leftX = node.frame.getRight() - drawnW;
+
+        // Scale about the glyph box's left edge, then place it: box left → leftX,
+        // box vertical centre → frame centre.
+        const auto transform =
+            juce::AffineTransform::translation (-box.getX(), -box.getCentreY())
+                .scaled (scaleX, 1.0f)
+                .translated (leftX, node.frame.getCentreY());
+
+        juce::Path glyphPath;
+        glyphs.createPath (glyphPath);
+        glyphPath.applyTransform (transform);
+
+        if (const auto glowColor = style.getColour ("textShadowColor"))
+        {
+            const juce::DropShadow shadow (*glowColor,
+                juce::roundToInt (style.getFloat ("textShadowRadius", 3.0f)),
+                { juce::roundToInt (style.getFloat ("textShadowOffsetX", 0.0f)),
+                  juce::roundToInt (style.getFloat ("textShadowOffsetY", 0.0f)) });
+            shadow.drawForPath (g, glyphPath);
+        }
+
+        if (strokeColour && strokeWidth > 0.0f)
+        {
+            g.setColour (*strokeColour);
+            g.strokePath (glyphPath, juce::PathStrokeType (strokeWidth));
+        }
+
+        g.setColour (colour);
+        g.fillPath (glyphPath);
+        return;
+    }
 
     // numberOfLines clamps and truncates with an ellipsis (CSS truncate /
     // line-clamp) via fitted glyphs; the default path wraps freely.

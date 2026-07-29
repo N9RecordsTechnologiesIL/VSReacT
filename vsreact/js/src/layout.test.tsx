@@ -149,6 +149,34 @@ describe("Svg primitives (0.0.24)", () => {
   });
 });
 
+describe("SvgPath gradient typing (0.0.27)", () => {
+  // Types-only widening: SvgPathProps.fill/stroke now accept a GradientSpec.
+  // The bridge forwards fill/stroke through props (see the string cases in the
+  // "Svg primitives" suite above); the C++ painter reads the gradient shape.
+  test("fill/stroke accept a GradientSpec value (compile-time contract)", () => {
+    const { SvgPath } = require("./index");
+    const fill: import("./index").GradientSpec = {
+      gradientType: "linear",
+      gradientFrom: "#ff0000",
+      gradientVia: "#00ff00",
+      gradientTo: "#0000ff",
+      gradientAngle: 90,
+    };
+    const stroke: import("./index").GradientSpec = {
+      gradientType: "radial",
+      gradientStops: [{ offset: 0, color: "#ffffff" }, { color: "#000000" }],
+    };
+
+    // A string still satisfies the union, and so does a GradientSpec.
+    const stringEl = <SvgPath d="M0 0 H1" fill="#ff0000" stroke="none" />;
+    const gradientEl = <SvgPath d="M0 0 H1" fill={fill} stroke={stroke} />;
+
+    expect(stringEl.props.fill).toBe("#ff0000");
+    expect(gradientEl.props.fill).toEqual(fill);
+    expect(gradientEl.props.stroke).toEqual(stroke);
+  });
+});
+
 describe("useRootSize (0.0.25)", () => {
   test("tracks resize events, ignores junk", async () => {
     const { useRootSize } = require("./index");

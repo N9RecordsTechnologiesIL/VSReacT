@@ -1,6 +1,11 @@
 import { resolveColor, setThemeColors, type ThemeColors } from "./theme";
 
-export type StyleValue = string | number;
+export type StyleValue =
+  | string
+  | number
+  | boolean
+  | readonly StyleValue[]
+  | { readonly [key: string]: StyleValue };
 export type Style = Record<string, StyleValue>;
 
 export interface ResolvedClasses {

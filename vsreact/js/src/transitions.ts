@@ -23,6 +23,87 @@ const easings: Record<TransitionEasingName, EasingFn> = {
   "ease-in-out": Easing.inOutCubic,
 };
 
+const DEFAULT_EASING: TransitionEasingName = "ease-in-out";
+
+// ── cubic-bezier(x1,y1,x2,y2) ──────────────────────────────────────────
+
+const CUBIC_BEZIER =
+  /^cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)$/;
+
+/** One coordinate of the bezier with implicit P0=0, P3=1 at parameter t. */
+function bezierAt(t: number, c1: number, c2: number): number {
+  const u = 1 - t;
+  return 3 * u * u * t * c1 + 3 * u * t * t * c2 + t * t * t;
+}
+
+/** dX/dt for Newton's step. */
+function bezierSlope(t: number, c1: number, c2: number): number {
+  const u = 1 - t;
+  return 3 * u * u * c1 + 6 * u * t * (c2 - c1) + 3 * t * t * (1 - c2);
+}
+
+/** Build an EasingFn for the CSS cubic-bezier control points (P0=0,0 P3=1,1).
+    Solves X(t)=x by Newton-Raphson seeded at x, with a bisection fallback when
+    the slope is near zero or Newton escapes [0,1], then returns Y(t). */
+function makeCubicBezier(x1: number, y1: number, x2: number, y2: number): EasingFn {
+  const solveT = (x: number): number => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const slope = bezierSlope(t, x1, x2);
+      if (Math.abs(slope) < 1e-6) break;
+      const err = bezierAt(t, x1, x2) - x;
+      if (Math.abs(err) < 1e-7) return t;
+      t -= err / slope;
+      if (t < 0 || t > 1) break;
+    }
+
+    // Bisection fallback — X(t) is monotonic in t for valid CSS curves.
+    let lo = 0;
+    let hi = 1;
+    t = x;
+    for (let i = 0; i < 32; i++) {
+      const err = bezierAt(t, x1, x2) - x;
+      if (Math.abs(err) < 1e-7) return t;
+      if (err > 0) hi = t;
+      else lo = t;
+      t = (lo + hi) / 2;
+    }
+    return t;
+  };
+
+  return (x) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    return bezierAt(solveT(x), y1, y2);
+  };
+}
+
+const easingCache = new Map<string, EasingFn>();
+
+/** Resolve a `transitionEasing` string to an EasingFn. Accepts the four named
+    easings and any CSS `cubic-bezier(x1,y1,x2,y2)` spec; anything else falls
+    back to ease-in-out. Parsed curves are cached by their string. */
+export function resolveEasing(name: string): EasingFn {
+  const named = easings[name as TransitionEasingName];
+  if (named !== undefined) return named;
+
+  const cached = easingCache.get(name);
+  if (cached !== undefined) return cached;
+
+  const match = CUBIC_BEZIER.exec(name);
+  const nums = match ? match.slice(1, 5).map(Number) : undefined;
+  const easing =
+    nums && nums.every(Number.isFinite)
+      ? makeCubicBezier(nums[0], nums[1], nums[2], nums[3])
+      : easings[DEFAULT_EASING];
+
+  easingCache.set(name, easing);
+  return easing;
+}
+
 /** Keys each transitionProperty group may animate. "colors" is any *Color/
     color key; "all" is every animatable difference. */
 const transformKeys = ["rotate", "scale", "translateX", "translateY"];
@@ -231,7 +312,6 @@ export function commitProps(nodeId: number, payload: Payload): void {
       for (const key of keys) from[key] = prev[key];
 
       const delay = typeof next.transitionDelay === "number" ? next.transitionDelay : 0;
-      const easingName = String(next.transitionEasing ?? "ease-in-out") as TransitionEasingName;
 
       activeTransitions.set(nodeId, {
         payload,
@@ -239,7 +319,7 @@ export function commitProps(nodeId: number, payload: Payload): void {
         keys,
         start: Date.now() + delay,
         duration,
-        easing: easings[easingName] ?? easings["ease-in-out"],
+        easing: resolveEasing(String(next.transitionEasing ?? DEFAULT_EASING)),
       });
       ensureDriver();
 

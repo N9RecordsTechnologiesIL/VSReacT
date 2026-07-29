@@ -114,12 +114,28 @@ export function Svg(props: SvgProps) {
   return createElement("vs-svg", props);
 }
 
+/**
+ * A gradient paint for a fill or stroke (read by the C++ painter at runtime).
+ * Give explicit `gradientStops`, or the Tailwind-style `gradientFrom` /
+ * `gradientVia` / `gradientTo` triple; `gradientAngle` orients a linear
+ * gradient in degrees.
+ */
+export interface GradientSpec {
+  gradientType?: "linear" | "radial" | "conic";
+  gradientStops?: Array<{ offset?: number; color: string }>;
+  gradientFrom?: string;
+  gradientVia?: string;
+  gradientTo?: string;
+  gradientAngle?: number;
+}
+
 export interface SvgPathProps {
   /** SVG path data ("M12 2 L22 22 …") — parsed once and cached. */
   d: string;
-  /** Fill color; SVG's default black. "none" for stroke-only paths. */
-  fill?: string;
-  stroke?: string;
+  /** Fill color (SVG's default black), "none" for stroke-only paths, or a
+      GradientSpec for a gradient fill. */
+  fill?: string | GradientSpec;
+  stroke?: string | GradientSpec;
   /** Stroke width in viewBox units (scales with the frame, like SVG). */
   strokeWidth?: number;
   strokeCap?: "butt" | "round" | "square";

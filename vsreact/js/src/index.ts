@@ -15,6 +15,7 @@ export type {
   NativeViewProps,
   SvgProps,
   SvgPathProps,
+  GradientSpec,
 } from "./primitives";
 export { render, unmount } from "./render";
 export { native } from "./native";
@@ -22,6 +23,7 @@ export {
   useNativeEvent,
   useNativeValue,
   useRootSize,
+  useEditorSize,
   useDebounced,
   useThrottled,
   usePrevious,

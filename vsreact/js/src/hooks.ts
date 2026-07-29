@@ -67,6 +67,27 @@ export function useRootSize(): RootSize {
 }
 
 /**
+ * The editor's size plus a setter that asks the host to resize itself — the
+ * two-way version of useRootSize for editors with a resize grip or preset
+ * size buttons:
+ *
+ *   const [size, resize] = useEditorSize();
+ *   <View onDrag={(e) => resize(startW + e.dx, startH + e.dy)} />
+ *
+ * The read half tracks the native "resize" event (so it reflects the size the
+ * host settled on); the setter round-trips through the host, which resizes and
+ * echoes a "resize" event back.
+ */
+export function useEditorSize(): [RootSize, (width: number, height: number) => void] {
+  const size = useRootSize();
+  const setSize = useRef((width: number, height: number) => {
+    native.call("vsreact:resize", { width, height });
+  }).current;
+
+  return [size, setSize];
+}
+
+/**
  * The value, but only after it has stopped changing for `delayMs` —
  * classic input debouncing for expensive native calls:
  *

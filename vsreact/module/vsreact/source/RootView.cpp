@@ -102,6 +102,31 @@ void RootView::initialiseRuntime()
             juce::Logger::writeToLog ("[vsreact] registerFont failed for \"" + family + "\"");
     };
 
+    callbacks.onCanvasBuffer = [this] (int nodeId, int w, int h) -> JsRuntime::CanvasBuffer
+    {
+        auto* node = tree.find (nodeId);
+
+        if (node == nullptr)
+            return {};
+
+        if (node->canvas == nullptr)
+            node->canvas = std::make_shared<CanvasSurface>();
+
+        auto* data = node->canvas->ensure (w, h);
+        return { data, node->canvas->byteSize() };
+    };
+
+    callbacks.onCanvasCommit = [this] (int nodeId)
+    {
+        auto* node = tree.find (nodeId);
+
+        if (node != nullptr && node->canvas != nullptr)
+        {
+            node->canvas->commit();
+            repaint();
+        }
+    };
+
     callbacks.onSetTimer = [this] (int id, int ms) { scheduler.setTimer (id, ms); };
     callbacks.onClearTimer = [this] (int id) { scheduler.clearTimer (id); };
 

@@ -126,6 +126,41 @@ struct JsRuntime::Impl
         return JS_UNDEFINED;
     }
 
+    static JSValue jsCanvasBuffer (JSContext* c, JSValue, int argc, JSValue* argv)
+    {
+        auto& impl = self (c);
+
+        if (argc >= 3 && impl.cbs.onCanvasBuffer != nullptr)
+        {
+            int32_t id = 0, w = 0, h = 0;
+            JS_ToInt32 (c, &id, argv[0]);
+            JS_ToInt32 (c, &w, argv[1]);
+            JS_ToInt32 (c, &h, argv[2]);
+
+            const auto buf = impl.cbs.onCanvasBuffer (id, w, h);
+
+            // free_func is null: QuickJS must never free memory C++ owns.
+            if (buf.data != nullptr && buf.size > 0)
+                return JS_NewArrayBuffer (c, buf.data, buf.size, nullptr, nullptr, false);
+        }
+
+        return JS_NULL;
+    }
+
+    static JSValue jsCanvasCommit (JSContext* c, JSValue, int argc, JSValue* argv)
+    {
+        auto& impl = self (c);
+
+        if (argc >= 1 && impl.cbs.onCanvasCommit != nullptr)
+        {
+            int32_t id = 0;
+            JS_ToInt32 (c, &id, argv[0]);
+            impl.cbs.onCanvasCommit (id);
+        }
+
+        return JS_UNDEFINED;
+    }
+
     static JSValue jsLog (JSContext* c, JSValue, int argc, JSValue* argv)
     {
         auto& impl = self (c);
@@ -177,6 +212,8 @@ struct JsRuntime::Impl
         reg ("__vsreact_flush", jsFlush, 1);
         reg ("__vsreact_nativeCall", jsNativeCall, 2);
         reg ("__vsreact_registerFont", jsRegisterFont, 3);
+        reg ("__vsreact_canvasBuffer", jsCanvasBuffer, 3);
+        reg ("__vsreact_canvasCommit", jsCanvasCommit, 1);
         reg ("__vsreact_log", jsLog, 2);
         reg ("__vsreact_setTimer", jsSetTimer, 2);
         reg ("__vsreact_clearTimer", jsClearTimer, 1);

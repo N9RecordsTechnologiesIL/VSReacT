@@ -16,6 +16,11 @@ namespace vsreact
 class JsRuntime
 {
 public:
+    /** A view onto C++-owned pixel memory handed to JS as an ArrayBuffer.
+        The JSON bridge can't carry per-frame pixel data, so canvas nodes get
+        this binary channel instead — JS writes straight into painter memory. */
+    struct CanvasBuffer { juce::uint8* data = nullptr; size_t size = 0; };
+
     struct Callbacks
     {
         /** JS called __vsreact_flush(opsJson) — a mutation batch. */
@@ -28,6 +33,13 @@ public:
         /** JS called __vsreact_registerFont(family, src, weight) — src is a
             file path or a base64 `data:` URI. */
         std::function<void (const juce::String& family, const juce::String& src, int weight)> onRegisterFont;
+
+        /** JS called __vsreact_canvasBuffer(nodeId, w, h) — return the node's
+            RGBA buffer for JS to alias as an ArrayBuffer (no copy). */
+        std::function<CanvasBuffer (int nodeId, int width, int height)> onCanvasBuffer;
+
+        /** JS called __vsreact_canvasCommit(nodeId) — pixels are ready. */
+        std::function<void (int nodeId)> onCanvasCommit;
 
         std::function<void (const juce::String& level, const juce::String& message)> onLog;
 

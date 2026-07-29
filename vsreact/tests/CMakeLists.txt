@@ -11,7 +11,8 @@ target_sources(VSReacTTests
         HostedComponentTests.cpp
         Phase2Tests.cpp
         GapsTests.cpp
-        FontRegistryTests.cpp)
+        FontRegistryTests.cpp
+        CanvasTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

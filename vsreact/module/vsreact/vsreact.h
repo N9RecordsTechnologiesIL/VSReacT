@@ -37,6 +37,7 @@ END_JUCE_MODULE_DECLARATION
 #include "source/Scheduler.h"
 #include "source/FontRegistry.h"
 #include "source/Style.h"
+#include "source/CanvasSurface.h"
 #include "source/ShadowTree.h"
 #include "source/TextSelection.h"
 #include "source/Blur.h"

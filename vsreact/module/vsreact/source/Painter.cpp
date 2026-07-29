@@ -3,6 +3,7 @@
 #include "TextSelection.h"
 #include "Blur.h"
 #include "WebpImage.h"
+#include "CanvasSurface.h"
 
 #include <juce_gui_basics/juce_gui_basics.h> // Drawable::parseSVGPath
 
@@ -468,6 +469,8 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         paintImage (g, node);
     else if (node.type == "svg")
         paintSvg (g, node);
+    else if (node.type == "canvas")
+        paintCanvas (g, node);
 
     const bool scrollable = node.isScrollable();
 
@@ -850,6 +853,18 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
     // when an asset is drawn below its native size.
     g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
     g.drawImage (image, node.frame, placement);
+}
+
+//==============================================================================
+void Painter::paintCanvas (juce::Graphics& g, const Node& node)
+{
+    // The surface exists only once JS has asked for a buffer and committed it;
+    // an un-drawn canvas paints nothing rather than a black rect.
+    if (node.canvas == nullptr || ! node.canvas->image.isValid())
+        return;
+
+    g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
+    g.drawImage (node.canvas->image, node.frame, juce::RectanglePlacement::stretchToFit);
 }
 
 } // namespace vsreact

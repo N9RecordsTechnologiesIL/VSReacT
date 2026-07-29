@@ -10,14 +10,20 @@
 namespace vsreact
 {
 
+struct CanvasSurface;
+
 struct Node
 {
     int id = 0;
-    juce::String type;   // root | view | text | rawtext | image | textinput | native
+    juce::String type;   // root | view | text | rawtext | image | textinput | native | svg | svgpath | canvas
     Style style, hoverStyle, activeStyle, focusStyle;
     juce::String text;   // rawtext content
     juce::StringArray listeners;
     juce::var props;     // full setProps payload (cursor, nativeId, value, ...)
+
+    // Pixel store for type == "canvas" (null otherwise). Created lazily when
+    // JS first asks for the node's buffer.
+    std::shared_ptr<CanvasSurface> canvas;
 
     YGNodeRef yoga = nullptr;   // null for rawtext (text nodes measure themselves)
     Node* parent = nullptr;

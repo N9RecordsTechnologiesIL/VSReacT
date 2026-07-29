@@ -23,6 +23,7 @@ const hostTypes: Record<string, string> = {
   "vs-native": "native",
   "vs-svg": "svg",
   "vs-svgpath": "svgpath",
+  "vs-canvas": "canvas",
 };
 
 const eventPropNames: Record<string, string> = {

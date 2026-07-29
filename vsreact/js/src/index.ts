@@ -40,6 +40,7 @@ export { Bars, Waveform, useRollingBuffer, pushRolling } from "./visualizers";
 export type { BarsProps, WaveformProps } from "./visualizers";
 export { configureTheme, tw } from "./tw";
 export type { Style, ResolvedClasses } from "./tw";
+export { registerFont, type FontSpec } from "./fonts";
 export { cx } from "./cx";
 export type { ClassValue } from "./cx";
 export { useTween, useSpring, springStep, lerp, Easing } from "./animation";

@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.0.27 — 2026-07-30
+
+The reference-art round: the features the four example plugins needed to
+replace their component-showcase UIs with pixel-exact renders of real
+hardware-panel designs (PlainGain, DrumDeck, CleanStrip, DirtyDelay).
+
+### Native (`vsreact` module)
+
+- **Custom font loading** — `registerFont({ family, src })` (JS) registers a
+  typeface from font-file bytes (a base64 `data:` URI or a file path); the new
+  `FontRegistry` decodes it via `Typeface::createSystemTypefaceFor`, and
+  `Style::font()` resolves `fontFamily` against it *before* the system
+  font-name lookup. Closes a silent gap — `fontFamily` was a system lookup
+  only, so a bundled brand font could not render at all. Unregistered families
+  behave exactly as before.
+- **`<Canvas>`** — a raster escape hatch backed by a genuine binary channel:
+  `__vsreact_canvasBuffer` hands JS an `ArrayBuffer` that *aliases* the node's
+  C++-owned RGBA store (via `JS_NewArrayBuffer`, null free-func), so per-pixel
+  drawing never crosses the JSON bridge. `draw(pixels,w,h)` writes RGBA;
+  `CanvasSurface` swizzles to premultiplied ARGB on commit; the painter blits
+  it. (Note: QuickJS is too slow for per-frame full-knob shaders — measured
+  ~217 ms for one 180×180 Blinn-Phong knob — so procedural raster art should be
+  baked at build time; see the film-strip tool. `<Canvas>` suits modest
+  procedural drawing.)
+- **`boxShadow` array** — `[{ color, radius, offsetX, offsetY, inset? }, …]`
+  stacks multiple shadows on one node in CSS order (outer behind the
+  background, inset over it), alongside the existing flat `shadowColor`.
+- **`backgroundLayers` array** — stacked gradient/colour fills over the base
+  background, each reusing the gradient parser — for multi-layer metallic caps.
+- **`textStroke`** (`textStrokeColor` + `textStrokeWidth`) — a stroke on the
+  glyph outline under the fill (CSS `paint-order: stroke`), and **`textLength`**
+  — scales a single line horizontally to a fixed width (SVG
+  `textLength`/`lengthAdjust`), so digit readouts hold their box.
+- **Editor resize** — `native.call("vsreact:resize", { width, height })` calls
+  `AudioProcessorEditor::setSize`; the granted size round-trips back through the
+  existing `resize` event.
+
+### JS (`@vsreact/core`)
+
+- **`registerFont`**, **`<Canvas>`** + buffer helpers, **`useEditorSize()`**
+  (`[size, setSize]`, the read half reusing `useRootSize`).
+- **`cubic-bezier(x1,y1,x2,y2)`** easing for `transitionEasing` (Newton-Raphson
+  with a bisection fallback, cached), alongside the four named curves.
+- **`StyleValue`** widened to allow arrays/objects (for the structured keys
+  above) and exported; `SvgPath.fill`/`stroke` accept a `GradientSpec` (types).
+- **Film-strip knob tooling** (`src/tools/`) — `bakeKnobStrip` renders a pure
+  shader to a lossless-WebP sprite sheet at build time; `FilmStripKnob` shows
+  one frame at runtime via `Image` + `overflow:hidden` + `translateY`, needing
+  no new SDK feature — the correct answer to the canvas perf ceiling.
+
+### Examples
+
+- **gain** now renders the PlainGain plate (WebP + invisible hit zones +
+  patched live indicators/readout), bound to the real gain/pan params. The
+  other three (drums, channel, delay) follow the same reference-art approach.
+
 ## 0.0.26 — 2026-07-19
 
 The honest-gaps round: everything the FAQ said the web could do and

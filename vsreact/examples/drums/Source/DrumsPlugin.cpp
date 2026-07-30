@@ -29,7 +29,7 @@ public:
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
         layout.add (std::make_unique<juce::AudioParameterFloat> (
-            "tempo", "Tempo", juce::NormalisableRange<float> (60.0f, 180.0f, 1.0f), 120.0f,
+            "tempo", "Tempo", juce::NormalisableRange<float> (40.0f, 240.0f, 1.0f), 120.0f,
             juce::AudioParameterFloatAttributes().withLabel ("BPM")));
         layout.add (std::make_unique<juce::AudioParameterBool> ("run", "Run", true));
         layout.add (std::make_unique<juce::AudioParameterFloat> (
@@ -208,7 +208,7 @@ public:
         root = std::make_unique<vsreact::RootView> (std::move (options));
         bridge.attach (*root);
         addAndMakeVisible (*root);
-        setSize (520, 330);
+        setSize (836, 470); // DrumDeck plate aspect (1672×941 ÷ 2)
         startTimerHz (30);
     }
 

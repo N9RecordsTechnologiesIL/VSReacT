@@ -126,9 +126,10 @@ production builds embed the bundle via `juce_add_binary_data` and
 - `js/` — `@vsreact/core`: reconciler host config, primitives, tailwind
   resolver, runtime shims, native messaging.
 - `third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
-- `examples/gain/` — a real gain/pan plugin: APVTS-bound React knobs.
-  Builds standalone: `cmake -S examples/gain -B examples/gain/build-vs
-  -G "Visual Studio 17 2022" -A x64 -DJUCE_SOURCE_DIR=path/to/JUCE`.
+- `examples/` — five real plugins (`gain`, `delay`, `drums`, `channel`,
+  `synth`), each building standalone: `cmake -S examples/gain -B
+  examples/gain/build-vs -G "Visual Studio 17 2022" -A x64
+  -DJUCE_SOURCE_DIR=path/to/JUCE`. See `examples/README.md`.
 - `tests/` — C++ unit tests (`VSReacTTests`); JS tests run with `bun test`.
 
 First consumer: [StashTrack](../StashTrack), whose entire plugin UI is a

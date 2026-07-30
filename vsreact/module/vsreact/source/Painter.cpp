@@ -653,10 +653,34 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
 
     if (glyphBranch)
     {
-        juce::GlyphArrangement glyphs;
-        glyphs.addLineOfText (font, text, 0.0f, 0.0f); // baseline at y=0
+        // Extracting glyph outlines is expensive — especially from a registered
+        // OTF — and a readout-heavy panel does it for every Text node on every
+        // repaint. Cache the untransformed path (baseline at y=0) per
+        // typeface/text/size; only the cheap per-frame transform varies.
+        struct Outline { juce::Path path; juce::Rectangle<float> box; };
+        static std::map<juce::String, Outline> outlineCache;
 
-        const auto box = glyphs.getBoundingBox (0, -1, true);
+        const auto key = juce::String ((juce::int64) (juce::pointer_sized_int) font.getTypefacePtr().get())
+                       + "|" + juce::String (font.getHeight(), 2) + "|" + text;
+
+        auto cached = outlineCache.find (key);
+
+        if (cached == outlineCache.end())
+        {
+            juce::GlyphArrangement glyphs;
+            glyphs.addLineOfText (font, text, 0.0f, 0.0f); // baseline at y=0
+
+            Outline built;
+            built.box = glyphs.getBoundingBox (0, -1, true);
+            glyphs.createPath (built.path);
+
+            if (outlineCache.size() > 512)
+                outlineCache.clear();
+
+            cached = outlineCache.emplace (key, std::move (built)).first;
+        }
+
+        const auto box = cached->second.box;
         const auto naturalW = box.getWidth();
         const auto scaleX = (textLength > 0.0f && naturalW > 0.0f) ? textLength / naturalW : 1.0f;
         const auto drawnW = naturalW * scaleX;
@@ -676,8 +700,7 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
                 .scaled (scaleX, 1.0f)
                 .translated (leftX, node.frame.getCentreY());
 
-        juce::Path glyphPath;
-        glyphs.createPath (glyphPath);
+        auto glyphPath = cached->second.path;   // copy the cached outline
         glyphPath.applyTransform (transform);
 
         if (const auto glowColor = style.getColour ("textShadowColor"))
@@ -1015,6 +1038,56 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
     // Low-quality resampling turns bright single pixels into sparkle
     // when an asset is drawn below its native size.
     g.setImageResamplingQuality (juce::Graphics::highResamplingQuality);
+
+    // A high-quality rescale is expensive, and reference-art UIs draw a
+    // full-panel bitmap every frame — a ~1.6 Mpx plate downscaled per repaint
+    // costs most of a core once anything animates. Cache the resampled bitmap
+    // under (source, target size) and blit it 1:1 afterwards.
+    //
+    // Only for "fill": stretchToFit maps the whole image onto the whole frame,
+    // so a frame-sized copy is an exact substitute. contain/cover letterbox or
+    // crop, where a pre-scaled copy would change the geometry.
+    if (fit == "fill")
+    {
+        const auto target = node.frame.getSmallestIntegerContainer();
+
+        if (target.getWidth() > 0 && target.getHeight() > 0
+            && (target.getWidth() != image.getWidth() || target.getHeight() != image.getHeight()))
+        {
+            // A private cache, not juce::ImageCache: that one evicts on a timer
+            // and by total size, so a full-panel plate alongside dozens of other
+            // image nodes gets dropped and re-rescaled every frame — measurably
+            // worse than no cache at all.
+            static std::map<juce::int64, juce::Image> scaledCache;
+
+            // Key on the decoded image's pixel-data identity, not the src
+            // string: `source` may be a multi-megabyte base64 data URI, and
+            // hashing it per image node per frame costs far more than the
+            // rescale this is meant to avoid. The decoded image is itself
+            // cached, so the pointer is stable across frames.
+            const auto srcId = (juce::int64) (juce::pointer_sized_int) image.getPixelData().get();
+            const auto scaledHash = (srcId * 31 + target.getWidth()) * 8191 + target.getHeight();
+
+            auto found = scaledCache.find (scaledHash);
+
+            if (found == scaledCache.end())
+            {
+                if (scaledCache.size() > 64)
+                    scaledCache.clear();
+
+                found = scaledCache.emplace (scaledHash,
+                                             image.rescaled (target.getWidth(), target.getHeight(),
+                                                             juce::Graphics::highResamplingQuality))
+                            .first;
+            }
+
+            const auto& scaled = found->second;
+
+            g.drawImageAt (scaled, target.getX(), target.getY());
+            return;
+        }
+    }
+
     g.drawImage (image, node.frame, placement);
 }
 

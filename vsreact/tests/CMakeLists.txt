@@ -15,7 +15,8 @@ target_sources(VSReacTTests
         CanvasTests.cpp
         KnobShaderBench.cpp
         PainterKeysTests.cpp
-        ExampleBundleTests.cpp)
+        ExampleBundleTests.cpp
+        ExampleInteractionTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE

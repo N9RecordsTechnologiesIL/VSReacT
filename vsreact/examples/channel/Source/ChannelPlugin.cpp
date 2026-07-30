@@ -76,24 +76,28 @@ public:
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
     {
+        // Parameter set reconciled to the CleanStrip UI (the UI is the spec).
+        // Bands are ±12 dB peaking/shelf gains; the 4th knob is the HIGH-shelf
+        // frequency (the web has no mid-freq control — the peak stays at 1.2 kHz).
+        // Defaults match CleanStrip's initial state so the baked plate lines up.
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        auto db = [] (const char* id, const char* name)
+        auto db = [] (const char* id, const char* name, float def)
         {
             return std::make_unique<juce::AudioParameterFloat> (
-                id, name, juce::NormalisableRange<float> (-12.0f, 12.0f, 0.1f), 0.0f,
+                id, name, juce::NormalisableRange<float> (-12.0f, 12.0f, 0.1f), def,
                 juce::AudioParameterFloatAttributes().withLabel ("dB"));
         };
 
-        layout.add (db ("low_gain", "Low"));
-        layout.add (db ("mid_gain", "Mid"));
+        layout.add (db ("low_gain", "Low", 2.4f));
+        layout.add (db ("mid_gain", "Mid", -1.8f));
+        layout.add (db ("high_gain", "High", 1.5f));
         layout.add (std::make_unique<juce::AudioParameterFloat> (
-            "mid_freq", "Mid Freq",
-            juce::NormalisableRange<float> (200.0f, 5000.0f, 1.0f, 0.35f), 1000.0f,
+            "high_freq", "High Freq",
+            juce::NormalisableRange<float> (200.0f, 10000.0f, 1.0f, 0.35f), 4000.0f,
             juce::AudioParameterFloatAttributes().withLabel ("Hz")));
-        layout.add (db ("high_gain", "High"));
         layout.add (std::make_unique<juce::AudioParameterFloat> (
-            "comp", "Compress", juce::NormalisableRange<float> (0.0f, 1.0f, 0.01f), 0.3f));
-        layout.add (db ("out_gain", "Output"));
+            "comp", "Compress", juce::NormalisableRange<float> (0.0f, 1.0f, 0.01f), 0.42f));
+        layout.add (db ("out_gain", "Output", 0.6f));
         return layout;
     }
 
@@ -120,16 +124,18 @@ public:
 
         const float lowGain = state.getRawParameterValue ("low_gain")->load();
         const float midGain = state.getRawParameterValue ("mid_gain")->load();
-        const float midFreq = state.getRawParameterValue ("mid_freq")->load();
         const float highGain = state.getRawParameterValue ("high_gain")->load();
+        const float highFreq = state.getRawParameterValue ("high_freq")->load();
         const float comp = state.getRawParameterValue ("comp")->load();
         const float outGain = juce::Decibels::decibelsToGain (state.getRawParameterValue ("out_gain")->load());
 
         for (int channel = 0; channel < juce::jmin (2, buffer.getNumChannels()); ++channel)
         {
+            // Mirrors the display's summed bells: low @200, mid (peak) @1.2 kHz,
+            // high shelf at the live High-Freq knob.
             filters[size_t (channel)][0].configure (Biquad::Kind::lowshelf, sampleRate, 200.0f, lowGain, 0.71f);
-            filters[size_t (channel)][1].configure (Biquad::Kind::peak, sampleRate, midFreq, midGain, 0.9f);
-            filters[size_t (channel)][2].configure (Biquad::Kind::highshelf, sampleRate, 4000.0f, highGain, 0.71f);
+            filters[size_t (channel)][1].configure (Biquad::Kind::peak, sampleRate, 1200.0f, midGain, 0.9f);
+            filters[size_t (channel)][2].configure (Biquad::Kind::highshelf, sampleRate, highFreq, highGain, 0.71f);
         }
 
         float inPeak = 0.0f, outPeak = 0.0f;
@@ -246,7 +252,7 @@ public:
         root = std::make_unique<vsreact::RootView> (std::move (options));
         bridge.attach (*root);
         addAndMakeVisible (*root);
-        setSize (560, 400);
+        setSize (768, 512); // CleanStrip plate aspect (1536×1024 ÷ 2)
         startTimerHz (30);
     }
 

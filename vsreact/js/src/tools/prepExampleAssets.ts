@@ -49,6 +49,32 @@ async function neutralisePlayhead(plate: string) {
   console.log("drums plate: removed the baked step-11 playhead outline");
 }
 
+// The DirtyDelay plate bakes "347" into the LED glass. The UI draws live digits
+// there, so erase the baked ones: interpolate each column between the clean glass
+// row just above and just below the digits. Per-column vertical interpolation
+// preserves the glass's strong left-to-right brightness gradient (~30 down to ~4),
+// which tiling a strip sideways could not — that produced visible bands. The
+// baked "ms" to the right is left alone.
+async function neutraliseDelayDigits(plate: string) {
+  const { data, info } = await sharp(plate).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const W = info.width, C = info.channels;
+  const out = Buffer.from(data);
+  const X0 = 726, X1 = 1064, Y0 = 155, Y1 = 335;
+  for (let x = X0; x <= X1; x++) {
+    const a = ((Y0 - 3) * W + x) * C, b = ((Y1 + 3) * W + x) * C;
+    for (let y = Y0; y <= Y1; y++) {
+      const t = (y - Y0) / (Y1 - Y0);
+      const o = (y * W + x) * C;
+      for (let k = 0; k < 3; k++) out[o + k] = Math.round(data[a + k] * (1 - t) + data[b + k] * t);
+    }
+  }
+  await sharp(out, { raw: { width: W, height: info.height, channels: C } })
+    .webp({ lossless: true }).toFile(plate.replace(/\.webp$/, ".tmp.webp"));
+  copyFileSync(plate.replace(/\.webp$/, ".tmp.webp"), plate);
+  rmSync(plate.replace(/\.webp$/, ".tmp.webp"));
+  console.log("delay plate: erased the baked LED digits");
+}
+
 async function main() {
   // gain <- PlainGain (webp already)
   copyFileSync(
@@ -72,6 +98,7 @@ async function main() {
 
   // delay (new example) <- DirtyDelay (webp plate)
   copyFileSync(join(SRC, "DirtyDelay/src/assets/dirtydelay-reference.webp"), join(dest("delay"), "plate.webp"));
+  await neutraliseDelayDigits(join(dest("delay"), "plate.webp"));
 
   // report sizes
   for (const [ex, file] of [

@@ -77,6 +77,33 @@ public:
                     "a glowing box shadow should light more pixels than none");
         }
 
+        beginTest ("an outer shadow does not bleed inside the node (CSS clips it)");
+        {
+            // A border-only node with a glow must stay see-through in the middle:
+            // CSS paints an outer box-shadow only outside the border box. Before
+            // this was clipped, juce::DropShadow filled the whole silhouette and
+            // a hollow highlight box read as a solid block of colour.
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": "100%", "height": "100%", "backgroundColor": "#000000"}}],
+                ["create", 2, "view"],
+                ["setProps", 2, {"style": {"position": "absolute", "left": 20, "top": 20,
+                    "width": 60, "height": 60, "borderWidth": 2, "borderColor": "#55eaf1",
+                    "shadowColor": "#55eaf1", "shadowRadius": 8}}],
+                ["appendChild", 1, 2],
+                ["appendChild", 0, 1]
+            ])");
+
+            const auto image = render (tree, 100, 100);
+
+            // Centre of the hollow box must stay black; the border itself lit.
+            const auto centre = image.getPixelAt (50, 50);
+            expect (centre.getBrightness() < 0.05f,
+                    "the inside of a border-only node must not be filled by its own shadow");
+            expect (image.getPixelAt (50, 21).getBrightness() > 0.2f, "the border should paint");
+        }
+
         beginTest ("textStroke adds ink around the glyphs");
         {
             const auto ink = [this] (const juce::String& extra)

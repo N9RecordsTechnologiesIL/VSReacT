@@ -298,13 +298,35 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
                                 style.cornerRadius (2), style.cornerRadius (3));
     }
 
+    // CSS clips an outer box-shadow to *outside* the border box: a node with a
+    // transparent or partly transparent background never shows its own shadow
+    // through itself. juce::DropShadow paints the full silhouette, so clip to
+    // the region outside the node's shape first (same inverse-winding trick the
+    // inset shadows use). Without this, a border-only node reads as a solid
+    // block of shadow colour.
+    const auto drawOuterShadow = [&g, &path, &node] (juce::Colour colour, float radius,
+                                                     int offsetX, int offsetY)
+    {
+        juce::Path outside;
+        outside.setUsingNonZeroWinding (false);
+        outside.addRectangle (node.frame.expanded (radius * 3.0f + 16.0f
+                                                   + (float) std::abs (offsetX)
+                                                   + (float) std::abs (offsetY)));
+        outside.addPath (path);
+
+        juce::Graphics::ScopedSaveState shadowState (g);
+        g.reduceClipRegion (outside);
+
+        const juce::DropShadow shadow (colour, juce::roundToInt (radius), { offsetX, offsetY });
+        shadow.drawForPath (g, path);
+    };
+
     if (const auto shadowColor = style.getColour ("shadowColor"))
     {
-        const juce::DropShadow shadow (*shadowColor,
-                                       juce::roundToInt (style.getFloat ("shadowRadius", 4.0f)),
-                                       { juce::roundToInt (style.getFloat ("shadowOffsetX", 0.0f)),
-                                         juce::roundToInt (style.getFloat ("shadowOffsetY", 0.0f)) });
-        shadow.drawForPath (g, path);
+        drawOuterShadow (*shadowColor,
+                         style.getFloat ("shadowRadius", 4.0f),
+                         juce::roundToInt (style.getFloat ("shadowOffsetX", 0.0f)),
+                         juce::roundToInt (style.getFloat ("shadowOffsetY", 0.0f)));
     }
 
     // boxShadow: [{ color, radius, offsetX, offsetY, inset? }, …] — CSS stacks
@@ -325,11 +347,10 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
 
             if (const auto col = parseCssColor (e.getProperty ("color", "#000000").toString()))
             {
-                const juce::DropShadow shadow (*col,
-                    juce::roundToInt ((float) (double) e.getProperty ("radius", 4.0)),
-                    { juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
-                      juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)) });
-                shadow.drawForPath (g, path);
+                drawOuterShadow (*col,
+                                 (float) (double) e.getProperty ("radius", 4.0),
+                                 juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
+                                 juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)));
             }
         }
     }

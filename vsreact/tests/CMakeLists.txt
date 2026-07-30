@@ -14,12 +14,15 @@ target_sources(VSReacTTests
         FontRegistryTests.cpp
         CanvasTests.cpp
         KnobShaderBench.cpp
-        PainterKeysTests.cpp)
+        PainterKeysTests.cpp
+        ExampleBundleTests.cpp)
 
 target_compile_definitions(VSReacTTests
     PRIVATE
         JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0)
+        JUCE_USE_CURL=0
+        VSREACT_TEST_FONT_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../examples/drums/ui/src/assets/narrow.otf"
+        VSREACT_EXAMPLES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../examples")
 
 target_link_libraries(VSReacTTests
     PRIVATE

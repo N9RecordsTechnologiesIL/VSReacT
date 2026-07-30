@@ -22,6 +22,43 @@ public:
             expect (registry.isEmpty());
         }
 
+        beginTest ("a REAL font file registers and resolves (file path + data URI)");
+        {
+            // The example art ships DrumDeck/CleanStrip's narrow OTF. Registering
+            // an actual typeface is the path the examples take at module scope —
+            // the earlier cases here only ever exercised rejection.
+            const juce::File otf (juce::String (VSREACT_TEST_FONT_PATH));
+
+            if (! otf.existsAsFile())
+            {
+                logMessage ("skipped: " + otf.getFullPathName() + " missing");
+            }
+            else
+            {
+                vsreact::FontRegistry registry;
+                expect (registry.registerFont ("Narrow FromFile", otf.getFullPathName(), 400),
+                        "a real OTF path should register");
+                expect (registry.find ("Narrow FromFile", 400) != nullptr);
+
+                juce::MemoryBlock raw;
+                otf.loadFileAsData (raw);
+                juce::MemoryOutputStream b64;
+                juce::Base64::convertToBase64 (b64, raw.getData(), raw.getSize());
+                const auto uri = "data:font/otf;base64," + b64.toString();
+
+                expect (registry.registerFont ("Narrow FromUri", uri, 400),
+                        "the same OTF as a base64 data URI should register");
+                expect (registry.find ("Narrow FromUri", 400) != nullptr);
+
+                // And Style::font must actually pick it up.
+                vsreact::Style::setActiveFontRegistry (&registry);
+                const auto style = vsreact::Style::fromVar (
+                    juce::JSON::parse (R"({"fontFamily": "Narrow FromUri", "fontSize": 24})"));
+                expectWithinAbsoluteError (style.font().getHeight(), 24.0f, 6.0f);
+                vsreact::Style::setActiveFontRegistry (nullptr);
+            }
+        }
+
         beginTest ("the __vsreact_registerFont binding reaches the callback");
         {
             juce::String seenFamily, seenSrc;

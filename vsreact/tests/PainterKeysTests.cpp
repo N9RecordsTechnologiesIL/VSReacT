@@ -1,31 +1,9 @@
 #include <vsreact/vsreact.h>
 
+#include "TestHelpers.h"
+
 // Coverage for the 0.0.27 painter keys added for the improved-UI port:
 // boxShadow arrays, backgroundLayers, textStroke, textLength.
-
-namespace
-{
-    juce::Image render (vsreact::ShadowTree& tree, int w, int h)
-    {
-        tree.computeLayout ((float) w, (float) h);
-        juce::Image image (juce::Image::ARGB, w, h, true);
-        juce::Graphics g (image);
-        g.fillAll (juce::Colours::black);
-        vsreact::Painter::paint (g, *tree.root());
-        return image;
-    }
-
-    // Count pixels that differ from pure black — a proxy for "how much ink".
-    int inkCount (const juce::Image& image)
-    {
-        int n = 0;
-        for (int y = 0; y < image.getHeight(); ++y)
-            for (int x = 0; x < image.getWidth(); ++x)
-                if (image.getPixelAt (x, y).getBrightness() > 0.02f)
-                    ++n;
-        return n;
-    }
-}
 
 class PainterKeysTests final : public juce::UnitTest
 {
@@ -48,7 +26,7 @@ public:
                 ["appendChild", 0, 1]
             ])");
 
-            const auto image = render (tree, 40, 40);
+            const auto image = renderTree (tree, 40, 40);
             // The red layer must win over the #101010 base.
             const auto c = image.getPixelAt (20, 20);
             expect (c.getRed() > 200 && c.getGreen() < 40, "red layer should cover the base");
@@ -73,7 +51,7 @@ public:
                 ["appendChild", 0, 1]
             ])");
 
-            expect (inkCount (render (withShadow, 60, 60)) > inkCount (render (noShadow, 60, 60)),
+            expect (inkCount (renderTree (withShadow, 60, 60)) > inkCount (renderTree (noShadow, 60, 60)),
                     "a glowing box shadow should light more pixels than none");
         }
 
@@ -95,7 +73,7 @@ public:
                 ["appendChild", 0, 1]
             ])");
 
-            const auto image = render (tree, 100, 100);
+            const auto image = renderTree (tree, 100, 100);
 
             // Centre of the hollow box must stay black; the border itself lit.
             const auto centre = image.getPixelAt (50, 50);
@@ -118,7 +96,7 @@ public:
                     ["appendChild", 1, 2],
                     ["appendChild", 0, 1]
                 ])");
-                return inkCount (render (tree, 60, 60));
+                return inkCount (renderTree (tree, 60, 60));
             };
 
             expect (ink (R"(, "textStrokeColor": "#ff0000", "textStrokeWidth": 3)") > ink (""),
@@ -139,7 +117,7 @@ public:
                     ["appendChild", 1, 2],
                     ["appendChild", 0, 1]
                 ])");
-                const auto image = render (tree, 200, 40);
+                const auto image = renderTree (tree, 200, 40);
                 int minX = image.getWidth(), maxX = -1;
                 for (int y = 0; y < image.getHeight(); ++y)
                     for (int x = 0; x < image.getWidth(); ++x)

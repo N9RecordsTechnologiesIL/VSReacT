@@ -1,18 +1,9 @@
 #include <vsreact/vsreact.h>
 
+#include "TestHelpers.h"
+
 namespace
 {
-    juce::Image renderTree (vsreact::ShadowTree& tree, int width, int height)
-    {
-        tree.computeLayout (static_cast<float> (width), static_cast<float> (height));
-
-        juce::Image image (juce::Image::ARGB, width, height, true);
-        juce::Graphics g (image);
-        g.fillAll (juce::Colours::black);
-        vsreact::Painter::paint (g, *tree.root());
-        return image;
-    }
-
     bool approx (juce::Colour a, juce::Colour b, int tolerance = 8)
     {
         return std::abs (a.getRed() - b.getRed()) <= tolerance
@@ -434,20 +425,8 @@ public:
 
         beginTest ("underline adds pixels");
         {
-            const auto inkCount = [] (const juce::Image& image)
-            {
-                int count = 0;
-
-                for (int py = 0; py < image.getHeight(); ++py)
-                    for (int px = 0; px < image.getWidth(); ++px)
-                        if (image.getPixelAt (px, py).getBrightness() > 0.4f)
-                            ++count;
-
-                return count;
-            };
-
-            expect (inkCount (renderStyled (R"(, "textDecoration": "underline")"))
-                    > inkCount (renderStyled ("")));
+            expect (inkCount (renderStyled (R"(, "textDecoration": "underline")"), 0.4f)
+                    > inkCount (renderStyled (""), 0.4f));
         }
 
         beginTest ("numberOfLines clamps wrapping");

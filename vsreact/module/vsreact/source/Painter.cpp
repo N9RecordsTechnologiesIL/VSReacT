@@ -321,6 +321,27 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         shadow.drawForPath (g, path);
     };
 
+    // CSS box-shadow inset: shadow of the inverse region (a ring around the
+    // shape), clipped inside. Shared by the legacy insetShadow* keys and the
+    // inset entries of the boxShadow array — both call it after the
+    // background fill below.
+    const auto drawInsetShadow = [&g, &path, &node] (juce::Colour colour, float radius,
+                                                     int offsetX, int offsetY)
+    {
+        const auto margin = radius * 2.0f + 8.0f;
+
+        juce::Path ring;
+        ring.setUsingNonZeroWinding (false);
+        ring.addRectangle (node.frame.expanded (margin));
+        ring.addPath (path);
+
+        juce::Graphics::ScopedSaveState insetState (g);
+        g.reduceClipRegion (path);
+
+        const juce::DropShadow shadow (colour, juce::roundToInt (radius), { offsetX, offsetY });
+        shadow.drawForPath (g, ring);
+    };
+
     if (const auto shadowColor = style.getColour ("shadowColor"))
     {
         drawOuterShadow (*shadowColor,
@@ -417,25 +438,12 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         }
     }
 
-    // CSS box-shadow inset: shadow of the inverse region, clipped inside.
     if (const auto insetColor = style.getColour ("insetShadowColor"))
     {
-        const auto radius = style.getFloat ("insetShadowRadius", 4.0f);
-        const auto margin = radius * 2.0f + 8.0f;
-
-        juce::Path ring;
-        ring.setUsingNonZeroWinding (false);
-        ring.addRectangle (node.frame.expanded (margin));
-        ring.addPath (path);
-
-        juce::Graphics::ScopedSaveState insetState (g);
-        g.reduceClipRegion (path);
-
-        const juce::DropShadow shadow (*insetColor,
-                                       juce::roundToInt (radius),
-                                       { juce::roundToInt (style.getFloat ("insetShadowOffsetX", 0.0f)),
-                                         juce::roundToInt (style.getFloat ("insetShadowOffsetY", 0.0f)) });
-        shadow.drawForPath (g, ring);
+        drawInsetShadow (*insetColor,
+                         style.getFloat ("insetShadowRadius", 4.0f),
+                         juce::roundToInt (style.getFloat ("insetShadowOffsetX", 0.0f)),
+                         juce::roundToInt (style.getFloat ("insetShadowOffsetY", 0.0f)));
     }
 
     // Inset entries of the boxShadow array (over the background, clipped in).
@@ -451,25 +459,13 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
             if (! e.isObject() || ! (bool) e.getProperty ("inset", false))
                 continue;
 
-            const auto col = parseCssColor (e.getProperty ("color", "#000000").toString());
-            if (! col)
-                continue;
-
-            const auto radius = (float) (double) e.getProperty ("radius", 4.0);
-            const auto margin = radius * 2.0f + 8.0f;
-
-            juce::Path ring;
-            ring.setUsingNonZeroWinding (false);
-            ring.addRectangle (node.frame.expanded (margin));
-            ring.addPath (path);
-
-            juce::Graphics::ScopedSaveState insetState (g);
-            g.reduceClipRegion (path);
-
-            const juce::DropShadow shadow (*col, juce::roundToInt (radius),
-                { juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
-                  juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)) });
-            shadow.drawForPath (g, ring);
+            if (const auto col = parseCssColor (e.getProperty ("color", "#000000").toString()))
+            {
+                drawInsetShadow (*col,
+                                 (float) (double) e.getProperty ("radius", 4.0),
+                                 juce::roundToInt ((float) (double) e.getProperty ("offsetX", 0.0)),
+                                 juce::roundToInt ((float) (double) e.getProperty ("offsetY", 0.0)));
+            }
         }
     }
 
@@ -674,8 +670,10 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
             built.box = glyphs.getBoundingBox (0, -1, true);
             glyphs.createPath (built.path);
 
+            // At capacity, evict one entry rather than the whole map: clearing
+            // would re-extract every hot outline on the next frame.
             if (outlineCache.size() > 512)
-                outlineCache.clear();
+                outlineCache.erase (outlineCache.begin());
 
             cached = outlineCache.emplace (key, std::move (built)).first;
         }
@@ -1072,8 +1070,10 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
 
             if (found == scaledCache.end())
             {
+                // At capacity, evict one entry rather than the whole map:
+                // clearing would re-rescale every hot plate on the next frame.
                 if (scaledCache.size() > 64)
-                    scaledCache.clear();
+                    scaledCache.erase (scaledCache.begin());
 
                 found = scaledCache.emplace (scaledHash,
                                              image.rescaled (target.getWidth(), target.getHeight(),

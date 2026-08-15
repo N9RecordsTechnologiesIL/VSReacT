@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logos/logo-text-red.png" alt="VSReacT — a React atom with a waveform through its core" width="420" />
+  <img src="logos/vsreact-animated.svg" alt="VSReacT — a React atom with a waveform through its core" width="420" />
 </p>
 
 <h1 align="center">VSReacT</h1>

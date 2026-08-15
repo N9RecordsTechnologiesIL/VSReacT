@@ -343,7 +343,7 @@ export default function Home() {
 
       <section className={styles.hero}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logos/logo-red.png" alt="" className={styles.heroLogo} aria-hidden="true" />
+        <img src="/logos/vsreact-animated.svg" alt="" className={styles.heroLogo} aria-hidden="true" />
 
         <div className={styles.heroInner}>
           <span className={`${styles.heroKicker} ${styles.rise}`}>{TAGLINE.toUpperCase()}</span>

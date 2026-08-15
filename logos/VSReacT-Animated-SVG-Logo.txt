@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%">
+  <defs>
+    <style>
+      /* Base Neon Glow Backdrop */
+      .glow-layer {
+        fill: none;
+        stroke: #ff2028;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: url(#neon-glow-filter);
+        animation: ambientGlow 4s ease-in-out infinite alternate;
+      }
+      
+      /* Main Base Neon Tubes */
+      .tube-base {
+        fill: none;
+        stroke: #eb353a;
+        stroke-width: 14.5px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* Traveling Energy Beams Along the Orbits */
+      .orbit-beam-1 {
+        fill: none;
+        stroke: #ff8a8e;
+        stroke-width: 15.5px;
+        stroke-linecap: round;
+        stroke-dasharray: 220 1422;
+        animation: orbitTravel 6s linear infinite;
+        filter: url(#beam-glow);
+      }
+
+      .orbit-beam-2 {
+        fill: none;
+        stroke: #ff8a8e;
+        stroke-width: 15.5px;
+        stroke-linecap: round;
+        stroke-dasharray: 220 1422;
+        animation: orbitTravel 6s linear infinite;
+        animation-delay: -2s;
+        filter: url(#beam-glow);
+      }
+
+      .orbit-beam-3 {
+        fill: none;
+        stroke: #ff8a8e;
+        stroke-width: 15.5px;
+        stroke-linecap: round;
+        stroke-dasharray: 220 1422;
+        animation: orbitTravel 6s linear infinite;
+        animation-delay: -4s;
+        filter: url(#beam-glow);
+      }
+
+      /* Flowing Waves Animation */
+      .wave-pulse {
+        fill: none;
+        stroke: #ffa3a7;
+        stroke-width: 15px;
+        stroke-linecap: round;
+        stroke-dasharray: 90 150;
+        animation: waveFlow 3s linear infinite;
+      }
+
+      /* Nucleus Radar Scanning Hand */
+      .radar-scan {
+        transform-origin: 512px 512px;
+        animation: radarRotate 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+
+      .nucleus-breath {
+        transform-origin: 512px 512px;
+        animation: nucleusPulse 3s ease-in-out infinite alternate;
+      }
+
+      /* KEYFRAME DEFINITIONS */
+      @keyframes orbitTravel {
+        0% { stroke-dashoffset: 1642; }
+        100% { stroke-dashoffset: 0; }
+      }
+
+      @keyframes waveFlow {
+        0% { stroke-dashoffset: 240; }
+        100% { stroke-dashoffset: 0; }
+      }
+
+      @keyframes radarRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes ambientGlow {
+        0% { opacity: 0.55; }
+        50% { opacity: 0.85; }
+        100% { opacity: 0.55; }
+      }
+
+      @keyframes nucleusPulse {
+        0% { transform: scale(0.985); }
+        100% { transform: scale(1.015); }
+      }
+    </style>
+
+    <!-- Vibrant Ambient Neon Glow Filter -->
+    <filter id="neon-glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur1" />
+      <feGaussianBlur stdDeviation="18" result="blur2" />
+      <feGaussianBlur stdDeviation="35" result="blur3" />
+      <feMerge>
+        <feMergeNode in="blur3" opacity="0.3" />
+        <feMergeNode in="blur2" opacity="0.5" />
+        <feMergeNode in="blur1" opacity="0.8" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Energy Beam Glow Filter -->
+    <filter id="beam-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Transparent Background Canvas -->
+  <g id="logo-root">
+    
+    <!-- 1. AMBIENT NEON GLOW BACKDROP -->
+    <g class="glow-layer" stroke-width="24">
+      <ellipse cx="512" cy="512" rx="340" ry="145" />
+      <ellipse cx="512" cy="512" rx="340" ry="145" transform="rotate(60 512 512)" />
+      <ellipse cx="512" cy="512" rx="340" ry="145" transform="rotate(-60 512 512)" />
+      <path d="M 198 474 C 212 520, 222 557, 240 557 C 260 557, 272 467, 292 467 C 306 467, 318 500, 326 525" />
+      <path d="M 698 499 C 706 525, 716 557, 732 557 C 752 557, 764 467, 784 467 C 798 467, 812 505, 826 550" />
+      <circle cx="512" cy="512" r="97" />
+      <line class="radar-scan" x1="536" y1="488" x2="570" y2="454" />
+    </g>
+
+    <!-- 2. MAIN BASE NEON TUBES (Pure Vector Shapes) -->
+    <g id="neon-tubes" class="tube-base">
+      <g id="group-orbits">
+        <ellipse id="orbit-horizontal" cx="512" cy="512" rx="340" ry="145" />
+        <ellipse id="orbit-tilt-right" cx="512" cy="512" rx="340" ry="145" transform="rotate(60 512 512)" />
+        <ellipse id="orbit-tilt-left" cx="512" cy="512" rx="340" ry="145" transform="rotate(-60 512 512)" />
+      </g>
+
+      <g id="group-waves">
+        <path id="wave-left" d="M 198 474 C 212 520, 222 557, 240 557 C 260 557, 272 467, 292 467 C 306 467, 318 500, 326 525" />
+        <path id="wave-right" d="M 698 499 C 706 525, 716 557, 732 557 C 752 557, 764 467, 784 467 C 798 467, 812 505, 826 550" />
+      </g>
+
+      <g id="group-nucleus" class="nucleus-breath">
+        <circle id="nucleus-circle" cx="512" cy="512" r="97" />
+        <line id="nucleus-glint" class="radar-scan" x1="536" y1="488" x2="570" y2="454" />
+      </g>
+    </g>
+
+    <!-- 3. ANIMATED TRAVELING ENERGY PULSES -->
+    <g id="energy-pulses">
+      <ellipse cx="512" cy="512" rx="340" ry="145" class="orbit-beam-1" />
+      <ellipse cx="512" cy="512" rx="340" ry="145" transform="rotate(60 512 512)" class="orbit-beam-2" />
+      <ellipse cx="512" cy="512" rx="340" ry="145" transform="rotate(-60 512 512)" class="orbit-beam-3" />
+
+      <path d="M 198 474 C 212 520, 222 557, 240 557 C 260 557, 272 467, 292 467 C 306 467, 318 500, 326 525" class="wave-pulse" />
+      <path d="M 698 499 C 706 525, 716 557, 732 557 C 752 557, 764 467, 784 467 C 798 467, 812 505, 826 550" class="wave-pulse" />
+    </g>
+
+  </g>
+</svg>

@@ -192,8 +192,10 @@
   width: min(46vw, 620px);
   aspect-ratio: 1;
   transform: translateY(-50%);
-  mix-blend-mode: screen; /* drops the near-black jpeg ground into the ink */
-  opacity: 0.32;
+  /* The animated SVG has a transparent ground (no blend hack needed) and
+     carries its own neon glow, so it can sit brighter than the old raster
+     without fighting the headline. */
+  opacity: 0.5;
   pointer-events: none;
   user-select: none;
 }

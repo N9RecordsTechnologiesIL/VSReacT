@@ -36,6 +36,14 @@ gain.end();         // end the gesture — hosts record clean automation`}</Code
         makes host automation recording and touch/latch modes behave. The built-in controls
         do it for you.
       </p>
+      <p>
+        For custom drag surfaces — e.g. an invisible hit zone over reference art —{' '}
+        <code>useParamGestures(handle, opts?)</code> (since 0.0.27) returns that whole
+        handler set headlessly: vertical drag inside a begin/end gesture, double-click
+        reset, wheel nudge. Spread it onto any <code>View</code>; options tune{' '}
+        <code>sensitivity</code>, <code>wheelStep</code> (0 disables) and the{' '}
+        <code>resetTo</code> target.
+      </p>
 
       <h2 id="controls">Ready-made controls</h2>
       <p>

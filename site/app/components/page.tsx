@@ -21,6 +21,15 @@ import { VERSION } from '../version'
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
+/**
+ * Round a computed float before it becomes a DOM string (a style value or an
+ * SVG coordinate). Math.sin/cos/exp are implementation-defined in their last
+ * bits, so the server's V8 and the browser's can serialise the same expression
+ * differently — which React reports as a hydration mismatch. Four decimals is
+ * far finer than a pixel at any of these sizes.
+ */
+const sf = (n: number) => Number(n.toFixed(4))
+
 const THEMES: Array<[key: string, label: string]> = [
   ['inst', 'INSTRUMENT'],
   ['metal', 'STEALTH'],
@@ -78,7 +87,7 @@ function arcPath(value: number): string {
   const end = ((-135 + 270 * clamp01(value)) * Math.PI) / 180
   const r = 40
   const large = 270 * clamp01(value) > 180 ? 1 : 0
-  return `M ${50 + r * Math.sin(start)} ${50 - r * Math.cos(start)} A ${r} ${r} 0 ${large} 1 ${50 + r * Math.sin(end)} ${50 - r * Math.cos(end)}`
+  return `M ${sf(50 + r * Math.sin(start))} ${sf(50 - r * Math.cos(start))} A ${r} ${r} 0 ${large} 1 ${sf(50 + r * Math.sin(end))} ${sf(50 - r * Math.cos(end))}`
 }
 
 /* ── theme-agnostic twins (skins come from the tile's CSS vars) ─────── */
@@ -153,10 +162,10 @@ function KnobTwin({
             return (
               <line
                 key={i}
-                x1={50 + 41 * Math.sin(a)}
-                y1={50 - 41 * Math.cos(a)}
-                x2={50 + 47 * Math.sin(a)}
-                y2={50 - 47 * Math.cos(a)}
+                x1={sf(50 + 41 * Math.sin(a))}
+                y1={sf(50 - 41 * Math.cos(a))}
+                x2={sf(50 + 47 * Math.sin(a))}
+                y2={sf(50 - 47 * Math.cos(a))}
               />
             )
           })}
@@ -197,10 +206,10 @@ function KnobTwin({
             return (
               <line
                 key={i}
-                x1={50 + 43 * Math.sin(a)}
-                y1={50 - 43 * Math.cos(a)}
-                x2={50 + 48 * Math.sin(a)}
-                y2={50 - 48 * Math.cos(a)}
+                x1={sf(50 + 43 * Math.sin(a))}
+                y1={sf(50 - 43 * Math.cos(a))}
+                x2={sf(50 + 48 * Math.sin(a))}
+                y2={sf(50 - 48 * Math.cos(a))}
               />
             )
           })}
@@ -1445,10 +1454,10 @@ function MeterTwin({ theme = 'inst', level, tick }: { theme?: string; level: num
             return (
               <line
                 key={i}
-                x1={50 + 36 * Math.sin(a)}
-                y1={52 - 36 * Math.cos(a)}
-                x2={50 + 42 * Math.sin(a)}
-                y2={52 - 42 * Math.cos(a)}
+                x1={sf(50 + 36 * Math.sin(a))}
+                y1={sf(52 - 36 * Math.cos(a))}
+                x2={sf(50 + 42 * Math.sin(a))}
+                y2={sf(52 - 42 * Math.cos(a))}
               />
             )
           })}
@@ -1807,7 +1816,8 @@ function EqTwin({ theme = 'inst' }: { theme?: string }) {
 
   const dbAt = (x: number) =>
     bands.reduce((sum, b) => sum + b.gain * Math.exp(-(((x - b.x) / b.w) ** 2)), 0)
-  const yOf = (db: number) => (0.5 - Math.max(-RANGE, Math.min(RANGE, db)) / (RANGE * 2)) * (H - 8) + 4
+  const yOf = (db: number) =>
+    sf((0.5 - Math.max(-RANGE, Math.min(RANGE, db)) / (RANGE * 2)) * (H - 8) + 4)
 
   const drag0 = useDrag((dx, dy) =>
     setBands((bs) =>
@@ -1834,16 +1844,16 @@ function EqTwin({ theme = 'inst' }: { theme?: string }) {
       <u />
       {Array.from({ length: 36 }, (_, i) => {
         const db = dbAt((i + 0.5) / 36)
-        const h = Math.max(1, (Math.abs(db) / (RANGE * 2)) * (H - 8))
+        const h = sf(Math.max(1, (Math.abs(db) / (RANGE * 2)) * (H - 8)))
         return (
           <i
             key={i}
-            style={{ left: (i / 36) * W + 1, width: W / 36 - 1.5, top: db >= 0 ? H / 2 - h : H / 2, height: h }}
+            style={{ left: sf((i / 36) * W + 1), width: sf(W / 36 - 1.5), top: db >= 0 ? sf(H / 2 - h) : H / 2, height: h }}
           />
         )
       })}
       {bands.map((b, i) => (
-        <b key={i} style={{ left: b.x * W - 8, top: yOf(b.gain) - 8 }} {...drags[i]} />
+        <b key={i} style={{ left: sf(b.x * W - 8), top: sf(yOf(b.gain) - 8) }} {...drags[i]} />
       ))}
     </div>
   )
@@ -2140,9 +2150,9 @@ function MacroPadTwin({
     const t = (i + 1) / 8
     const spread = 0.3 + 0.7 * Math.pow(t, 1.6 - value.x * 1.2)
     const breathe = 1 + 0.02 * Math.sin(tick / 18 + i * 0.9)
-    const size = Math.min(SIZE - 2, SIZE * spread * breathe)
-    const opacity = clamp01(
-      (0.12 + 0.5 * value.y) * (1.15 - t) * (0.8 + 0.2 * Math.sin(tick / 27 + i)),
+    const size = sf(Math.min(SIZE - 2, SIZE * spread * breathe))
+    const opacity = sf(
+      clamp01((0.12 + 0.5 * value.y) * (1.15 - t) * (0.8 + 0.2 * Math.sin(tick / 27 + i))),
     )
     return { size, opacity }
   })
@@ -2403,13 +2413,15 @@ export default function ComponentsPage() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  const meterLevel =
-    0.55 + 0.4 * Math.abs(Math.sin(tick / 40)) * (0.6 + 0.4 * Math.sin(tick / 9))
+  // Rounded before they reach the DOM — see sf().
+  const meterLevel = sf(
+    0.55 + 0.4 * Math.abs(Math.sin(tick / 40)) * (0.6 + 0.4 * Math.sin(tick / 9)),
+  )
   const bars = Array.from({ length: 14 }, (_, i) =>
-    clamp01(0.25 + 0.7 * Math.abs(Math.sin(tick / 25 + i * 0.55)) * Math.abs(Math.sin(tick / 60 + i * 0.21))),
+    sf(clamp01(0.25 + 0.7 * Math.abs(Math.sin(tick / 25 + i * 0.55)) * Math.abs(Math.sin(tick / 60 + i * 0.21)))),
   )
   const wave = Array.from({ length: 26 }, (_, i) =>
-    Math.sin((tick - i * 3) / 14) * Math.abs(Math.sin((tick - i * 3) / 47)),
+    sf(Math.sin((tick - i * 3) / 14) * Math.abs(Math.sin((tick - i * 3) / 47))),
   )
   const progress = (tick % 300) / 300
   const seqStep = Math.floor(tick / 9) % 8

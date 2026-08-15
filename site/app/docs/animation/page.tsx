@@ -41,6 +41,14 @@ export default function Page() {
           <code>ease-linear/in/out/in-out</code> pick the curve.
         </li>
         <li>
+          Since 0.0.27, <code>transitionEasing</code> also accepts any CSS{' '}
+          <code>cubic-bezier(x1,y1,x2,y2)</code> spec alongside the four named curves —
+          set it via the <code>style</code> prop, e.g.{' '}
+          <code>{`style={{ transitionEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}`}</code>.
+          Parsed curves are cached by their string; malformed specs fall back to
+          ease-in-out.
+        </li>
+        <li>
           Keyframe presets: <code>animate-spin</code>, <code>animate-pulse</code>, and{' '}
           <code>animate-bounce</code> loop until the class comes off.
         </li>

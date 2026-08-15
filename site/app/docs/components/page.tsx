@@ -462,6 +462,52 @@ registry.registerFactory ("waveform", [this] {
 // TSX — position it with flexbox
 <NativeView nativeId="waveform" className="flex-1 rounded-lg overflow-hidden" />`}</Code>
 
+      <h2 id="canvas">&lt;Canvas&gt; (since 0.0.27)</h2>
+      <p>
+        The raster escape hatch: <code>draw(pixels, width, height)</code> writes RGBA into
+        an <code>ArrayBuffer</code> that <strong>aliases the node&apos;s C++-owned pixel
+        store</strong> — a genuine binary channel, so per-pixel drawing never crosses the
+        JSON bridge. The node is sized by <code>className</code>/<code>style</code> like
+        any View; <code>width</code>/<code>height</code> are the pixel-buffer dimensions
+        (set them to CSS size × device-pixel-ratio for a crisp result). <code>draw</code>{' '}
+        re-runs when <code>deps</code> (or the buffer size) change.
+      </p>
+      <Code title="TSX">{`<Canvas
+  className="w-24 h-24"
+  width={96} height={96}
+  deps={[value]}
+  draw={(pixels, w, h) => {
+    for (let i = 0; i < w * h; i++) {
+      pixels[i * 4] = 255;           // R
+      pixels[i * 4 + 3] = 255;       // A
+    }
+  }}
+/>`}</Code>
+      <p>
+        <strong>Know the ceiling:</strong> QuickJS is too slow for per-frame procedural
+        shading — one full 180×180 Blinn-Phong knob measured <strong>~217 ms per
+        frame</strong>. <code>&lt;Canvas&gt;</code> suits modest procedural drawing that
+        redraws occasionally; anything shader-like should be baked at build time and
+        shipped as an image — which is exactly what the film-strip tooling below does.
+      </p>
+
+      <h2 id="film-strip">Film-strip knobs (since 0.0.27)</h2>
+      <p>
+        The commercial-plugin answer to the canvas perf ceiling:{' '}
+        <code>bakeKnobStrip</code> (a build-time tool in the SDK&apos;s{' '}
+        <code>src/tools/</code>) renders a pure knob shader to N rotation frames stacked
+        vertically in one <strong>lossless-WebP sprite sheet</strong> plus a JSON
+        manifest. At runtime, <code>FilmStripKnob</code> (exported from{' '}
+        <code>@vsreact/core</code>) shows one frame via <code>Image</code> +{' '}
+        <code>overflow: hidden</code> + <code>translateY</code> — no runtime shading, and
+        the big strip URI crosses the bridge once, not per frame.
+      </p>
+      <Code title="bake at build time, show a frame at runtime">{`# build time — writes knob-strip.webp + knob-strip.json
+bun run vsreact/js/src/tools/bakeKnobStrip.ts <outDir> [size] [frames]
+
+// runtime — rotation in degrees within ±sweepDegrees/2
+<FilmStripKnob rotation={-135 + 270 * value} strip={knobStrip} displaySize={72} />`}</Code>
+
       <Pager current="components" />
     </article>
   )

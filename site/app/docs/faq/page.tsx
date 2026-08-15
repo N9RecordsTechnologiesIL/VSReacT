@@ -58,11 +58,15 @@ export default function Page() {
         by design; transitions can&apos;t animate the native <code>hover:</code>/
         <code>active:</code> merges (they never round-trip through JS — use{' '}
         <code>onMouseEnter</code> state); <code>backdrop-blur</code> inside transformed or
-        semi-transparent subtrees samples the untransformed frame. Everything else
-        you&apos;d reach for — gradients (incl. conic and repeating), all three shadow
-        kinds, filters, transforms with correct hit-testing, clip polygons, zIndex,
-        keyboard focus and Tab order, pointer-events, SVG paths, ellipsis/line-clamp,
-        two-axis scrolling — is in.
+        semi-transparent subtrees samples the untransformed frame; and{' '}
+        <code>&lt;Canvas&gt;</code> gives you zero-copy pixel access, but QuickJS is too
+        slow for per-frame procedural shading — bake it at build time (the film-strip
+        tooling does exactly that). Everything else you&apos;d reach for — gradients
+        (incl. conic and repeating), multi-shadow stacks and background layers, custom
+        bundled fonts, filters, transforms with correct hit-testing, clip polygons,
+        zIndex, keyboard focus and Tab order, pointer-events, SVG paths, text
+        stroke/ellipsis/line-clamp, <code>cubic-bezier</code> easing, two-axis scrolling,
+        JS-driven editor resize — is in as of 0.0.27.
       </p>
 
       <h2 id="licensing">What licenses am I agreeing to?</h2>

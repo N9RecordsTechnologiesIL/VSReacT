@@ -84,6 +84,14 @@ bool isBundleLoaded() const noexcept;`}</Code>
           <code>isBundleLoaded()</code> — true once the bundle evaluated successfully.
         </li>
         <li>
+          Since 0.0.27 the RootView also owns a <code>FontRegistry</code> (typefaces
+          registered from JS via <code>registerFont</code> — nothing to wire up) and
+          answers the <code>vsreact:resize</code> native call itself, before your{' '}
+          <code>onNativeCall</code> handler: it calls <code>setSize</code> and the
+          resulting <code>resized()</code> echoes a <code>resize</code> event back to JS,
+          which is how <code>useEditorSize</code> round-trips.
+        </li>
+        <li>
           Resizing relayouts the Yoga tree; the mouse overrides hit-test into the shadow
           tree and drive hover/active/drag — see{' '}
           <Link href="/docs/events">Events &amp; gestures</Link>.

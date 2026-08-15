@@ -453,14 +453,19 @@ export default function Home() {
                   <span className={styles.meterVal} data-show={zone === 'meter' ? 'true' : undefined}>
                     {meterLDb}
                   </span>
-                  <i style={{ height: `${8 + meterL * 88}%` }} data-hot={meterL > 0.92 ? 'true' : undefined} />
+                  <div className={styles.meterTrack} data-hot={meterL > 0.92 ? 'true' : undefined}>
+                    {/* the LED gradient lives on the track; this cover dims the unlit part */}
+                    <i style={{ height: `${92 - meterL * 88}%` }} />
+                  </div>
                   <span>L</span>
                 </div>
                 <div className={styles.meterCol}>
                   <span className={styles.meterVal} data-show={zone === 'meter' ? 'true' : undefined}>
                     {meterRDb}
                   </span>
-                  <i style={{ height: `${8 + meterR * 88}%` }} data-hot={meterR > 0.92 ? 'true' : undefined} />
+                  <div className={styles.meterTrack} data-hot={meterR > 0.92 ? 'true' : undefined}>
+                    <i style={{ height: `${92 - meterR * 88}%` }} />
+                  </div>
                   <span>R</span>
                 </div>
               </div>

@@ -67,6 +67,15 @@ const overlay = useOverlay();               // a slot in the top-most layer`}</C
           width/height as state, seeded at mount and updated on host resize: the
           foundation for resizable editors.
         </li>
+        <li>
+          <code>useEditorSize()</code> (since 0.0.27) →{' '}
+          <code>[size, setSize]</code> — the two-way version: the read half is{' '}
+          <code>useRootSize</code>, and <code>setSize(width, height)</code> asks the host
+          to resize itself. The call round-trips through the native resize — the host
+          applies the size it grants and echoes it back through the{' '}
+          <code>resize</code> event, so <code>size</code> always reflects what the host
+          settled on. Build resize grips and preset size buttons with it.
+        </li>
       </ul>
 
       <h2 id="audio">Audio data</h2>

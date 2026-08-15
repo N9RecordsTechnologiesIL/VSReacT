@@ -199,6 +199,34 @@ configureTheme({
 
 // then: <View className="bg-surface border-raised hover:bg-raised">
 //       <Text className="text-accent" />`}</Code>
+      <p>
+        <code>accent</code> is special: since 0.0.27 every built-in control paints its
+        value with it — knob arcs, slider fills, meters, the keyboard&apos;s active keys,
+        the envelope editor. One token themes the whole panel, and you only pass a colour
+        prop where you want a control to differ. Without a theme they stay VSReacT lime.
+        Reading it yourself, for custom controls that should match:{' '}
+        <code>accentColor()</code>, or <code>accentColor(&quot;66&quot;)</code> for a
+        translucent fill.
+      </p>
+
+      <h2 id="fonts">Custom fonts</h2>
+      <p>
+        <code>fontFamily</code> is a system-font lookup by default. Since 0.0.27,{' '}
+        <code>registerFont({'{ family, src }'})</code> registers a bundled typeface from
+        font-file bytes — <code>src</code> is a file path or a base64{' '}
+        <code>data:</code> URI, like images. <code>fontFamily</code> resolves against
+        registered families <em>before</em> the system lookup; unregistered names behave
+        exactly as before. An optional <code>weight</code> (default 400,{' '}
+        <code>&quot;bold&quot;</code> → 700) tags the face.
+      </p>
+      <Code title="fonts.ts">{`import { registerFont } from "@vsreact/core";
+
+registerFont({
+  family: "Panel Grotesk",
+  src: "data:font/otf;base64,T1RUTwAK...", // or a .ttf/.otf file path
+});
+
+// then: <Text style={{ fontFamily: "Panel Grotesk" }} />`}</Code>
 
       <h2 id="style-prop">The style prop</h2>
       <p>
@@ -244,6 +272,27 @@ configureTheme({
           (CSS <code>box-shadow: inset</code>), and glyph-shaped{' '}
           <code>textShadowColor/Radius/OffsetX/OffsetY</code> on <code>&lt;Text&gt;</code>{' '}
           (CSS <code>text-shadow</code> — LED glows without a bounding-box halo).
+        </li>
+        <li>
+          <strong>Shadow stacks</strong> — <code>boxShadow</code> (since 0.0.27): an array{' '}
+          <code>{'[{ color, radius, offsetX, offsetY, inset? }, …]'}</code> stacks multiple
+          shadows on one node in CSS order — outer entries paint behind the background,{' '}
+          <code>inset: true</code> entries over it. Composes with the flat{' '}
+          <code>shadowColor</code> keys.
+        </li>
+        <li>
+          <strong>Background layers</strong> — <code>backgroundLayers</code> (since
+          0.0.27): an array of gradient/color specs painted over the base background in
+          order, each entry using the same keys as the structured gradients above —
+          multi-layer metallic knob caps in one View.
+        </li>
+        <li>
+          <strong>Text stroke &amp; length</strong> — <code>textStrokeColor</code> +{' '}
+          <code>textStrokeWidth</code> (since 0.0.27) stroke the glyph outline under the
+          fill (CSS <code>paint-order: stroke</code>); <code>textLength</code> scales a
+          single line horizontally to a fixed width (SVG{' '}
+          <code>textLength</code>/<code>lengthAdjust</code>), so digit readouts hold
+          their box as the digits change.
         </li>
         <li>
           <strong>Transforms</strong> — <code>rotate</code> (degrees), <code>scale</code>,{' '}

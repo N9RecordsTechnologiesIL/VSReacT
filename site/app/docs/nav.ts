@@ -83,9 +83,11 @@ export const DOCS: DocPage[] = [
       ['textinput', '<TextInput>'],
       ['controls', 'Built-in controls'],
       ['nativeview', '<NativeView>'],
+      ['canvas', '<Canvas>'],
+      ['film-strip', 'Film-strip knobs'],
     ],
     keywords:
-      'primitives div view text image svg svgpath path vector icon icons lucide heroicons viewbox input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse eqcurve eq curve biquad filter response peak shelf lowpass highpass notch q ringmeter ring circular native escape hatch',
+      'canvas raster pixels rgba arraybuffer draw filmstrip film strip bakeknobstrip bake sprite sheet webp primitives div view text image svg svgpath path vector icon icons lucide heroicons viewbox input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse eqcurve eq curve biquad filter response peak shelf lowpass highpass notch q ringmeter ring circular native escape hatch',
   },
   {
     slug: 'styling',
@@ -95,10 +97,11 @@ export const DOCS: DocPage[] = [
       ['classes', 'Supported classes'],
       ['cx', 'Composing classes — cx()'],
       ['theme', 'Theme tokens'],
+      ['fonts', 'Custom fonts'],
       ['style-prop', 'The style prop'],
       ['arcs', 'Arc painting (knobs)'],
     ],
-    keywords: 'tailwind classname colors palette hover active focus variants theme arbitrary size inset negative margin flex gap rounded border shadow cx clsx arc gradient gradients conic radial linear from via to repeat rotate scale translate transform zindex z clip clippath polygon inner textshadow glow',
+    keywords: 'font fonts registerfont fontfamily typeface boxshadow backgroundlayers layers textstroke stroke textlength tailwind classname colors palette hover active focus variants theme arbitrary size inset negative margin flex gap rounded border shadow cx clsx arc gradient gradients conic radial linear from via to repeat rotate scale translate transform zindex z clip clippath polygon inner textshadow glow',
   },
   {
     slug: 'events',
@@ -125,7 +128,7 @@ export const DOCS: DocPage[] = [
       ['stagger', 'Staggered sequences'],
       ['timers', 'Timers'],
     ],
-    keywords: 'tween spring easing lerp motion animate transition stiffness damping settimeout setinterval',
+    keywords: 'tween spring easing lerp motion animate transition transitioneasing cubic-bezier cubicbezier bezier stiffness damping settimeout setinterval',
   },
   {
     slug: 'hooks',
@@ -139,7 +142,7 @@ export const DOCS: DocPage[] = [
       ['format', 'Value formatting'],
     ],
     keywords:
-      'usetoggle useprevious usedebounced usethrottled useinterval usehover usenativevalue userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename midinotetohz hztomidinote frequency tuning maprange db hz khz decibel readout format',
+      'useeditorsize userootsize resize editor size usetoggle useprevious usedebounced usethrottled useinterval usehover usenativevalue userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename midinotetohz hztomidinote frequency tuning maprange db hz khz decibel readout format',
   },
   {
     slug: 'parameters',
@@ -152,7 +155,7 @@ export const DOCS: DocPage[] = [
       ['wiring', 'C++ wiring'],
       ['protocol', 'The wire protocol'],
     ],
-    keywords: 'apvts parameter automation gesture begin end paramknob paramslider paramtoggle generic editor useparameterlist param:list host daw',
+    keywords: 'apvts parameter automation gesture begin end paramknob paramslider paramtoggle generic editor useparameterlist param:list host daw useparamgestures headless hit zone drag reset wheel',
   },
   {
     slug: 'native-messaging',
@@ -189,7 +192,7 @@ export const DOCS: DocPage[] = [
       ['parameterbridge', 'vsreact::ParameterBridge'],
       ['nativeregistry', 'vsreact::NativeRegistry'],
     ],
-    keywords: 'c++ native api juce module rootview rootoptions bridge registry bundlefile bundlesource watchforchanges onnativecall',
+    keywords: 'c++ native api juce module rootview rootoptions bridge registry bundlefile bundlesource watchforchanges onnativecall fontregistry vsreact:resize setsize',
   },
   {
     slug: 'architecture',

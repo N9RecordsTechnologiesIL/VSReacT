@@ -321,7 +321,7 @@
   font-family: var(--font-jb), monospace;
   font-size: 10.5px;
   letter-spacing: 0.18em;
-  color: #6f6e66;
+  color: #8a8981;
   line-height: 2;
 }
 
@@ -514,7 +514,7 @@
   font-family: var(--font-jb), monospace;
   font-size: 10px;
   letter-spacing: 0.08em;
-  color: #6f6e66;
+  color: #8a8981;
   min-height: 34px;
   transition: color 0.2s ease;
 }
@@ -672,17 +672,49 @@
   opacity: 1;
 }
 
-.meterCol i {
+/* An LED-style channel: the full cream→red gradient is painted on the track
+   (so the colour zones stay fixed), segmented by a mask, and the <i> is a
+   near-opaque cover that shrinks from the top as the level rises. */
+.meterTrack {
+  position: relative;
   width: 14px;
-  flex: none;
-  margin-top: auto;
+  flex: 1;
+  min-height: 0;
+  border-radius: 3px;
+  background: #060606;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+
+.meterTrack::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
   border-radius: 2px;
-  background: linear-gradient(180deg, #f2f1ea 0%, #b9b8ae 100%);
+  background: linear-gradient(
+    to top,
+    #97968b 0%,
+    #f2f1ea 48%,
+    #f2f1ea 76%,
+    #ffb04d 84%,
+    var(--red) 91%
+  );
+  mask-image: repeating-linear-gradient(to top, #000 0 3px, transparent 3px 5px);
+  -webkit-mask-image: repeating-linear-gradient(to top, #000 0 3px, transparent 3px 5px);
+}
+
+.meterTrack i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(6, 6, 5, 0.94);
   transition: height 0.12s ease-out;
 }
 
-.meterCol i[data-hot='true'] {
-  background: linear-gradient(180deg, var(--red), #b91f1f);
+.meterTrack[data-hot='true'] {
+  box-shadow: 0 0 14px rgba(255, 46, 46, 0.28);
 }
 
 .meterCol span {
@@ -962,7 +994,7 @@
   font-family: var(--font-jb), monospace;
   font-size: 9px;
   letter-spacing: 0.22em;
-  color: #6f6e66;
+  color: #8a8981;
   margin-bottom: 4px;
 }
 
@@ -1101,7 +1133,7 @@
   font-family: var(--font-jb), monospace;
   font-size: 10.5px;
   letter-spacing: 0.12em;
-  color: #6f6e66;
+  color: #8a8981;
 }
 
 .footMail {

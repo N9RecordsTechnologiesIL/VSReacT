@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './docs.module.css'
@@ -19,8 +20,11 @@ export function Sidebar() {
           page.group !== lastGroup ? <span className={styles.sideGroup}>{page.group}</span> : null
         lastGroup = page.group
 
+        // Fragment, not a display:contents wrapper: `contents` hides the div
+        // from the box tree but not the DOM, so .sideGroup:first-child matched
+        // inside every wrapper and every group heading lost its top margin.
         return (
-          <div key={href} style={{ display: 'contents' }}>
+          <Fragment key={href}>
             {heading}
             <Link
               href={href}
@@ -29,7 +33,7 @@ export function Sidebar() {
             >
               {page.title}
             </Link>
-          </div>
+          </Fragment>
         )
       })}
     </nav>

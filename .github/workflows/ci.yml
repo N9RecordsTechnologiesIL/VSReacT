@@ -24,6 +24,9 @@ jobs:
         working-directory: vsreact/js-posthog
       - run: bun test
         working-directory: vsreact/js-posthog
+      # synth imports @vsreact/posthog, which also resolves through dist/.
+      - run: bun run build:dist
+        working-directory: vsreact/js-posthog
       # The example UIs are real apps against the current SDK (resolved through
       # dist/, built above) — build and typecheck each (build first: it
       # generates src/_assets.ts).
@@ -63,9 +66,11 @@ jobs:
       # built — build them all so those tests actually gate.
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      # The bundler resolves @vsreact/core through dist/ — build it first.
+      # The bundler resolves @vsreact/core and @vsreact/posthog through dist/.
       - run: bun run build:dist
         working-directory: vsreact/js
+      - run: bun run build:dist
+        working-directory: vsreact/js-posthog
       - name: Build example UI bundles
         shell: bash
         run: |

@@ -1063,7 +1063,11 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
             // hashing it per image node per frame costs far more than the
             // rescale this is meant to avoid. The decoded image is itself
             // cached, so the pointer is stable across frames.
-            const auto srcId = (juce::int64) (juce::pointer_sized_int) image.getPixelData().get();
+            // Bound to a raw pointer rather than calling .get(): getPixelData()
+            // returns ImagePixelData* on JUCE 8.0.4 and a ReferenceCountedObjectPtr
+            // on 8.0.14, and this conversion compiles against both.
+            const juce::ImagePixelData* pixels = image.getPixelData();
+            const auto srcId = (juce::int64) (juce::pointer_sized_int) pixels;
             const auto scaledHash = (srcId * 31 + target.getWidth()) * 8191 + target.getHeight();
 
             auto found = scaledCache.find (scaledHash);

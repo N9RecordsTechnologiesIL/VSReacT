@@ -41,9 +41,12 @@ export type { ButtonProps } from "./button";
 export { Bars, Waveform, useRollingBuffer, pushRolling } from "./visualizers";
 export type { BarsProps, WaveformProps } from "./visualizers";
 export { configureTheme, tw } from "./tw";
+export { accentColor } from "./theme";
 export type { Style, StyleValue, ResolvedClasses } from "./tw";
 export { registerFont, type FontSpec } from "./fonts";
 export { Canvas, type CanvasProps } from "./canvas";
+export { FilmStripKnob, frameForRotation } from "./filmstrip";
+export type { FilmStripKnobProps, KnobStrip } from "./filmstrip";
 export { cx } from "./cx";
 export type { ClassValue } from "./cx";
 export { useTween, useSpring, springStep, lerp, Easing } from "./animation";
@@ -66,6 +69,7 @@ export {
   ParamSelect,
   dragToValue,
   sliderKeyTarget,
+  useParamGestures,
 } from "./controls";
 export type {
   KnobProps,
@@ -81,6 +85,7 @@ export type {
   ParamXYPadProps,
   ParamSegmentedProps,
   ParamSelectProps,
+  ParamGestureOptions,
 } from "./controls";
 export { Meter, RingMeter, usePeakHold, peakHoldStep } from "./meter";
 export type { MeterProps, RingMeterProps, PeakHoldOptions, PeakHoldState } from "./meter";

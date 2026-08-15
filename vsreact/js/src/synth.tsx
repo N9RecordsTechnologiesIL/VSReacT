@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { useSpring } from "./animation";
 import { useParameter } from "./parameters";
 
@@ -65,7 +66,7 @@ export function ADSREnvelope({
   columns = 44,
   disabled,
   trackColor = "#141714",
-  color = "#C6F13566",
+  color = themeAccent("66"),
   handleColor = "#ECF2E8",
   label,
   onChange,
@@ -114,13 +115,15 @@ export function ADSREnvelope({
       className={`relative rounded overflow-hidden ${disabled ? "opacity-40" : ""}`}
       style={{ width, height, backgroundColor: trackColor }}
     >
-      <View className="absolute inset-0 flex-row items-end px-[1]" style={{ columnGap: 1 }}>
+      {/* Sampled columns, drawn edge to edge: the envelope reads as one filled
+          shape with a stepped top, not as a row of bars. */}
+      <View className="absolute inset-0 flex-row items-end px-[1]">
         {Array.from({ length: columns }, (_, i) => {
           const level = adsrLevelAt(((i + 0.5) / columns) * width, width, a, d, s, r);
           return (
             <View
               key={i}
-              className="flex-1 rounded-[1]"
+              className="flex-1"
               style={{ height: Math.max(1, level * (height - 4)), backgroundColor: color }}
             />
           );
@@ -207,7 +210,7 @@ function WheelChrome({
   disabled,
   trackColor = "#141714",
   thumbColor = "#3A4038",
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   label,
   centerMark,
   handlers,

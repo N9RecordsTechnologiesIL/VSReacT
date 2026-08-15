@@ -5,6 +5,7 @@
 
 import { useRef, useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { useParameter } from "./parameters";
 import { useInterval } from "./hooks";
 
@@ -45,7 +46,7 @@ export function MacroPad({
   disabled,
   rings = 9,
   animate = true,
-  color = "#C6F135",
+  color = themeAccent(),
   trackColor = "#101210",
   onChange,
   onBegin,
@@ -214,7 +215,7 @@ export function HardwareKnob({
   defaultValue,
   wheelSensitivity = 0.4,
   capColor = "#1B1B1A",
-  pointerColor = "#C6F135",
+  pointerColor = themeAccent(),
   tickColor = "#FFFFFF14",
   onChange,
   onBegin,
@@ -461,7 +462,7 @@ export interface PulseOrbProps {
 export function PulseOrb({
   value,
   size = 120,
-  color = "#C6F135",
+  color = themeAccent(),
   rings = 4,
   animate = true,
 }: PulseOrbProps) {

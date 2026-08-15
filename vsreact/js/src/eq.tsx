@@ -5,6 +5,7 @@
 
 import { useRef } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -134,7 +135,7 @@ export function EQCurve({
   columns = 48,
   disabled,
   trackColor = "#141714",
-  color = "#C6F13560",
+  color = themeAccent("60"),
   handleColor = "#ECF2E8",
   label,
   onChange,

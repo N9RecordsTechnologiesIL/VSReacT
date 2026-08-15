@@ -3,6 +3,7 @@
 // the component is fully controlled.
 
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 
 export interface StepSequencerProps {
   /** rows × steps. `pattern[row][step]` true = lit. */
@@ -37,7 +38,7 @@ export function StepSequencer({
   disabled,
   cellColor = "#242922",
   downbeatColor = "#2E342B",
-  activeColor = "#C6F135",
+  activeColor = themeAccent(),
   playheadColor = "#ECF2E8",
   labelColor = "#a1a1aa",
   onToggle,

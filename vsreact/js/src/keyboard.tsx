@@ -4,6 +4,7 @@
 
 import { useRef, useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { midiNoteName } from "./format";
 
 const BLACK_SEMIS = new Set([1, 3, 6, 8, 10]);
@@ -42,7 +43,7 @@ export function PianoKeyboard({
   disabled,
   whiteColor = "#ECF2E8",
   blackColor = "#17191C",
-  activeColor = "#C6F135",
+  activeColor = themeAccent(),
   borderColor = "#00000066",
   onNoteOn,
   onNoteOff,

@@ -190,12 +190,16 @@ describe("transition engine end-to-end", () => {
     const create: any = opsNamed("create")[0];
     const nodeId = create[1];
 
-    await sleep(80);
+    // Wait for the frames rather than a fixed interval — under CPU load a
+    // fixed 80ms sleep sometimes saw only 2 timer ticks.
+    const rotateFrames = () =>
+      opsNamed("setProps").filter(
+        (op: any) => op[1] === nodeId && typeof op[2].style.rotate === "number",
+      ).length;
+    const deadline = Date.now() + 2000;
+    while (rotateFrames() < 3 && Date.now() < deadline) await sleep(20);
     unmount();
-    const count = opsNamed("setProps").filter(
-      (op: any) => op[1] === nodeId && typeof op[2].style.rotate === "number",
-    ).length;
-    expect(count).toBeGreaterThan(2);
+    expect(rotateFrames()).toBeGreaterThan(2);
 
     batches.length = 0;
     await sleep(60);

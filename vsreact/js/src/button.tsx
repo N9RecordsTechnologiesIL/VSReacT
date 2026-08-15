@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { cx } from "./cx";
 import type { Style } from "./tw";
 
@@ -32,7 +33,7 @@ export function Button({
   disabled,
   variant = "solid",
   size = "md",
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   textColor = "#09090b",
 }: ButtonProps) {
   const { pad, text } = SIZES[size];

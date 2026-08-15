@@ -6,10 +6,10 @@
 // Run from vsreact/js:  bun run src/tools/prepExampleAssets.ts
 
 import sharp from "sharp";
-import { copyFileSync, mkdirSync, existsSync, rmSync } from "node:fs";
+import { copyFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-const REPO = "H:/code/11Tools/VSReacT";
+const REPO = join(import.meta.dir, "../../../.."); // vsreact/js/src/tools -> repo root
 const EX = join(REPO, "vsreact/examples");
 const SRC = join(EX, "improvedUIs/_extracted");
 
@@ -42,10 +42,9 @@ async function neutralisePlayhead(plate: string) {
         const o = (y * W + x) * C, s = (y * W + (x - OFF)) * C;
         out[o] = data[s]; out[o + 1] = data[s + 1]; out[o + 2] = data[s + 2];
       }
+  // The input is the in-memory buffer, so writing straight over the plate is safe.
   await sharp(out, { raw: { width: W, height: info.height, channels: C } })
-    .webp({ lossless: true }).toFile(plate.replace(/\.webp$/, ".tmp.webp"));
-  copyFileSync(plate.replace(/\.webp$/, ".tmp.webp"), plate);
-  rmSync(plate.replace(/\.webp$/, ".tmp.webp"));
+    .webp({ lossless: true }).toFile(plate);
   console.log("drums plate: removed the baked step-11 playhead outline");
 }
 
@@ -69,9 +68,7 @@ async function neutraliseDelayDigits(plate: string) {
     }
   }
   await sharp(out, { raw: { width: W, height: info.height, channels: C } })
-    .webp({ lossless: true }).toFile(plate.replace(/\.webp$/, ".tmp.webp"));
-  copyFileSync(plate.replace(/\.webp$/, ".tmp.webp"), plate);
-  rmSync(plate.replace(/\.webp$/, ".tmp.webp"));
+    .webp({ lossless: true }).toFile(plate);
   console.log("delay plate: erased the baked LED digits");
 }
 

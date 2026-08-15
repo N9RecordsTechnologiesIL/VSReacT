@@ -4,6 +4,7 @@
 
 import { useRef } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { useParameter } from "./parameters";
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -144,7 +145,7 @@ export function Checkbox({
   label,
   disabled,
   size = 16,
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   boxColor = "#2A2F27",
   textColor = "#d4d4d8",
   onChange,
@@ -223,7 +224,7 @@ export function RadioGroup({
   index,
   disabled,
   gap = 8,
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   dotColor = "#2A2F27",
   textColor = "#a1a1aa",
   activeTextColor = "#ECF2E8",

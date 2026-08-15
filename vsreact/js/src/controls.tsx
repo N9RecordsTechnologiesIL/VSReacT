@@ -4,8 +4,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
-import type { KeyEventPayload } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
+import type { DragEventPayload, KeyEventPayload, WheelEventPayload } from "./primitives";
 import { useParameter, useParameterList } from "./parameters";
+import type { ParameterHandle } from "./parameters";
 import { useSpring } from "./animation";
 import { useLayoutRect } from "./hooks";
 import { useOverlay } from "./overlay";
@@ -15,6 +17,48 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 /** Vertical-drag-to-value mapping shared by Knob (and tested in isolation). */
 export function dragToValue(startValue: number, dy: number, sensitivity = 0.005): number {
   return clamp01(startValue - dy * sensitivity);
+}
+
+export interface ParamGestureOptions {
+  /** Normalized value change per drag pixel (see dragToValue). Default 0.005. */
+  sensitivity?: number;
+  /** Normalized value change per wheel notch fraction; 0 disables. Default 0.03. */
+  wheelStep?: number;
+  /** Double-click reset target (normalized). Defaults to the parameter's
+      host-reported defaultValue; null disables the reset. */
+  resetTo?: number | null;
+}
+
+/**
+ * The headless half of a knob: the handler set that binds a drag surface to an
+ * APVTS parameter — vertical drag inside a begin/end automation gesture,
+ * double-click reset, wheel nudge. Spread the result onto any View (typically
+ * an invisible hit zone over reference art):
+ *
+ *   const p = useParameter("gain");
+ *   <View style={...} {...useParamGestures(p)} />
+ *
+ * Hosts need the begin/end bracket for automation, and it is easy to omit when
+ * hand-wiring — this hook is the one place that gets it right.
+ */
+export function useParamGestures(p: ParameterHandle, opts: ParamGestureOptions = {}) {
+  const { sensitivity = 0.005, wheelStep = 0.03, resetTo } = opts;
+  const start = useRef(0);
+  const tap = (target: number) => {
+    p.begin();
+    p.set(clamp01(target));
+    p.end();
+  };
+  return {
+    onDragStart: () => {
+      start.current = p.value;
+      p.begin();
+    },
+    onDrag: (e: DragEventPayload) => p.set(dragToValue(start.current, e.dy, sensitivity)),
+    onDragEnd: () => p.end(),
+    onDoubleClick: resetTo === null ? undefined : () => tap(resetTo ?? p.defaultValue),
+    onWheel: wheelStep === 0 ? undefined : (e: WheelEventPayload) => tap(p.value + e.dy * wheelStep),
+  };
 }
 
 /** Web <input type="range"> keyboard model for a normalized control:
@@ -75,7 +119,7 @@ export function Knob({
   bipolar,
   wheelSensitivity = 0.4,
   trackColor = "#2A2F27",
-  valueColor = "#C6F135",
+  valueColor = themeAccent(),
   onChange,
   onBegin,
   onEnd,
@@ -212,7 +256,7 @@ export function Slider({
   defaultValue,
   wheelSensitivity = 0.4,
   trackColor = "#2A2F27",
-  valueColor = "#C6F135",
+  valueColor = themeAccent(),
   onChange,
   onBegin,
   onEnd,
@@ -375,7 +419,7 @@ export function Toggle({
   size = 22,
   disabled,
   trackColor = "#2A2F27",
-  onColor = "#C6F135",
+  onColor = themeAccent(),
   thumbColor = "#F4F4F5",
   onChange,
 }: ToggleProps) {
@@ -491,7 +535,7 @@ export function XYPad({
   label,
   disabled,
   trackColor = "#161B17",
-  valueColor = "#C6F135",
+  valueColor = themeAccent(),
   onChange,
   onBegin,
   onEnd,
@@ -618,7 +662,7 @@ export function Segmented({
   label,
   disabled,
   trackColor = "#2A2F27",
-  activeColor = "#C6F135",
+  activeColor = themeAccent(),
   textColor = "#a1a1aa",
   activeTextColor = "#09090b",
   onChange,
@@ -792,7 +836,7 @@ export function Select({
   disabled,
   trackColor = "#2A2F27",
   menuColor = "#20241F",
-  activeColor = "#C6F135",
+  activeColor = themeAccent(),
   textColor = "#d4d4d8",
   activeTextColor = "#09090b",
   maxMenuHeight = 190,

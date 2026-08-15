@@ -3,10 +3,11 @@
 // plugins do, and it needs nothing the SDK didn't already ship (Image,
 // overflow:hidden, translateY).
 //
-// Produced by bakeKnobStrip.ts. See the spec's Risks section for why the live
-// shader isn't viable under QuickJS.
+// Strips are produced at build time by tools/bakeKnobStrip.ts. See the spec's
+// Risks section for why the live shader isn't viable under QuickJS.
 
-import { View, Image } from "../index";
+import { useMemo } from "react";
+import { View, Image } from "./index";
 
 export interface KnobStrip {
   /** Frame width AND height in pixels (frames are square). */
@@ -38,16 +39,19 @@ export function FilmStripKnob({ rotation, strip, displaySize }: FilmStripKnobPro
   const box = displaySize ?? strip.size;
   const scale = box / strip.size;
 
+  // The strip URI is large (hundreds of KB) and setProps re-sends full props.
+  // Keep the <Image> element reference-stable so a rotation change ships only
+  // the wrapper's one-number translate over the bridge, never the src.
+  const image = useMemo(
+    () => <Image src={strip.dataUri} style={{ width: box, height: box * strip.frames }} />,
+    [strip, box],
+  );
+
   return (
     <View style={{ width: box, height: box, overflow: "hidden" }}>
-      <Image
-        src={strip.dataUri}
-        style={{
-          width: box,
-          height: box * strip.frames,
-          translateY: -frame * strip.size * scale,
-        }}
-      />
+      <View style={{ width: box, height: box * strip.frames, translateY: -frame * strip.size * scale }}>
+        {image}
+      </View>
     </View>
   );
 }

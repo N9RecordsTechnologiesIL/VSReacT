@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { frameForRotation, type KnobStrip } from "./FilmStripKnob";
+import { frameForRotation, type KnobStrip } from "./filmstrip";
 
 const strip: KnobStrip = { size: 120, frames: 181, sweepDegrees: 270, dataUri: "" };
 

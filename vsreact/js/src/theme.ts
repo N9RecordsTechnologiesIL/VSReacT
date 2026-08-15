@@ -118,8 +118,27 @@ let themeColors: ThemeColors = {};
 
 export function setThemeColors(colors: ThemeColors): void {
   themeColors = { ...themeColors };
-  for (const [name, value] of Object.entries(colors))
-    themeColors[name] = value.toLowerCase();
+  // Stored as authored: accentColor() hands these straight to components, and
+  // lower-casing here would make a control's painted colour depend on whether
+  // a theme happened to be configured. resolveColor normalises on the way out.
+  for (const [name, value] of Object.entries(colors)) themeColors[name] = value;
+}
+
+/** VSReacT lime — the accent the built-in controls use untuned. */
+export const DEFAULT_ACCENT = "#C6F135";
+
+/**
+ * The colour the built-in controls paint values with: the theme's `accent`
+ * token when `configureTheme` set one, else VSReacT lime. Every control reads
+ * this as its default prop value, so it is resolved per render — a theme
+ * reaches the built-ins without threading a colour through every component.
+ *
+ * `alpha` is a two-digit hex suffix ("60") for translucent fills.
+ */
+export function accentColor(alpha?: string): string {
+  const base = themeColors["accent"] ?? DEFAULT_ACCENT;
+  if (alpha === undefined) return base;
+  return (base.length === 9 ? base.slice(0, 7) : base) + alpha;
 }
 
 /** Resolves a color name ("zinc-900", "white", "accent", "lime-400/20",
@@ -145,7 +164,7 @@ export function resolveColor(name: string): string | undefined {
   else if (base === "white") hex = "#ffffff";
   else if (base === "black") hex = "#000000";
   else if (base === "transparent") hex = "#00000000";
-  else if (themeColors[base]) hex = themeColors[base];
+  else if (themeColors[base]) hex = themeColors[base].toLowerCase();
   else {
     const dash = base.lastIndexOf("-");
     if (dash > 0) {

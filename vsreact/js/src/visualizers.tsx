@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -52,7 +53,7 @@ export function Bars({
   gap = 2,
   hotFrom = 0.85,
   trackColor = "#141714",
-  color = "#C6F135",
+  color = themeAccent(),
   hotColor = "#FF4545",
   label,
 }: BarsProps) {
@@ -108,7 +109,7 @@ export function Waveform({
   height = 60,
   gap = 2,
   trackColor = "#141714",
-  color = "#C6F135",
+  color = themeAccent(),
   centerLine = true,
   centerLineColor = "#FFFFFF22",
   label,

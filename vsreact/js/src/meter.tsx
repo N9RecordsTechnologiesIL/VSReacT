@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -94,7 +95,7 @@ export function Meter({
   decayPerSecond,
   hotFrom = 0.85,
   trackColor = "#141714",
-  color = "#C6F135",
+  color = themeAccent(),
   hotColor = "#FF4545",
   label,
 }: MeterProps) {
@@ -202,7 +203,7 @@ export function RingMeter({
   thickness,
   hotFrom = 0.85,
   trackColor = "#FFFFFF14",
-  color = "#C6F135",
+  color = themeAccent(),
   hotColor = "#FF4545",
   format,
   label,

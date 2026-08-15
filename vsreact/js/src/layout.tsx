@@ -3,6 +3,7 @@
 
 import { useState, type ReactNode } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 
 const clampIndex = (i: number, count: number) => Math.min(Math.max(0, count - 1), Math.max(0, i));
 
@@ -34,7 +35,7 @@ export function Tabs({
   onChange,
   width,
   gap = 12,
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   textColor = "#7c8087",
   activeTextColor = "#ECF2E8",
   trackColor = "#FFFFFF14",
@@ -109,7 +110,7 @@ export function Disclosure({
   onChange,
   width,
   textColor = "#a1a1aa",
-  accentColor = "#C6F135",
+  accentColor = themeAccent(),
   children,
 }: DisclosureProps) {
   const [internal, setInternal] = useState(defaultOpen);

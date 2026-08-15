@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { View, Text } from "./primitives";
+import { accentColor as themeAccent } from "./theme";
 import { useInterval } from "./hooks";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -30,7 +31,7 @@ export function ProgressBar({
   showPercent = false,
   indeterminate = false,
   trackColor = "#2A2F27",
-  color = "#C6F135",
+  color = themeAccent(),
   label,
 }: ProgressBarProps) {
   const level = clamp01(value);
@@ -96,7 +97,7 @@ export interface SpinnerProps {
 export function Spinner({
   size = 28,
   thickness,
-  color = "#C6F135",
+  color = themeAccent(),
   trackColor = "#FFFFFF14",
   speed = 9,
 }: SpinnerProps) {

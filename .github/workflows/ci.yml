@@ -24,6 +24,15 @@ jobs:
         working-directory: vsreact/js-posthog
       - run: bun test
         working-directory: vsreact/js-posthog
+      # The example UIs are real apps against the current SDK (resolved through
+      # dist/, built above) — build and typecheck each (build first: it
+      # generates src/_assets.ts).
+      - name: Example UIs
+        run: |
+          for d in vsreact/examples/*/ui; do
+            echo "== $d"
+            (cd "$d" && bun run build && bunx tsc --noEmit)
+          done
 
   native:
     name: C++ module (${{ matrix.os }})
@@ -50,5 +59,19 @@ jobs:
         run: cmake -S ci -B ci/build -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE" -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build ci/build --config Release --parallel 4
+      # ExampleBundleTests/ExampleInteractionTests skip any bundle that isn't
+      # built — build them all so those tests actually gate.
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      # The bundler resolves @vsreact/core through dist/ — build it first.
+      - run: bun run build:dist
+        working-directory: vsreact/js
+      - name: Build example UI bundles
+        shell: bash
+        run: |
+          for d in vsreact/examples/*/ui; do
+            echo "== $d"
+            (cd "$d" && bun run build)
+          done
       - name: Test
         run: ctest --test-dir ci/build -C Release --output-on-failure

@@ -45,10 +45,25 @@ hardware-panel designs (PlainGain, DrumDeck, CleanStrip, DirtyDelay).
   with a bisection fallback, cached), alongside the four named curves.
 - **`StyleValue`** widened to allow arrays/objects (for the structured keys
   above) and exported; `SvgPath.fill`/`stroke` accept a `GradientSpec` (types).
-- **Film-strip knob tooling** (`src/tools/`) — `bakeKnobStrip` renders a pure
-  shader to a lossless-WebP sprite sheet at build time; `FilmStripKnob` shows
-  one frame at runtime via `Image` + `overflow:hidden` + `translateY`, needing
-  no new SDK feature — the correct answer to the canvas perf ceiling.
+- **Film-strip knobs** — `bakeKnobStrip` (build tool, `src/tools/`) renders a
+  pure shader to a lossless-WebP sprite sheet; the exported `FilmStripKnob`
+  shows one frame at runtime via `Image` + `overflow:hidden` + `translateY`,
+  needing no new SDK feature — the correct answer to the canvas perf ceiling.
+- **`useParamGestures(handle, opts?)`** — the headless half of a knob: drag /
+  double-click-reset / wheel handlers bound to an APVTS parameter, with the
+  automation `begin`/`end` gesture bracket hosts require. Spread onto any View
+  (typically an invisible hit zone over reference art); all four reference-art
+  examples use it.
+- **The built-in controls now follow the theme's accent.** Every component
+  defaulted its value colour to VSReacT lime (`#C6F135`) regardless of
+  `configureTheme`, so a themed panel had to pass a colour to each control and
+  anything missed stayed lime. They now default to the new `accentColor()`
+  (exported), which resolves the theme's `accent` token per render and falls
+  back to lime when none is set — so one token themes the whole UI. Theme
+  colours are also stored as authored now (`resolveColor` still normalises on
+  the way out), so a control's painted colour no longer depends on whether a
+  theme happened to be configured. The synth example dropped six per-component
+  colour props as a result.
 
 ### Examples
 

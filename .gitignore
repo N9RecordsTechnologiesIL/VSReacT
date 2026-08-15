@@ -6,6 +6,11 @@ StashTrack/
 .agents/
 docs/superpowers/
 *.log
+mitm_mcp_traffic.db
+
+# Designer reference-art drops (zips + extractions); the plates each example
+# actually uses are committed under its ui/src/assets
+vsreact/examples/improvedUIs/
 
 node_modules/
 build*/
@@ -20,3 +25,6 @@ CLAUDE.md
 # generated per-example: base64-inlined assets + screenshot-verify captures
 vsreact/examples/*/ui/src/_assets.ts
 vsreact/examples/*/ui/shot*.png
+
+# site screenshots from tools/capture-site.mjs
+.shots/

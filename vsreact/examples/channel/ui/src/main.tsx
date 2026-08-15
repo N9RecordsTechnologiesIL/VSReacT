@@ -9,7 +9,7 @@
 // Plate is 1536×1024; the web SVG used the same viewBox, so every coordinate
 // below is a plate coordinate multiplied by S (0.5) at paint time.
 
-import { useState, useRef, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import {
   render,
   View,
@@ -22,14 +22,9 @@ import {
   useNativeValue,
   useEditorSize,
   useInterval,
-  dragToValue,
+  useParamGestures,
 } from "@vsreact/core";
-import type {
-  DragEventPayload,
-  WheelEventPayload,
-  StyleValue,
-  ParameterHandle,
-} from "@vsreact/core";
+import type { StyleValue, ParameterHandle } from "@vsreact/core";
 import { assets } from "./_assets";
 import {
   RANGES,
@@ -41,6 +36,7 @@ import {
   formatFrequency,
   buildEqPath,
   eqPoint,
+  graphX,
 } from "./cleanstrip-model";
 
 // ---- Scale + plate ----------------------------------------------------------
@@ -172,9 +168,10 @@ function Knob({
   hidden?: boolean;
 }) {
   const p = useParameter(id);
-  const start = useRef(0);
   const { min, max, def } = RANGES[id];
   const angle = valueToAngle(fromNorm(id, p.value), min, max);
+  // Reset goes to the model's default (the UI is the spec), not the host's.
+  const gestures = useParamGestures(p, { resetTo: toNorm(id, def) });
 
   const slot = size; // slot is size×size
   const left = cx - slot / 2;
@@ -195,15 +192,7 @@ function Knob({
         opacity: hidden ? 0 : 1,
         pointerEvents: hidden ? "none" : "auto",
       }}
-      onDragStart={() => { start.current = p.value; p.begin(); }}
-      onDrag={(e: DragEventPayload) => p.set(dragToValue(start.current, e.dy))}
-      onDragEnd={() => p.end()}
-      onDoubleClick={() => { p.begin(); p.set(toNorm(id, def)); p.end(); }}
-      onWheel={(e: WheelEventPayload) => {
-        p.begin();
-        p.set(Math.min(1, Math.max(0, p.value + e.dy * 0.03)));
-        p.end();
-      }}
+      {...gestures}
     >
       {/* dark body ring */}
       <View
@@ -247,13 +236,9 @@ function Knob({
 }
 
 // ---- EQ graph ---------------------------------------------------------------
-// Frequency tick positions (log scale), from EqGraph.tsx.
-const FREQ_TICKS: [number, string][] = [
-  [20, "20 Hz"], [50, "50"], [100, "100"], [200, "200"], [500, "500"],
-  [1000, "1k"], [2000, "2k"], [5000, "5k"], [10000, "10k"], [20000, "20k"],
-];
-const logX = (frequency: number) =>
-  74 + ((Math.log10(frequency) - Math.log10(20)) / (Math.log10(20000) - Math.log10(20))) * 853;
+// Frequency tick positions (log scale), from EqGraph.tsx. The labels are baked
+// into the plate below the bed; only the grid lines are redrawn.
+const FREQ_TICKS = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
 
 // Graph bed rect (plate coords), from .graph-bed.
 const BED = { x: 73, y: 137, w: 856, h: 329 };
@@ -277,7 +262,8 @@ function GraphNode({
   gainDb: number;
   freqLabel: string;
 }) {
-  const start = useRef(0);
+  // No wheel on the graph nodes (matching the web); drag + double-click reset.
+  const gestures = useParamGestures(band, { wheelStep: 0 });
   const hit = 40; // generous square hit target in plate px
   return (
     <>
@@ -306,10 +292,7 @@ function GraphNode({
       {/* transparent drag target */}
       <View
         style={{ position: "absolute", left: px(eqX - hit / 2), top: px(eqY - hit / 2), width: px(hit), height: px(hit), cursor: "ns-resize" }}
-        onDragStart={() => { start.current = band.value; band.begin(); }}
-        onDrag={(e: DragEventPayload) => band.set(dragToValue(start.current, e.dy))}
-        onDragEnd={() => band.end()}
-        onDoubleClick={() => { band.begin(); band.set(band.defaultValue); band.end(); }}
+        {...gestures}
       />
     </>
   );
@@ -348,8 +331,8 @@ function EqGraph({
           <SvgPath key={`h${y}`} d={`M 74 ${y} L 927 ${y}`} stroke="#80898729" strokeWidth={1} />
         ))}
         {/* frequency grid lines */}
-        {FREQ_TICKS.map(([f]) => {
-          const x = logX(f);
+        {FREQ_TICKS.map((f) => {
+          const x = graphX(f);
           return <SvgPath key={`f${f}`} d={`M ${x} 139 L ${x} 438`} stroke="#80898729" strokeWidth={1} />;
         })}
         {/* crisp EQ curve */}
@@ -381,7 +364,9 @@ function MeterWell({ x, y, w, h }: { x: number; y: number; w: number; h: number 
   return <View style={{ position: "absolute", left: px(x), top: px(y), width: px(w), height: px(h), borderRadius: px(3), backgroundColor: "#080b0b", borderWidth: px(2), borderColor: "#020303" }} />;
 }
 
-function Segment({ x, y, w, h, lit, color, glow }: { x: number; y: number; w: number; h: number; lit: boolean; color: string; glow: string }) {
+// memo: on a tick where the lit count moves, only the segments that crossed
+// the threshold re-commit, not all ~100.
+const Segment = memo(function Segment({ x, y, w, h, lit, color, glow }: { x: number; y: number; w: number; h: number; lit: boolean; color: string; glow: string }) {
   return (
     <View
       style={{
@@ -392,7 +377,7 @@ function Segment({ x, y, w, h, lit, color, glow }: { x: number; y: number; w: nu
       }}
     />
   );
-}
+});
 
 function OutputMeter({ x, lit, segments }: { x: number; lit: number; segments: number }) {
   return (
@@ -409,7 +394,10 @@ function OutputMeter({ x, lit, segments }: { x: number; lit: number; segments: n
   );
 }
 
-function Meters({ gr, left, right }: { gr: number; left: number; right: number }) {
+// memo: the "meters" event fires at 30 Hz whether or not anything moved; when
+// the derived numbers are unchanged (idle audio), the whole meter subtree
+// bails out and no ops cross the bridge.
+const Meters = memo(function Meters({ gr, left, right }: { gr: number; left: number; right: number }) {
   const grSegments = 34;
   const outSegments = 34;
   const litGr = Math.round(gr * grSegments);
@@ -428,6 +416,19 @@ function Meters({ gr, left, right }: { gr: number; left: number; right: number }
       <OutputMeter x={1424} lit={litRight} segments={outSegments} />
     </>
   );
+});
+
+// The 30 Hz meters subscription lives in this leaf, not in App: a meter tick
+// must never re-render the plate, the EQ graph, or the knobs (whose full
+// setProps payloads — including the plate's base64 src — would otherwise be
+// re-sent over the bridge 30 times a second).
+function LiveMeters({ powered }: { powered: boolean }) {
+  // Live meters from C++. When powered off, zero them (the DSP keeps running,
+  // but the CleanStrip look treats power as a display gate, like the web).
+  const raw = useNativeValue("meters", { in: 0, gr: 0, out: 0 });
+  const gr = powered ? Math.min(1, raw.gr / 18) : 0;
+  const level = powered ? Math.min(1, raw.out) : 0;
+  return <Meters gr={gr} left={level} right={level} />;
 }
 
 // ---- Readout (masked baked text + live value) -------------------------------
@@ -470,12 +471,6 @@ function App() {
   const compVal = fromNorm("comp", comp.value);
   const outGainDb = fromNorm("out_gain", outGain.value);
 
-  // Live meters from C++. When powered off, zero them (the DSP keeps running,
-  // but the CleanStrip look treats power as a display gate, like the web).
-  const raw = useNativeValue("meters", { in: 0, gr: 0, out: 0 });
-  const gr = powered ? Math.min(1, raw.gr / 18) : 0;
-  const level = powered ? Math.min(1, raw.out) : 0;
-
   // Accordion: animate the editor HEIGHT between open (512) and collapsed
   // (≈398), stepped by a short timer over ~180ms (the host may clamp — fine).
   // The web animates the stage aspect 1536/1024 → 1536/795; the editor keeps a
@@ -499,8 +494,8 @@ function App() {
         {/* EQ graph (live curve + glow + interactive nodes) */}
         <EqGraph low={low} mid={mid} high={high} highFreqHz={highFreqHz} />
 
-        {/* Meters */}
-        <Meters gr={gr} left={level} right={level} />
+        {/* Meters (the 30 Hz subscription lives inside — see LiveMeters) */}
+        <LiveMeters powered={powered} />
 
         {/* Fixed readouts: erase baked value, draw live */}
         {/* FREQ (baked "1.20 kHz" → live high-shelf frequency) */}

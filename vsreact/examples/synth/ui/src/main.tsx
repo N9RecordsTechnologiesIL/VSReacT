@@ -47,15 +47,10 @@ posthog.init({
 
 function OutputMeter() {
   const meter = useNativeValue("meter", { level: 0 });
+  // No colour props anywhere in this panel: the built-ins paint with the
+  // theme's accent (configureTheme above), so one token themes the whole UI.
   return (
-    <RingMeter
-      value={meter.level}
-      size={72}
-      color="#A07DFF"
-      trackColor="#FFFFFF12"
-      format={formatPercent}
-      label="OUT"
-    />
+    <RingMeter value={meter.level} size={72} trackColor="#FFFFFF12" format={formatPercent} label="OUT" />
   );
 }
 
@@ -80,7 +75,6 @@ function App() {
             releaseId="release"
             width={230}
             height={100}
-            color="#A07DFF66"
             label="ENVELOPE"
           />
           <View className="items-center gap-4">
@@ -90,14 +84,13 @@ function App() {
         </View>
 
         <View className="flex-row items-end gap-6">
-          <ParamPitchBend paramId="bend" height={104} label="PITCH" accentColor="#A07DFF" />
-          <ParamModWheel paramId="mod" height={104} label="MOD" accentColor="#A07DFF" />
+          <ParamPitchBend paramId="bend" height={104} label="PITCH" />
+          <ParamModWheel paramId="mod" height={104} label="MOD" />
           <PianoKeyboard
             startNote={48}
             octaves={2}
             whiteKeyWidth={22}
             height={104}
-            activeColor="#A07DFF"
             onNoteOn={(note) => native.call("synth:noteOn", { note })}
             onNoteOff={(note) => native.call("synth:noteOff", { note })}
           />

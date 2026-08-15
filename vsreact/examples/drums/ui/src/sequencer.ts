@@ -59,20 +59,9 @@ export const PAD_ART_DY = -2;
 
 // The baked playhead outline around step 11, measured from the plate: it spans
 // x 1080..1155 and y 375..712, i.e. 75×337 centred on the step-11 pad column.
-// PlayheadCover hides it and PlayheadBox redraws the live one to match.
+// (The outline is erased from the asset at prep time; PlayheadBox draws the
+// live one to match.)
 export const BAKED_PLAYHEAD_STEP = 10;
 export const PH_BOX_W = 75;
 export const PH_BOX_TOP = 375;
 export const PH_BOX_H = 337;
-
-// meterBars: DrumDeck's lit-bar count. Kept for parity even though the native
-// clock.level also feeds a live meter.
-export function activeVoicesAtStep(pattern: boolean[][], step: number) {
-  let n = 0;
-  for (let r = 0; r < ROWS; r++) if (pattern[r]?.[step]) n++;
-  return n;
-}
-export function meterBars(level: number, playing: boolean, activeVoices: number, step: number) {
-  if (!playing) return 0;
-  return Math.min(18, Math.max(0, Math.round(clamp01(level) * 14 + activeVoices * 2 + (step % 3))));
-}

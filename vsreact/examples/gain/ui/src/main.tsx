@@ -5,13 +5,10 @@
 // knobs; the visible knob IS the photo.
 
 import { useState } from "react";
-import { render, View, Image, Text, useParameter, dragToValue } from "@vsreact/core";
-import type { DragEventPayload, WheelEventPayload, StyleValue } from "@vsreact/core";
+import { render, View, Image, Text, useParameter, useParamGestures } from "@vsreact/core";
+import type { StyleValue } from "@vsreact/core";
 import { assets } from "./_assets";
-import {
-  formatGain, formatPan, gainRotation, knobRotation,
-  gainToNorm, normToGain,
-} from "./parameters";
+import { formatGain, gainRotation, knobRotation, normToGain } from "./parameters";
 
 const S = 0.5;                 // 1536×1024 plate → 768×512 editor
 const W = 1536 * S, H = 1024 * S;
@@ -58,19 +55,15 @@ function Indicator({ x, y, w, h, cx, cy, angle }: { x: number; y: number; w: num
   );
 }
 
-// Transparent hit target over a knob. Vertical drag (220px = full range),
-// double-click resets, wheel nudges — all bound to the APVTS parameter.
+// Transparent hit target over a knob. Vertical drag, double-click reset and
+// wheel nudge — with the automation begin/end bracket — come from the SDK's
+// headless useParamGestures.
 function KnobHit({ id, cx, cy, size }: { id: string; cx: number; cy: number; size: number }) {
   const p = useParameter(id);
-  let start = 0;
   return (
     <View
       style={{ position: "absolute", left: px(cx - size / 2), top: px(cy - size / 2), width: px(size), height: px(size), cursor: "ns-resize" }}
-      onDragStart={() => { start = p.value; p.begin(); }}
-      onDrag={(e: DragEventPayload) => p.set(dragToValue(start, e.dy))}
-      onDragEnd={() => p.end()}
-      onDoubleClick={() => { p.begin(); p.set(p.defaultValue); p.end(); }}
-      onWheel={(e: WheelEventPayload) => { p.begin(); p.set(Math.min(1, Math.max(0, p.value + e.dy * 0.03))); p.end(); }}
+      {...useParamGestures(p)}
     />
   );
 }

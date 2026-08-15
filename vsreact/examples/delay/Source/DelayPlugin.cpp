@@ -59,10 +59,7 @@ public:
         const auto maxSamples = (int) std::ceil (sr * (kMaxDelayMs / 1000.0)) + 4;
 
         for (auto& line : delayLines)
-        {
             line.assign ((size_t) juce::jmax (4, maxSamples), 0.0f);
-            std::fill (line.begin(), line.end(), 0.0f);
-        }
 
         writePos = 0;
         lowpassState[0] = lowpassState[1] = 0.0f;

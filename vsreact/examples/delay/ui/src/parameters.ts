@@ -23,19 +23,8 @@ export function toValue(id: ParamId, norm: number) {
   return min + clampParameter(norm, 0, 1) * (max - min);
 }
 
-/** Real units → normalized 0..1 for a given param. */
-export function toNorm(id: ParamId, value: number) {
-  const { min, max } = RANGES[id];
-  return (clampParameter(value, min, max) - min) / (max - min);
-}
-
-/** DirtyDelay's ±135° / 270° sweep, ported verbatim. */
-export function knobRotation(value: number, min: number, max: number) {
-  const progress = (clampParameter(value, min, max) - min) / (max - min);
-  return -135 + progress * 270;
-}
-
-/** Rotation straight from a normalized 0..1 value (what FilmStripKnob wants). */
+/** DirtyDelay's ±135° / 270° sweep, ported verbatim, from a normalized 0..1
+    value (what FilmStripKnob wants). */
 export function knobRotationFromNorm(norm: number) {
   return -135 + clampParameter(norm, 0, 1) * 270;
 }

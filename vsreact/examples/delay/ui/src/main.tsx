@@ -5,13 +5,10 @@
 // moves we cover the baked pixels with resampled plate and draw the live part
 // over it. Everything binds to the APVTS through useParameter.
 
-import { render, View, Image, Text, useParameter, dragToValue } from "@vsreact/core";
-import type { DragEventPayload, WheelEventPayload, StyleValue } from "@vsreact/core";
+import { render, View, Image, useParameter, useParamGestures, FilmStripKnob } from "@vsreact/core";
+import type { StyleValue } from "@vsreact/core";
 import { assets, knobStrip } from "./_assets";
-import { FilmStripKnob } from "./FilmStripKnob";
-import {
-  RANGES, toValue, knobRotationFromNorm, formatDelayTime, type ParamId,
-} from "./parameters";
+import { toValue, knobRotationFromNorm, formatDelayTime, type ParamId } from "./parameters";
 
 const S = 0.5; // 1586×992 plate → 793×496 editor
 const W = 1586 * S, H = 992 * S;
@@ -235,12 +232,12 @@ const KNOB_CENTERS: Record<ParamId, { cx: number; cy: number }> = {
 const KNOB_FACE = 176; // baked face disc diameter (plate-px)
 const KNOB_HIT = 200;  // generous drag target (plate-px)
 
-// Transparent hit target over a knob. Vertical drag (180px = full range, as in
-// the web original), double-click resets, wheel nudges — bound to the APVTS.
+// Transparent hit target over a knob, bound through the SDK's headless
+// useParamGestures. Vertical drag at 180px = full range (as in the web
+// original); double-click resets to the sweep centre, matching the web UI.
 function KnobHit({ id }: { id: ParamId }) {
   const p = useParameter(id);
   const { cx, cy } = KNOB_CENTERS[id];
-  let start = 0;
   return (
     <View
       style={{
@@ -248,11 +245,7 @@ function KnobHit({ id }: { id: ParamId }) {
         left: px(cx - KNOB_HIT / 2), top: px(cy - KNOB_HIT / 2),
         width: px(KNOB_HIT), height: px(KNOB_HIT), cursor: "ns-resize",
       }}
-      onDragStart={() => { start = p.value; p.begin(); }}
-      onDrag={(e: DragEventPayload) => p.set(dragToValue(start, e.dy, 1 / 180))}
-      onDragEnd={() => p.end()}
-      onDoubleClick={() => { p.begin(); p.set(0.5); p.end(); }}
-      onWheel={(e: WheelEventPayload) => { p.begin(); p.set(Math.min(1, Math.max(0, p.value + e.dy * 0.03))); p.end(); }}
+      {...useParamGestures(p, { sensitivity: 1 / 180, resetTo: 0.5 })}
     />
   );
 }
@@ -276,7 +269,6 @@ function App() {
 
   const ms = toValue("time", time.value);
   const engaged = bypass.value >= 0.5;
-  void RANGES; // (ranges live in parameters.ts; referenced there)
 
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: "#050605", alignItems: "center", justifyContent: "center" }}>

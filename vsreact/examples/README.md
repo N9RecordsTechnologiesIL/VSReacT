@@ -12,6 +12,11 @@ cmake --build <example>/build-vs --target <Name>Example_Standalone --config Rele
 Dev builds watch the bundle file — edit `ui/src/main.tsx`, run
 `bun run build`, and the plugin hot-reloads.
 
+On Windows, `tools/launch-examples.ps1` (from the repo root) launches the
+built standalones and parks each window at a known on-screen position —
+JUCE restores saved window coordinates, which can leave an editor
+off-screen.
+
 | Example | Shows off | Analytics |
 | --- | --- | --- |
 | **gain** | The five-minute plugin, in the reference-art style: a photoreal plate with two live knob indicators on an APVTS. Start here. | — |
@@ -47,14 +52,17 @@ before you copy it:
   once, at prep time.
 - **Hit zones are separate from art.** Transparent views sized in plate
   space take the drags, so pointer targets can be larger and squarer than
-  what's drawn.
+  what's drawn. Each binds through the SDK's headless `useParamGestures`,
+  which supplies the drag/reset/wheel handlers inside the automation
+  begin/end gesture hosts need.
 - **Math lives in its own module.** `parameters.ts`, `sequencer.ts`,
   `cleanstrip-model.ts` are pure and portable — the same functions run in
   the web prototype and in the plugin.
 
-Assets are inlined as base64 `data:` URIs by each `ui/build.ts` (a
-plugin has no file server to fetch from), which generates an ignored
-`src/_assets.ts` during the build.
+Assets are inlined as base64 `data:` URIs at build time (a plugin has no
+file server to fetch from): each `ui/build.ts` calls the shared
+`js/src/tools/buildExampleUi.ts`, which generates an ignored
+`src/_assets.ts` and bundles with Bun.
 
 `tests/ExampleBundleTests.cpp` evaluates all four reference-art bundles
 headlessly — eval, layout, paint into an offscreen image — so a bundle

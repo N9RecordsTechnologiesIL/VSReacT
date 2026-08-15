@@ -52,7 +52,7 @@ export const formatFrequency = (value: number) =>
     : `${Math.round(value)} Hz`;
 
 // ---- EQ graph mapping (identical constants to the web) ----------------------
-const graphX = (frequency: number) => {
+export const graphX = (frequency: number) => {
   const minLog = Math.log10(20);
   const maxLog = Math.log10(20000);
   return 74 + ((Math.log10(clamp(frequency, 20, 20000)) - minLog) / (maxLog - minLog)) * 853;

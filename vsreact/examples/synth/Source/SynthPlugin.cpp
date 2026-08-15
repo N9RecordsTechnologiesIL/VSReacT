@@ -19,8 +19,13 @@ public:
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         auto norm = [] (const char* id, const char* name, float def)
         {
+            // Percent readouts: these are honest normalized amounts (not Hz or
+            // dB), and ParamKnob shows the host's value text — "80%" beats the
+            // "0.800" JUCE prints by default.
             return std::make_unique<juce::AudioParameterFloat> (
-                id, name, juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), def);
+                id, name, juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), def,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction (
+                    [] (float v, int) { return juce::String (juce::roundToInt (v * 100.0f)) + "%"; }));
         };
 
         layout.add (norm ("attack", "Attack", 0.15f));

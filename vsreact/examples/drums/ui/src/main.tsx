@@ -10,8 +10,8 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { render, native, View, Image, Text, useParameter, useNativeValue, dragToValue, registerFont } from "@vsreact/core";
-import type { DragEventPayload, WheelEventPayload, StyleValue } from "@vsreact/core";
+import { render, native, View, Image, Text, useParameter, useNativeEvent, useParamGestures, registerFont } from "@vsreact/core";
+import type { StyleValue } from "@vsreact/core";
 import { assets } from "./_assets";
 import {
   ROWS, STEPS, DEFAULT_PATTERN, STEP_CENTERS,
@@ -130,10 +130,14 @@ function StepStrip({ playhead }: { playhead: number }) {
   );
 }
 
-// The live column outline over the pads, matching the baked box measured off the
-// plate (75×337 at y 375). PlayheadCover hides the baked one on step 11, then
-// this draws the live one. Border-only so the pads show through — the painter
-// clips the outer glow to outside the box, as CSS does.
+// The live column outline over the pads, matching the baked box measured off
+// the plate (75×337 at y 375). No cover is needed for the baked step-11 box:
+// plate.webp is pre-neutralised at asset-prep time (see prepExampleAssets.ts),
+// the outline replaced by the step-9 column — same pad group, so exact pad
+// pitch, and identical baked pad states, so the copy is seamless. Covering it
+// live instead left faint seams where resampled bezels didn't line up.
+// Border-only so the pads show through — the painter clips the outer glow to
+// outside the box, as CSS does.
 function PlayheadBox({ playhead }: { playhead: number }) {
   const c = STEP_CENTERS[playhead];
   return (
@@ -241,21 +245,16 @@ function LevelKnob({ level }: { level: number }) {
   );
 }
 
-// Transparent hit target over the knob. Vertical drag maps to the parameter
-// (dragToValue: 220px = full range); double-click resets to default; wheel
-// nudges. Mirrors gain's KnobHit and DrumDeck's LevelKnob (which also took a
-// combined x/y drag + wheel; vertical drag is the required binding).
+// Transparent hit target over the knob, bound through the SDK's headless
+// useParamGestures (vertical drag in a begin/end automation gesture,
+// double-click reset, wheel nudge). Mirrors DrumDeck's LevelKnob, which also
+// took a combined x/y drag + wheel; vertical drag is the required binding.
 function KnobHit({ id }: { id: string }) {
   const p = useParameter(id);
-  let start = 0;
   return (
     <View
       style={{ position: "absolute", left: px(1317), top: px(151), width: px(98), height: px(98), cursor: "ns-resize" }}
-      onDragStart={() => { start = p.value; p.begin(); }}
-      onDrag={(e: DragEventPayload) => p.set(dragToValue(start, e.dy))}
-      onDragEnd={() => p.end()}
-      onDoubleClick={() => { p.begin(); p.set(p.defaultValue); p.end(); }}
-      onWheel={(e: WheelEventPayload) => { p.begin(); p.set(clamp01(p.value + e.dy * 0.03)); p.end(); }}
+      {...useParamGestures(p)}
     />
   );
 }
@@ -316,13 +315,21 @@ function Transport({ run }: { run: boolean }) {
   );
 }
 
-// No runtime cover is needed for the playhead: plate.webp is pre-neutralised at
-// asset-prep time (see prepExampleAssets.ts), with the baked step-11 outline
-// replaced by the step-9 column — same pad group, so exact pad pitch, and
-// identical baked pad states, so the copy is seamless. Covering it live instead
-// left faint seams where resampled bezels didn't line up.
-function PlayheadCover() {
-  return null;
+// The 30 Hz native clock only matters to the number strip and the column
+// outline, so the subscription lives here, not in App: storing just the step
+// index means setState bails out on the ticks where it hasn't advanced, and a
+// tick never re-renders the rest of the plate tree. (clock.level is unused by
+// this UI — the plate has no live meter.)
+function Playhead() {
+  const [n, setN] = useState(0);
+  useNativeEvent("step", (clock: { n: number }) => setN(clock.n));
+  const playhead = ((n % STEPS) + STEPS) % STEPS;
+  return (
+    <>
+      <StepStrip playhead={playhead} />
+      <PlayheadBox playhead={playhead} />
+    </>
+  );
 }
 
 // Tempo −/+ press zones. Each press adjusts the tempo param by ±1 BPM (DrumDeck
@@ -353,7 +360,6 @@ function App() {
   const tempo = useParameter("tempo");
   const run = useParameter("run");
   const level = useParameter("level");
-  const clock = useNativeValue("step", { n: 0, level: 0 });
 
   const [pattern, setPattern] = useState<boolean[][]>(() => DEFAULT_PATTERN.map((r) => r.slice()));
 
@@ -372,18 +378,15 @@ function App() {
   const running = run.value >= 0.5;
   const bpm = clampTempo(normToTempo(tempo.value));
   const lvl = clamp01(level.value);
-  const playhead = ((clock.n % STEPS) + STEPS) % STEPS;
 
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: "#030404", alignItems: "center", justifyContent: "center" }}>
       <View style={{ width: W, height: H, position: "relative" }}>
         <Plate />
 
-        {/* number strip repaint + live playhead */}
-        <StepStrip playhead={playhead} />
-        <PlayheadCover />
         <PadSprites pattern={pattern} />
-        <PlayheadBox playhead={playhead} />
+        {/* number strip repaint + live playhead outline (30 Hz clock inside) */}
+        <Playhead />
 
         {/* transport lit/dim swap (only repaints when stopped) */}
         <Transport run={running} />

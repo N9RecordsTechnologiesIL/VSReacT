@@ -107,12 +107,26 @@ jobs:
 
           Docs: https://vsreact.n9records.com/docs
           EOF
-          gh release create "$GITHUB_REF_NAME" \
-            --title "VSReacT $GITHUB_REF_NAME" \
-            --notes-file notes.md \
-            vsreact/js/vsreact-core-[0-9]*.tgz \
-            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)" \
-            vsreact/js-posthog/vsreact-posthog-[0-9]*.tgz \
-            "vsreact/js-posthog/vsreact-posthog.tgz#vsreact-posthog.tgz (stable name — latest)" \
-            vsreact/create/create-vsreact-[0-9]*.tgz \
+          ASSETS=(
+            vsreact/js/vsreact-core-[0-9]*.tgz
+            "vsreact/js/vsreact-core.tgz#vsreact-core.tgz (stable name — latest)"
+            vsreact/js-posthog/vsreact-posthog-[0-9]*.tgz
+            "vsreact/js-posthog/vsreact-posthog.tgz#vsreact-posthog.tgz (stable name — latest)"
+            vsreact/create/create-vsreact-[0-9]*.tgz
             "vsreact/create/create-vsreact.tgz#create-vsreact.tgz (stable name — latest)"
+          )
+
+          # Idempotent, like the publish step above: moving a tag to a fixed
+          # commit re-runs this, and `gh release create` fails outright when the
+          # release already exists. Refresh the existing one instead.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "release $GITHUB_REF_NAME exists — refreshing notes and assets."
+            gh release edit "$GITHUB_REF_NAME" \
+              --title "VSReacT $GITHUB_REF_NAME" --notes-file notes.md
+            gh release upload "$GITHUB_REF_NAME" "${ASSETS[@]}" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "VSReacT $GITHUB_REF_NAME" \
+              --notes-file notes.md \
+              "${ASSETS[@]}"
+          fi

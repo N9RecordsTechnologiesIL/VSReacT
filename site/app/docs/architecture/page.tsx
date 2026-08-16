@@ -146,6 +146,14 @@ export default function Page() {
         doesn’t need to be: JS runs only when your components render, and everything hot
         (layout, painting, hover) is C++.
       </p>
+      <p>
+        JS gets a stack budget with real headroom below the thread it runs on, so
+        runaway recursion raises a <code>RangeError</code> you see in the error overlay
+        instead of faulting the process. That matters more here than in a browser: the
+        process is your user’s DAW, and a crashed plugin can take an unsaved session
+        with it. QuickJS’s own default is the full thread stack, which is the same as
+        having no guard at all — the native stack is gone before the check runs.
+      </p>
 
       <h2 id="layout">Layout &amp; painting</h2>
       <p>

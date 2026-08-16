@@ -37,4 +37,12 @@ target_link_libraries(VSReacTTests
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
 
+# The example UIs are evaluated for real, and a debug build's QuickJS frames
+# are large enough that one React commit can approach the 1MB a Windows
+# executable gets by default. macOS and Linux give the main thread 8MB
+# already; MSVC needs telling.
+if(MSVC)
+    target_link_options(VSReacTTests PRIVATE /STACK:8388608)
+endif()
+
 add_test(NAME VSReacTUnit COMMAND VSReacTTests)

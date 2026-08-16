@@ -20,7 +20,10 @@ juce_add_plugin(DrumsExample
     COMPANY_NAME "VSReacT"
     PRODUCT_NAME "VSReacT Drums"
     PLUGIN_MANUFACTURER_CODE Vsrt
-    PLUGIN_CODE Vsd1
+    # Vsk1, not Vsd1: delay already uses that, and a VST3's UID is derived
+    # from the manufacturer and plugin codes — two examples sharing one is two
+    # plugins a host can't tell apart.
+    PLUGIN_CODE Vsk1
     FORMATS VST3 Standalone
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT FALSE

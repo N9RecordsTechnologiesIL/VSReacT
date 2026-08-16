@@ -152,9 +152,10 @@ checkout nests inside this repository as `StashTrack/` (its own git repo).
   Yoga adapter, painter, hit-testing, TextInput host, ParameterBridge, RootView.
 - `vsreact/js/` — the `@vsreact/core` package: reconciler host config, primitives,
   tailwind resolver, `useParameter`, `Knob`/`Slider`, `useTween`, runtime shims.
-- `vsreact/examples/` — five example plugins: `gain`, `delay`, `drums` and
-  `channel` render designer-rendered reference art natively; `synth` is the
-  stock-component showcase. See `vsreact/examples/README.md`.
+- `vsreact/examples/` — six example plugins: `gain`, `delay`, `drums` and
+  `channel` render designer-rendered reference art natively; `synth` and
+  `compressor` are built from stock components. See
+  `vsreact/examples/README.md`.
 - `vsreact/third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
 - `vsreact/tests/` + `vsreact/js/*.test.*` — C++ (CTest) and TS (`bun test`) suites.
 - `site/` — the framework's website (Next.js).

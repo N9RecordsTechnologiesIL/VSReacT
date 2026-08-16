@@ -1,6 +1,6 @@
 # VSReacT examples
 
-Five complete plugins, each a standalone CMake project whose entire UI
+Six complete plugins, each a standalone CMake project whose entire UI
 is React. Build any of them with:
 
 ```sh
@@ -24,13 +24,16 @@ off-screen.
 | **drums** | A 16×3 pad grid over a baked plate: sprite overrides for changed pads, a live playhead box, and readouts in a registered custom OTF stretched to fixed widths with `textLength`. Native 16-step clock (pattern out over `native.call`, playhead back over native events), synthesized kick/snare/hat. | None — core SDK alone. |
 | **channel** | An `EQCurve` over reference art bound to real APVTS bands — the same RBJ biquad math runs in C++ and in the display — plus gain-reduction and output meters redrawn as overlays, and a registered custom OTF. | Light: sessions + screens. |
 | **synth** | The component showcase: `PianoKeyboard` playing through `native.call`, the `ParamADSREnvelope` editor, both wheels, a `RingMeter` riding native events. 8 sine voices in C++. | Full `@vsreact/posthog`: sessions, parameter analytics, screens, error boundary. |
+| **compressor** | Scaffolded with `create-vsreact` and grown — what the starter becomes. A soft-knee transfer curve drawn with `Svg`/`SvgPath` from the live parameter values, using the same gain-computer formula the audio thread runs; three `Meter`s on a 30Hz native feed. Feed-forward peak compressor in C++. | None — core SDK alone. |
 
 ## Two UI styles
 
-**synth** is built from the SDK's stock components — `ParamKnob`,
-`StepSequencer`, `Disclosure` and friends — laid out with flexbox. It is
-the fastest way to get a working panel and the best place to see what
-ships in the box.
+**synth** and **compressor** are built from the SDK's stock components —
+`ParamKnob`, `Meter`, `StepSequencer`, `Disclosure` and friends — laid
+out with flexbox. They are the fastest way to get a working panel and the
+best place to see what ships in the box. compressor is the one to read
+first if you just ran `create-vsreact`: it is that scaffold, grown, with
+nothing in it you couldn't have typed next.
 
 The other four are **reference-art** UIs: a designer's rendered panel is
 committed as a WebP plate, drawn full-bleed, and the UI redraws only the
@@ -64,6 +67,6 @@ file server to fetch from): each `ui/build.ts` calls the shared
 `js/src/tools/buildExampleUi.ts`, which generates an ignored
 `src/_assets.ts` and bundles with Bun.
 
-`tests/ExampleBundleTests.cpp` evaluates all four reference-art bundles
+`tests/ExampleBundleTests.cpp` evaluates the five non-synth bundles
 headlessly — eval, layout, paint into an offscreen image — so a bundle
 that launches but renders nothing fails CI rather than a screenshot.

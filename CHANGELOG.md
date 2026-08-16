@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- **A sixth example: `compressor`.** A feed-forward peak compressor whose
+  panel is entirely stock components — no reference art — so it's the one
+  to read if you want a presentable plugin without a designer. It was
+  scaffolded with `create-vsreact` and grown from there, which is also how
+  the scaffolder now gets exercised for real. Its soft-knee transfer curve
+  is drawn in `Svg`/`SvgPath` from the live parameter values using the same
+  gain-computer formula the audio thread runs, so the curve on screen is
+  the curve being applied; only three meter numbers cross the bridge, at
+  30Hz. `compressor.ts` is pure and unit-tested, and CI now runs an
+  example's `bun test` when it has one.
+- **Deep JS recursion no longer takes the host down with it.** QuickJS
+  defaults its stack guard to 1MB — the same size as the thread stack it
+  is guarding — so the check could never fire in time: the native stack
+  was already gone. A runaway render faulted the process, which in a
+  plugin means the DAW. The runtime now sets a limit with real headroom
+  (512KB in release, measured to be several times what a normal commit
+  uses), so an overflow arrives as a catchable `RangeError` and lands in
+  the error overlay. Found because the new example crashed the debug test
+  binary outright, with no message; debug interpreter frames are two to
+  three times larger, so debug keeps a looser limit and the test target
+  links with an 8MB stack.
+- `drums` had the same plugin code as `delay` (`Vsd1`), which gives two
+  examples the same VST3 UID. It's `Vsk1` now.
+- `buildExampleUi` no longer requires a `src/assets/` directory — an
+  example with no art is a legitimate example.
+
 - **The bundle and the module now agree on a protocol version.** They are
   separately versioned halves of one program — `@vsreact/core` from npm,
   the module from a CMake `GIT_TAG` — and bumping one without the other

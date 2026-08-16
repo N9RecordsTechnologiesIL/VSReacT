@@ -84,6 +84,13 @@ render(<App />);`}</Code>
         </li>
       </ul>
       <p>
+        Wondering what the two-knob starter turns into?{' '}
+        <code>vsreact/examples/compressor</code> is this same scaffold, grown: a
+        feed-forward peak compressor with a transfer curve, three meters and a
+        gain-reduction history, still built entirely from stock components. Nothing in
+        it is out of reach from where you are now.
+      </p>
+      <p>
         Now wire it into your own project:{' '}
         <Link href="/docs/integration">Your plugin, in React</Link>.
       </p>

@@ -7,7 +7,7 @@
 //   await buildExampleUi(import.meta.dir);
 // with optional hooks for assets that need special handling (see delay).
 
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const MIME: Record<string, string> = {
@@ -28,7 +28,9 @@ export interface BuildExampleUiOptions {
 export function inlineAssets(uiDir: string, opts: BuildExampleUiOptions = {}): number {
   const dir = join(uiDir, "src/assets");
   const entries: string[] = [];
-  for (const name of readdirSync(dir)) {
+  // An example built from stock components (compressor) has no art at all.
+  // Still write the file, so `import { assets }` resolves either way.
+  for (const name of existsSync(dir) ? readdirSync(dir) : []) {
     if (name.includes(".tmp.")) continue; // prep-time intermediates, never ship
     if (opts.skip?.(name)) continue;
     const ext = name.slice(name.lastIndexOf("."));

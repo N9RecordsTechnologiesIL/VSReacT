@@ -38,7 +38,13 @@ jobs:
         run: |
           for d in vsreact/examples/*/ui; do
             echo "== $d"
-            (cd "$d" && bun run build && bunx tsc --noEmit)
+            # `bun test` exits non-zero when it finds no files, so only run it
+            # for the examples that carry tests (compressor's curve maths) —
+            # and let a real failure through.
+            (
+              cd "$d" && bun run build && bunx tsc --noEmit
+              if ls src/*.test.* >/dev/null 2>&1; then bun test; fi
+            )
           done
 
   native:

@@ -25,6 +25,7 @@ $examples = @(
   @{ name = "gain";    target = "GainExample";    product = "VSReacT Gain";    x =   262; y = 0 }
   @{ name = "delay";   target = "DelayExample";   product = "VSReacT Delay";   x =   565; y = 168 }
   @{ name = "synth";   target = "SynthExample";   product = "VSReacT Synth";   x =  -700; y = 250 }
+  @{ name = "compressor"; target = "CompressorExample"; product = "VSReacT Compressor"; x = 100; y = 420 }
 )
 
 if ($Only) { $examples = $examples | Where-Object { $Only -contains $_.name } }

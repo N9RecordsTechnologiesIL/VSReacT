@@ -6,6 +6,30 @@
 namespace vsreact
 {
 
+/** How much native stack JS may consume before QuickJS raises a "stack
+    overflow" exception rather than walking off the end of the thread stack.
+
+    Release is sized for the smallest stack a plugin is likely to be given —
+    hosts commonly run the message thread on 1MB — leaving room for the C++
+    frames beneath the interpreter and for the error to unwind and report.
+    Measured: a normal React commit in a release build sits comfortably
+    inside this, several times over.
+
+    A debug build's interpreter frames are two to three times larger, and an
+    ordinary commit can approach the whole 1MB on its own. Capping it there
+    would turn every debug build into a false "stack overflow", so debug gets
+    a limit that only catches genuine runaway recursion, and relies on being
+    run with a larger stack (the test target links with 8MB — see
+    tests/CMakeLists.txt). A debug plugin loaded into a 1MB host thread is
+    therefore no better protected than it was before this guard existed, and
+    no worse; release builds, which is what ships, are protected. */
+static constexpr size_t jsStackLimitBytes =
+   #if JUCE_DEBUG
+    4 * 1024 * 1024;
+   #else
+    512 * 1024;
+   #endif
+
 struct JsRuntime::Impl
 {
     Callbacks cbs;
@@ -15,6 +39,20 @@ struct JsRuntime::Impl
     explicit Impl (Callbacks c) : cbs (std::move (c))
     {
         rt = JS_NewRuntime();
+
+        // QuickJS defaults its stack guard to JS_DEFAULT_STACK_SIZE (1MB) —
+        // the same size as a default thread stack on Windows and most hosts.
+        // A guard set to the whole stack can never fire in time: the native
+        // stack is already gone by the time QuickJS checks, so deep JS
+        // recursion faults the process instead of raising an error. In a
+        // plugin that means taking the DAW down with it.
+        //
+        // Cap it well below the real stack so an overflow arrives as a normal
+        // JS exception, reaches onError, and shows up in the error overlay.
+        // The measurement is of real native stack consumed, so this stays
+        // honest for a debug build's much larger interpreter frames.
+        JS_SetMaxStackSize (rt, jsStackLimitBytes);
+
         ctx = JS_NewContext (rt);
         JS_SetContextOpaque (ctx, this);
         JS_SetHostPromiseRejectionTracker (rt, promiseRejectionTracker, this);

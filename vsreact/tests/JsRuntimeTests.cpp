@@ -94,6 +94,18 @@ public:
             expectEquals (static_cast<int> (result["sum"]), 5);
         }
 
+        beginTest ("runaway recursion reports an error instead of faulting");
+        {
+            // QuickJS's default guard is the whole thread stack, so without an
+            // explicit limit this doesn't throw — it walks off the end of the
+            // stack and kills the process. In a plugin that's the DAW.
+            Capture capture;
+            vsreact::JsRuntime js { capture.callbacks() };
+            expect (! js.evaluate ("function deep(n) { return deep(n + 1); } deep(0);", "test.js"));
+            expect (capture.errors.size() == 1);
+            expect (capture.errors[0].containsIgnoreCase ("stack"));
+        }
+
         beginTest ("thrown errors reach onError with a stack");
         {
             Capture capture;

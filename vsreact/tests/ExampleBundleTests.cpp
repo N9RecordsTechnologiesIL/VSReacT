@@ -18,7 +18,7 @@ public:
     {
         const juce::File examples { juce::String (VSREACT_EXAMPLES_DIR) };
 
-        for (const auto* name : { "gain", "drums", "channel", "delay" })
+        for (const auto* name : { "gain", "drums", "channel", "delay", "compressor" })
         {
             beginTest (juce::String ("bundle evaluates: ") + name);
 

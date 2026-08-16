@@ -14,7 +14,7 @@ export default function Page() {
       <Crumbs slug="reference-art" />
       <h1>Reference-art workflow</h1>
       <p className={styles.lead}>
-        The four example plugins don&apos;t draw their panels with components — they{' '}
+        Four of the example plugins don&apos;t draw their panels with components — they{' '}
         <em>are</em> the designer&apos;s render, shipped pixel-exact, with live parts
         patched on top. This guide distils that workflow: it&apos;s how you turn a Figma
         export, a web prototype, or a photograph of real hardware into a working plugin UI.

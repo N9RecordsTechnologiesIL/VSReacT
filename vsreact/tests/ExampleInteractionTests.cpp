@@ -42,6 +42,11 @@ public:
             { "drums",   836, 470, "LEVEL knob", 683.0f, 100.0f, "level", -70.0f },
             { "channel", 768, 512, "COMP knob",  535.0f, 220.0f, "comp",  -60.0f },
             { "delay",   793, 496, "TIME knob",  131.0f, 283.0f, "time",  -60.0f },
+            // compressor is stock components, so these are flexbox positions
+            // rather than plate coords: the knob row is justify-between, first
+            // centre at x=60 and last at x=657, all at y=337.
+            { "compressor", 720, 420, "THRESH knob",  60.0f, 337.0f, "threshold", -60.0f },
+            { "compressor", 720, 420, "MIX knob",    657.0f, 337.0f, "mix",       -60.0f },
         };
 
         for (const auto& c : cases)

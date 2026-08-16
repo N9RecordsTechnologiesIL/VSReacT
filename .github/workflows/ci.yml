@@ -109,10 +109,13 @@ jobs:
         run: |
           if ! ${{ matrix.test_wrapper }} ctest --test-dir ci/build -C Release --output-on-failure; then
             # Reading a job's log requires auth even on a public repo, but
-            # annotations are public — put the failing test names where the
-            # run page (and an unauthenticated API) can show them.
-            grep -E "FAIL:|!!! Test" ci/build/Testing/Temporary/LastTest.log 2>/dev/null | head -10 \
-              | while IFS= read -r line; do echo "::error::$line"; done
+            # annotations are public — put the failure where the run page
+            # (and an unauthenticated API) can show it. FAIL lines when the
+            # suite got that far; ctest's ***Exception and the log tail when
+            # the binary died before printing a summary.
+            LOG=ci/build/Testing/Temporary/LastTest.log
+            { grep -E "FAIL:|!!! Test|\*\*\*" "$LOG" 2>/dev/null | head -4; tail -6 "$LOG" 2>/dev/null; } \
+              | head -10 | while IFS= read -r line; do echo "::error::$line"; done
             exit 1
           fi
 

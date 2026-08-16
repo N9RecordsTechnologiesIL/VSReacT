@@ -381,7 +381,13 @@ namespace
             : AudioProcessor (BusesProperties().withOutput ("Out", juce::AudioChannelSet::stereo(), true)),
               state (*this, nullptr, "PARAMS",
                      { std::make_unique<juce::AudioParameterFloat> ("gain", "Gain", 0.0f, 1.0f, 0.5f),
-                       std::make_unique<juce::AudioParameterFloat> ("pan", "Pan", -1.0f, 1.0f, 0.0f) })
+                       std::make_unique<juce::AudioParameterFloat> ("pan", "Pan", -1.0f, 1.0f, 0.0f),
+                       // A real-unit, skewed range so the bridge's metadata
+                       // (min/max/skew) is exercised, not just defaulted.
+                       std::make_unique<juce::AudioParameterFloat> (
+                           "freq", "Freq",
+                           juce::NormalisableRange<float> (20.0f, 20000.0f, 1.0f, 0.3f), 1000.0f,
+                           juce::AudioParameterFloatAttributes().withLabel ("Hz")) })
         {}
 
         const juce::String getName() const override { return "BridgeTest"; }
@@ -461,7 +467,7 @@ public:
 
             auto* list = result->getArray();
             expect (list != nullptr);
-            expectEquals (list->size(), 2);
+            expectEquals (list->size(), 3);
 
             expectEquals ((*list)[0]["id"].toString(), juce::String ("gain"));
             expectEquals ((*list)[0]["name"].toString(), juce::String ("Gain"));
@@ -470,6 +476,30 @@ public:
             expect ((*list)[0].hasProperty ("text"));
             expect ((*list)[0].hasProperty ("label"));
             expect ((*list)[0].hasProperty ("defaultValue"));
+        }
+
+        beginTest ("param:list and param:get carry the natural range metadata");
+        {
+            const auto list = bridge.handleNativeCall ("param:list", juce::var());
+            const auto& freq = (*list->getArray())[2];
+
+            expectEquals (freq["id"].toString(), juce::String ("freq"));
+            expectEquals (freq["label"].toString(), juce::String ("Hz"));
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (freq["min"])), 20.0f, 1.0e-4f);
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (freq["max"])), 20000.0f, 1.0e-1f);
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (freq["skew"])), 0.3f, 1.0e-4f);
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (freq["interval"])), 1.0f, 1.0e-4f);
+            expect (! static_cast<bool> (freq["symmetricSkew"]));
+
+            // The linear 0..1 parameter reports the identity range.
+            const auto& gain = (*list->getArray())[0];
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (gain["min"])), 0.0f, 1.0e-6f);
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (gain["max"])), 1.0f, 1.0e-6f);
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> (gain["skew"])), 1.0f, 1.0e-6f);
+
+            // param:get carries the same block.
+            const auto got = bridge.handleNativeCall ("param:get", makeArgs ({ { "id", "freq" } }));
+            expectWithinAbsoluteError (static_cast<float> (static_cast<double> ((*got)["skew"])), 0.3f, 1.0e-4f);
         }
 
         beginTest ("gestures and unknown calls");

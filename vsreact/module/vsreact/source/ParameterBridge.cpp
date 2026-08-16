@@ -5,6 +5,22 @@
 namespace vsreact
 {
 
+namespace
+{
+    // The parameter's natural range (units, skew) so the UI never has to
+    // mirror the APVTS layout in TS — mirrored constants drift. getParameter
+    // returns RangedAudioParameter, so the range is always available.
+    void addRangeMetadata (juce::DynamicObject& entry, const juce::RangedAudioParameter& parameter)
+    {
+        const auto& range = parameter.getNormalisableRange();
+        entry.setProperty ("min", range.start);
+        entry.setProperty ("max", range.end);
+        entry.setProperty ("interval", range.interval);
+        entry.setProperty ("skew", range.skew);
+        entry.setProperty ("symmetricSkew", range.symmetricSkew);
+    }
+}
+
 ParameterBridge::ParameterBridge (juce::AudioProcessorValueTreeState& state)
     : apvts (state)
 {
@@ -58,6 +74,7 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
                 entry->setProperty ("value", parameter->getValue());
                 entry->setProperty ("text", parameter->getCurrentValueAsText());
                 entry->setProperty ("defaultValue", parameter->getDefaultValue());
+                addRangeMetadata (*entry, *parameter);
                 list.add (juce::var (entry));
             }
 
@@ -77,6 +94,7 @@ std::optional<juce::var> ParameterBridge::handleNativeCall (const juce::String& 
         result->setProperty ("name", parameter->getName (64));
         result->setProperty ("label", parameter->getLabel());
         result->setProperty ("defaultValue", parameter->getDefaultValue());
+        addRangeMetadata (*result, *parameter);
         return juce::var (result);
     }
 

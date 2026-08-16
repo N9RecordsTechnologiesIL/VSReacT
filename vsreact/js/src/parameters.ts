@@ -4,7 +4,46 @@
 import { useCallback, useEffect, useState } from "react";
 import { native } from "./native";
 
-export interface ParameterState {
+/** The parameter's natural range, mirrored from the C++ NormalisableRange so
+    UI code never has to re-declare APVTS ranges in TS (mirrored constants
+    drift — that's how a reset lands on the wrong value). */
+export interface ParameterRange {
+  /** Natural-unit bounds (e.g. 1..1000 for a ms delay). */
+  min: number;
+  max: number;
+  /** Snap interval in natural units; 0 = continuous. */
+  interval: number;
+  /** NormalisableRange skew; 1 = linear. */
+  skew: number;
+  /** JUCE's symmetric-skew flag. The conversion helpers below implement the
+      standard skew only and fall back to linear when this is set. */
+  symmetricSkew: boolean;
+}
+
+/** JUCE NormalisableRange::convertFrom0to1 — normalized 0..1 to natural units. */
+export function normalizedToNatural(normalized: number, range: ParameterRange): number {
+  let proportion = Math.min(1, Math.max(0, normalized));
+
+  if (!range.symmetricSkew && range.skew !== 1 && proportion > 0)
+    proportion = Math.exp(Math.log(proportion) / range.skew);
+
+  return range.min + (range.max - range.min) * proportion;
+}
+
+/** JUCE NormalisableRange::convertTo0to1 — natural units to normalized 0..1. */
+export function naturalToNormalized(natural: number, range: ParameterRange): number {
+  const span = range.max - range.min;
+  if (span === 0) return 0;
+
+  let proportion = Math.min(1, Math.max(0, (natural - range.min) / span));
+
+  if (!range.symmetricSkew && range.skew !== 1 && proportion > 0)
+    proportion = Math.pow(proportion, range.skew);
+
+  return proportion;
+}
+
+export interface ParameterState extends ParameterRange {
   value: number;
   text: string;
   name: string;
@@ -19,7 +58,7 @@ export interface ParameterHandle extends ParameterState {
   end: () => void;
 }
 
-export interface ParameterInfo {
+export interface ParameterInfo extends ParameterRange {
   id: string;
   name: string;
   label: string;
@@ -27,6 +66,24 @@ export interface ParameterInfo {
   value: number;
   text: string;
   defaultValue: number;
+}
+
+/** The identity range — what an old native side (no metadata) degrades to:
+    natural units equal normalized units, exactly the previous behaviour. */
+const IDENTITY_RANGE: ParameterRange = { min: 0, max: 1, interval: 0, skew: 1, symmetricSkew: false };
+
+function rangeFrom(entry: any): ParameterRange {
+  const num = (v: unknown, fallback: number) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  return {
+    min: num(entry?.min, IDENTITY_RANGE.min),
+    max: num(entry?.max, IDENTITY_RANGE.max),
+    interval: num(entry?.interval, IDENTITY_RANGE.interval),
+    skew: num(entry?.skew, IDENTITY_RANGE.skew),
+    symmetricSkew: Boolean(entry?.symmetricSkew),
+  };
 }
 
 /**
@@ -45,6 +102,7 @@ export function useParameterList(): ParameterInfo[] {
       value: Number(entry?.value ?? 0),
       text: String(entry?.text ?? ""),
       defaultValue: Number(entry?.defaultValue ?? 0),
+      ...rangeFrom(entry),
     }));
   });
 
@@ -61,8 +119,9 @@ export function useParameter(id: string): ParameterHandle {
           name: String(initial.name ?? id),
           label: String(initial.label ?? ""),
           defaultValue: Number(initial.defaultValue ?? 0),
+          ...rangeFrom(initial),
         }
-      : { value: 0, text: "", name: id, label: "", defaultValue: 0 };
+      : { value: 0, text: "", name: id, label: "", defaultValue: 0, ...IDENTITY_RANGE };
   });
 
   useEffect(

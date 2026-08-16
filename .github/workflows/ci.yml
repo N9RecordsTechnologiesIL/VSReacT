@@ -80,7 +80,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            pkg-config xvfb libasound2-dev libfreetype-dev libfontconfig1-dev \
+            pkg-config xvfb fonts-dejavu-core \
+            libasound2-dev libfreetype-dev libfontconfig1-dev \
             libx11-dev libxcomposite-dev libxcursor-dev libxext-dev \
             libxinerama-dev libxrandr-dev libxrender-dev
       - name: Configure
@@ -105,7 +106,15 @@ jobs:
           done
       - name: Test
         shell: bash
-        run: ${{ matrix.test_wrapper }} ctest --test-dir ci/build -C Release --output-on-failure
+        run: |
+          if ! ${{ matrix.test_wrapper }} ctest --test-dir ci/build -C Release --output-on-failure; then
+            # Reading a job's log requires auth even on a public repo, but
+            # annotations are public — put the failing test names where the
+            # run page (and an unauthenticated API) can show them.
+            grep -E "FAIL:|!!! Test" ci/build/Testing/Temporary/LastTest.log 2>/dev/null | head -10 \
+              | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
 
   # Host-level validation: build the gain example as a real VST3 and run it
   # through pluginval at max strictness — editor open/close, state

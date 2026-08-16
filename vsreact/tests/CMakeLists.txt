@@ -15,6 +15,7 @@ target_sources(VSReacTTests
         MultiInstanceTests.cpp
         CanvasTests.cpp
         KnobShaderBench.cpp
+        PaintBench.cpp
         PainterKeysTests.cpp
         ExampleBundleTests.cpp
         ExampleInteractionTests.cpp

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.0.29 — unreleased
+
+The painter round: with the bridge fast by default (0.0.28), the painter
+was the next bottleneck — measured, fixed, and now gated by a benchmark.
+
+- **Box shadows render once, not per frame.** `juce::DropShadow` runs a
+  full Gaussian blur per call, and a lit meter wall paid one per segment
+  per frame. Outer and inset shadows now render into a bitmap cached in
+  the instance's `RenderResources`, keyed by colour/radius/offset and a
+  cheap shape key (size + corner radii, or the clip polygon's identity —
+  never the serialized path, which itself cost ~0.5ms/node and erased the
+  win; position is absent so identical shapes share one entry).
+- **Gradients parse once, not per paint.** The base gradient and every
+  `backgroundLayers` entry re-parsed their colour stops from `var` per
+  node per frame; the parsed form is cached per instance, keyed on the
+  stops/layers array identity — prop patches keep untouched vars alive,
+  so the key only changes when the gradient actually did. The conic
+  sheen cache also evicts one entry instead of clearing wholesale.
+- **`PaintBench`** — 96 glowing segments + 8 triple-layer metallic caps
+  (the channel example's shape): **153.4 → 7.6 ms/frame (~20x)** on the
+  dev machine, asserted under a generous CI ceiling so a regression back
+  to per-frame blurs fails the suite. Verified pixel-identical against
+  the channel and delay reference-art captures.
+
 ## 0.0.28 — 2026-08-16
 
 The foundations round: correct with two instances in one DAW, fast by

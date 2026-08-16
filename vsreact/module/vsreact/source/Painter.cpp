@@ -49,8 +49,10 @@ namespace
         if (const auto found = cache.find (key); found != cache.end())
             return found->second;
 
+        // Evict one entry rather than the whole map: clearing would re-raster
+        // every hot sheen on the next frame.
         if (cache.size() > 24)
-            cache.clear();
+            cache.erase (cache.begin());
 
         juce::Image image (juce::Image::ARGB, juce::jmax (1, width), juce::jmax (1, height), true);
         juce::Image::BitmapData pixels (image, juce::Image::BitmapData::writeOnly);
@@ -71,6 +73,99 @@ namespace
         }
 
         return cache.emplace (key, std::move (image)).first->second;
+    }
+
+    /** Renders a box shadow (outer: blurred silhouette clipped to outside the
+        shape; inset: blurred ring clipped inside) into a cached ARGB bitmap
+        and blits it. juce::DropShadow runs a full Gaussian blur per call, and
+        a lit meter wall paid one per segment per frame — the painter's single
+        largest cost. Identical geometry (every segment of a meter) now blurs
+        once per instance; the key is origin-relative, so position never
+        fragments the cache. Falls back to direct drawing for res-less test
+        nodes. */
+    void drawCachedShadow (juce::Graphics& g, const Node& node, const juce::Path& path,
+                           const juce::String& shapeKey,
+                           bool inset, juce::Colour colour, float radius,
+                           int offsetX, int offsetY)
+    {
+        // A Gaussian's visible extent is ~2x its radius; the cached bitmap is
+        // blitted per frame, so its margin is kept tight rather than the
+        // generous clip bound the uncached path used.
+        const auto margin = radius * 2.0f + 4.0f
+                          + (float) std::abs (offsetX) + (float) std::abs (offsetY);
+        const auto area = path.getBounds().expanded (margin).getSmallestIntegerContainer();
+
+        if (area.isEmpty())
+            return;
+
+        const juce::DropShadow shadow (colour, juce::roundToInt (radius), { offsetX, offsetY });
+
+        const auto renderInto = [&] (juce::Graphics& target, const juce::Path& local,
+                                     juce::Rectangle<int> bounds)
+        {
+            if (inset)
+            {
+                // Shadow of the inverse region (a ring around the shape),
+                // visible only inside it.
+                juce::Path ring;
+                ring.setUsingNonZeroWinding (false);
+                ring.addRectangle (bounds.toFloat());
+                ring.addPath (local);
+
+                juce::Graphics::ScopedSaveState state (target);
+                target.reduceClipRegion (local);
+                shadow.drawForPath (target, ring);
+            }
+            else
+            {
+                // CSS clips an outer shadow to *outside* the border box — a
+                // translucent node never shows its own shadow through itself.
+                juce::Path outside;
+                outside.setUsingNonZeroWinding (false);
+                outside.addRectangle (bounds.toFloat());
+                outside.addPath (local);
+
+                juce::Graphics::ScopedSaveState state (target);
+                target.reduceClipRegion (outside);
+                shadow.drawForPath (target, local);
+            }
+        };
+
+        if (node.res == nullptr)
+        {
+            renderInto (g, path, area);
+            return;
+        }
+
+        juce::String key;
+        key.preallocateBytes (128);
+        key << (inset ? "i|" : "o|") << colour.toString()
+            << "|" << juce::String (radius, 2)
+            << "|" << offsetX << "," << offsetY
+            << "|" << shapeKey;
+
+        auto& cache = node.res->shadows;
+        auto found = cache.find (key);
+
+        if (found == cache.end())
+        {
+            // At capacity, evict one entry rather than the whole map.
+            if (cache.size() > 256)
+                cache.erase (cache.begin());
+
+            // Only a miss pays for the origin translation and the blur.
+            auto local = path;
+            local.applyTransform (juce::AffineTransform::translation ((float) -area.getX(),
+                                                                      (float) -area.getY()));
+
+            juce::Image rendered (juce::Image::ARGB, area.getWidth(), area.getHeight(), true);
+            juce::Graphics ig (rendered);
+            renderInto (ig, local, rendered.getBounds());
+
+            found = cache.emplace (key, std::move (rendered)).first;
+        }
+
+        g.drawImageAt (found->second, area.getX(), area.getY());
     }
 
     void fillGradient (juce::Graphics& g, const juce::Path& path,
@@ -274,6 +369,12 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
     // replaces the rounded rect as the node's shape.
     juce::Path path;
 
+    // Cheap geometry key for the shadow cache: what BUILT the path (size +
+    // radii, or the polygon array's identity), never the path serialized —
+    // Path::toString per node per frame measured ~0.5ms and erased the win.
+    // Position is deliberately absent so identical shapes share one entry.
+    juce::String shadowShapeKey;
+
     if (const auto* polygon = style.values.getVarPointer ("clipPolygon");
         polygon != nullptr && polygon->isArray() && polygon->getArray()->size() >= 6)
     {
@@ -291,56 +392,39 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         }
 
         path.closeSubPath();
+
+        shadowShapeKey << "p" << juce::String ((juce::int64) (juce::pointer_sized_int) polygon->getArray())
+                       << "," << juce::String (node.frame.getWidth(), 2)
+                       << "x" << juce::String (node.frame.getHeight(), 2);
     }
     else
     {
         path = roundedRectPath (node.frame,
                                 style.cornerRadius (0), style.cornerRadius (1),
                                 style.cornerRadius (2), style.cornerRadius (3));
+
+        shadowShapeKey << "r" << juce::String (node.frame.getWidth(), 2)
+                       << "x" << juce::String (node.frame.getHeight(), 2)
+                       << "," << juce::String (style.cornerRadius (0), 2)
+                       << "," << juce::String (style.cornerRadius (1), 2)
+                       << "," << juce::String (style.cornerRadius (2), 2)
+                       << "," << juce::String (style.cornerRadius (3), 2);
     }
 
-    // CSS clips an outer box-shadow to *outside* the border box: a node with a
-    // transparent or partly transparent background never shows its own shadow
-    // through itself. juce::DropShadow paints the full silhouette, so clip to
-    // the region outside the node's shape first (same inverse-winding trick the
-    // inset shadows use). Without this, a border-only node reads as a solid
-    // block of shadow colour.
-    const auto drawOuterShadow = [&g, &path, &node] (juce::Colour colour, float radius,
-                                                     int offsetX, int offsetY)
+    // Both flavours render through drawCachedShadow: outer is clipped to
+    // outside the border box (a translucent node never shows its own shadow
+    // through itself), inset is the blurred inverse ring clipped inside.
+    // Shared by the legacy shadow*/insetShadow* keys and the boxShadow array.
+    const auto drawOuterShadow = [&g, &path, &node, &shadowShapeKey] (juce::Colour colour, float radius,
+                                                                      int offsetX, int offsetY)
     {
-        juce::Path outside;
-        outside.setUsingNonZeroWinding (false);
-        outside.addRectangle (node.frame.expanded (radius * 3.0f + 16.0f
-                                                   + (float) std::abs (offsetX)
-                                                   + (float) std::abs (offsetY)));
-        outside.addPath (path);
-
-        juce::Graphics::ScopedSaveState shadowState (g);
-        g.reduceClipRegion (outside);
-
-        const juce::DropShadow shadow (colour, juce::roundToInt (radius), { offsetX, offsetY });
-        shadow.drawForPath (g, path);
+        drawCachedShadow (g, node, path, shadowShapeKey, false, colour, radius, offsetX, offsetY);
     };
 
-    // CSS box-shadow inset: shadow of the inverse region (a ring around the
-    // shape), clipped inside. Shared by the legacy insetShadow* keys and the
-    // inset entries of the boxShadow array — both call it after the
-    // background fill below.
-    const auto drawInsetShadow = [&g, &path, &node] (juce::Colour colour, float radius,
-                                                     int offsetX, int offsetY)
+    const auto drawInsetShadow = [&g, &path, &node, &shadowShapeKey] (juce::Colour colour, float radius,
+                                                                      int offsetX, int offsetY)
     {
-        const auto margin = radius * 2.0f + 8.0f;
-
-        juce::Path ring;
-        ring.setUsingNonZeroWinding (false);
-        ring.addRectangle (node.frame.expanded (margin));
-        ring.addPath (path);
-
-        juce::Graphics::ScopedSaveState insetState (g);
-        g.reduceClipRegion (path);
-
-        const juce::DropShadow shadow (colour, juce::roundToInt (radius), { offsetX, offsetY });
-        shadow.drawForPath (g, ring);
+        drawCachedShadow (g, node, path, shadowShapeKey, true, colour, radius, offsetX, offsetY);
     };
 
     if (const auto shadowColor = style.getColour ("shadowColor"))
@@ -408,7 +492,52 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
         }
     }
 
-    if (const auto gradient = style.gradient())
+    // Gradient parsing (colour strings per stop) used to run per node per
+    // frame; the parsed form is cached per instance, keyed on the stops
+    // array's identity plus type/angle — prop patches keep untouched vars
+    // alive, so the key only changes when the gradient actually did.
+    Style::Gradient gradientScratch;
+    const Style::Gradient* gradient = nullptr;
+
+    if (node.res != nullptr)
+    {
+        if (const auto* stops = style.values.getVarPointer ("gradientStops");
+            stops != nullptr && stops->isArray())
+        {
+            const auto key = juce::String ((juce::int64) (juce::pointer_sized_int) stops->getArray())
+                           + "|" + style.getString ("gradientType")
+                           + "|" + juce::String (style.getFloat ("gradientAngle", -1000.0f), 2);
+
+            auto& cache = node.res->gradients;
+            auto found = cache.find (key);
+
+            if (found == cache.end())
+            {
+                if (const auto parsed = style.gradient())
+                {
+                    if (cache.size() > 256)
+                        cache.erase (cache.begin());
+
+                    found = cache.emplace (key, *parsed).first;
+                }
+            }
+
+            if (found != cache.end())
+                gradient = &found->second;
+        }
+        else if (const auto parsed = style.gradient()) // gradientFrom/Via/To shorthands
+        {
+            gradientScratch = *parsed;
+            gradient = &gradientScratch;
+        }
+    }
+    else if (const auto parsed = style.gradient())
+    {
+        gradientScratch = *parsed;
+        gradient = &gradientScratch;
+    }
+
+    if (gradient != nullptr)
     {
         fillGradient (g, path, node.frame, *gradient);
     }
@@ -421,21 +550,56 @@ void Painter::paintNode (juce::Graphics& g, const Node& node, bool skipOwnBlur)
     // backgroundLayers: [{ …gradient spec | backgroundColor }, …] — stacked
     // fills painted in array order (last entry on top), each reusing the same
     // gradient/colour parsing as the primary background. Lets one node carry
-    // the multi-layer metallic caps the reference art uses.
+    // the multi-layer metallic caps the reference art uses. Each layer's
+    // Style::fromVar + parse also ran per frame — cached per instance, keyed
+    // on the layers array's identity.
     if (const auto* layers = style.values.getVarPointer ("backgroundLayers");
         layers != nullptr && layers->isArray())
     {
-        for (const auto& layer : *layers->getArray())
+        const auto paintLayer = [&] (const RenderResources::BackgroundLayer& layer)
         {
-            const auto ls = Style::fromVar (layer);
-
-            if (const auto lg = ls.gradient())
-                fillGradient (g, path, node.frame, *lg);
-            else if (const auto lc = ls.getColour ("backgroundColor"))
+            if (layer.gradient)
+                fillGradient (g, path, node.frame, *layer.gradient);
+            else if (layer.colour)
             {
-                g.setColour (*lc);
+                g.setColour (*layer.colour);
                 g.fillPath (path);
             }
+        };
+
+        const auto parseLayer = [] (const juce::var& layer)
+        {
+            const auto ls = Style::fromVar (layer);
+            RenderResources::BackgroundLayer parsed;
+            parsed.gradient = ls.gradient();
+            parsed.colour = ls.getColour ("backgroundColor");
+            return parsed;
+        };
+
+        if (node.res != nullptr)
+        {
+            auto& cache = node.res->backgroundLayers;
+            auto found = cache.find (layers->getArray());
+
+            if (found == cache.end())
+            {
+                if (cache.size() > 128)
+                    cache.erase (cache.begin());
+
+                std::vector<RenderResources::BackgroundLayer> parsed;
+                for (const auto& layer : *layers->getArray())
+                    parsed.push_back (parseLayer (layer));
+
+                found = cache.emplace (layers->getArray(), std::move (parsed)).first;
+            }
+
+            for (const auto& layer : found->second)
+                paintLayer (layer);
+        }
+        else
+        {
+            for (const auto& layer : *layers->getArray())
+                paintLayer (parseLayer (layer));
         }
     }
 

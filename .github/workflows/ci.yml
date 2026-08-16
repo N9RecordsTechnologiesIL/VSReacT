@@ -60,6 +60,13 @@ jobs:
             # Gating since 0.0.30: it burned in green across the 0.0.28/0.0.29
             # cycles, and advisory-only meant a macOS break could land silently.
             experimental: false
+          - os: blacksmith-4vcpu-ubuntu-2404
+            # Advisory until it burns in, the same path macOS took. Exists so
+            # the site's Linux claim is tested rather than aspirational.
+            experimental: true
+            # No display on a CI runner; JUCE's GUI init wants one even though
+            # every test paints offscreen.
+            test_wrapper: xvfb-run -a
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +75,14 @@ jobs:
           repository: juce-framework/JUCE
           ref: "8.0.4"
           path: JUCE
+      - name: Linux build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config xvfb libasound2-dev libfreetype-dev libfontconfig1-dev \
+            libx11-dev libxcomposite-dev libxcursor-dev libxext-dev \
+            libxinerama-dev libxrandr-dev libxrender-dev
       - name: Configure
         run: cmake -S ci -B ci/build -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE" -DCMAKE_BUILD_TYPE=Release
       - name: Build
@@ -89,7 +104,8 @@ jobs:
             (cd "$d" && bun run build)
           done
       - name: Test
-        run: ctest --test-dir ci/build -C Release --output-on-failure
+        shell: bash
+        run: ${{ matrix.test_wrapper }} ctest --test-dir ci/build -C Release --output-on-failure
 
   # Host-level validation: build the gain example as a real VST3 and run it
   # through pluginval at max strictness — editor open/close, state

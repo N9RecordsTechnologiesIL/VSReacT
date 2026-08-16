@@ -26,13 +26,8 @@ export function makeDefaultPattern(): boolean[][] {
 
 export const DEFAULT_PATTERN = makeDefaultPattern();
 
-// Tempo range — matches DrumDeck's clampTempo (40..240) and the widened APVTS
-// NormalisableRange in DrumsPlugin.cpp.
-export const TEMPO_MIN = 40;
-export const TEMPO_MAX = 240;
-export const clampTempo = (v: number) => Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, Math.round(v)));
-export const tempoToNorm = (bpm: number) => (clampTempo(bpm) - TEMPO_MIN) / (TEMPO_MAX - TEMPO_MIN);
-export const normToTempo = (n: number) => TEMPO_MIN + n * (TEMPO_MAX - TEMPO_MIN);
+// The tempo range (40..240) is NOT mirrored here: it rides in from the host's
+// parameter metadata (useParameter's min/max + normalizedToNatural).
 
 export const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 

@@ -10,14 +10,14 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { render, native, View, Image, Text, useParameter, useNativeEvent, useParamGestures, registerFont } from "@vsreact/core";
+import { render, native, View, Image, Text, useParameter, useNativeEvent, useParamGestures, registerFont, registerImage, normalizedToNatural, naturalToNormalized } from "@vsreact/core";
 import type { StyleValue } from "@vsreact/core";
 import { assets } from "./_assets";
 import {
   ROWS, STEPS, DEFAULT_PATTERN, STEP_CENTERS,
   PAD_X, PAD_Y, PAD_W, PAD_H, PAD_ART_W, PAD_ART_H, PAD_ART_DX, PAD_ART_DY,
   BAKED_PLAYHEAD_STEP, PH_BOX_W, PH_BOX_TOP, PH_BOX_H,
-  clampTempo, tempoToNorm, normToTempo, clamp01,
+  clamp01,
 } from "./sequencer";
 
 // The DrumDeck typeface, inlined as a data URI by build.ts. Registered at
@@ -26,9 +26,9 @@ registerFont({ family: "DrumDeck Narrow", src: assets["narrow.otf"] });
 
 const S = 0.5;                 // 1672×941 plate → 836×470 editor
 const W = 1672 * S, H = 941 * S;
-const plate = assets["plate.webp"];
-const padActive = assets["pad-active.webp"];
-const padInactive = assets["pad-inactive.webp"];
+const plate = registerImage(assets["plate.webp"]);
+const padActive = registerImage(assets["pad-active.webp"]);
+const padInactive = registerImage(assets["pad-inactive.webp"]);
 const px = (n: number) => n * S;
 
 // DrumDeck palette (from styles.css / DrumDeckArtwork.tsx).
@@ -332,14 +332,16 @@ function Playhead() {
   );
 }
 
-// Tempo −/+ press zones. Each press adjusts the tempo param by ±1 BPM (DrumDeck
-// clamps 40..240). Kept simple: one step per click (DrumDeck's press-and-hold
-// auto-repeat isn't reproduced; a click is the required binding).
+// Tempo −/+ press zones. Each press adjusts the tempo param by ±1 BPM; the
+// 40..240 range comes from the host's own parameter metadata, so the C++
+// NormalisableRange is the single source of truth. Kept simple: one step per
+// click (DrumDeck's press-and-hold auto-repeat isn't reproduced; a click is
+// the required binding).
 function TempoButton({ x, w, dir }: { x: number; w: number; dir: -1 | 1 }) {
   const p = useParameter("tempo");
   const nudge = () => {
-    const bpm = clampTempo(normToTempo(p.value) + dir);
-    p.begin(); p.set(tempoToNorm(bpm)); p.end();
+    const bpm = Math.round(normalizedToNatural(p.value, p)) + dir;
+    p.begin(); p.set(naturalToNormalized(bpm, p)); p.end();
   };
   return (
     <View style={{ position: "absolute", left: px(x), top: px(160), width: px(w), height: px(72), cursor: "pointer" }}
@@ -376,7 +378,7 @@ function App() {
   };
 
   const running = run.value >= 0.5;
-  const bpm = clampTempo(normToTempo(tempo.value));
+  const bpm = Math.round(normalizedToNatural(tempo.value, tempo));
   const lvl = clamp01(level.value);
 
   return (

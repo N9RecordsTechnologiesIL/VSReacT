@@ -87,7 +87,7 @@ export const DOCS: DocPage[] = [
       ['film-strip', 'Film-strip knobs'],
     ],
     keywords:
-      'canvas raster pixels rgba arraybuffer draw filmstrip film strip bakeknobstrip bake sprite sheet webp primitives div view text image svg svgpath path vector icon icons lucide heroicons viewbox input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse eqcurve eq curve biquad filter response peak shelf lowpass highpass notch q ringmeter ring circular native escape hatch',
+      'registerimage intern image handle plate canvas raster pixels rgba arraybuffer draw filmstrip film strip bakeknobstrip bake sprite sheet webp primitives div view text image svg svgpath path vector icon icons lucide heroicons viewbox input knob slider toggle xypad segmented select dropdown meter generic editor tooltip modal dialog bipolar button bars waveform visualizer spectrum numberbox number checkbox radio radiogroup progress progressbar spinner loading indeterminate macropad macro hardware hardwareknob crossfader dry wet pulseorb orb rings output portal thermal novelty pianokeyboard piano keyboard keys midi note glissando stepsequencer step sequencer pattern grid playhead adsr envelope attack decay sustain release adsrenvelope pitchbend pitch bend modwheel mod wheel spring tabs tab pages disclosure collapsible accordion fold gain reduction reverse eqcurve eq curve biquad filter response peak shelf lowpass highpass notch q ringmeter ring circular native escape hatch',
   },
   {
     slug: 'styling',
@@ -155,7 +155,7 @@ export const DOCS: DocPage[] = [
       ['wiring', 'C++ wiring'],
       ['protocol', 'The wire protocol'],
     ],
-    keywords: 'apvts parameter automation gesture begin end paramknob paramslider paramtoggle generic editor useparameterlist param:list host daw useparamgestures headless hit zone drag reset wheel',
+    keywords: 'apvts parameter automation gesture begin end paramknob paramslider paramtoggle generic editor useparameterlist param:list host daw useparamgestures headless hit zone drag reset wheel min max skew interval range metadata normalizedtonatural naturaltonormalized normalisablerange',
   },
   {
     slug: 'native-messaging',

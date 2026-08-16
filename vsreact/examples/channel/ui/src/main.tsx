@@ -23,6 +23,7 @@ import {
   useEditorSize,
   useInterval,
   useParamGestures,
+  registerImage,
 } from "@vsreact/core";
 import type { StyleValue, ParameterHandle } from "@vsreact/core";
 import { assets } from "./_assets";
@@ -45,7 +46,8 @@ const PLATE_W = 1536;
 const PLATE_H = 1024;
 const W = PLATE_W * S;
 const H = PLATE_H * S;
-const plate = assets["plate.webp"];
+// Interned natively: the bridge carries "img:N", never the megabyte URI.
+const plate = registerImage(assets["plate.webp"]);
 const px = (n: number) => n * S;
 
 // Collapsed editor height mirrors the web accordion (stage aspect 1536/795).

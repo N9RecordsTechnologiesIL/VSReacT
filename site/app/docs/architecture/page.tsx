@@ -45,7 +45,19 @@ export default function Page() {
             </td>
             <td>
               <code>["setProps", id, {'{style, hoverStyle, activeStyle, …}'}]</code> —
-              resolved styles, listener flags, text, scrollTop
+              a node&apos;s first full props: resolved styles, listener flags, text,
+              scrollTop
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>patchProps</code>
+            </td>
+            <td>
+              <code>["patchProps", id, {'{changed keys only}'}]</code> — re-renders
+              (since 0.0.28): only the top-level keys that changed; <code>null</code>{' '}
+              removes a key. A style tweak never re-ships an unchanged image src, and
+              an unchanged re-render sends nothing.
             </td>
           </tr>
           <tr>

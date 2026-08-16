@@ -30,7 +30,15 @@ gain.defaultValue // the host's normalized default — double-click reset target
 
 gain.begin();       // start an automation gesture
 gain.set(0.75);     //   ...as many times as you like (drag)
-gain.end();         // end the gesture — hosts record clean automation`}</Code>
+gain.end();         // end the gesture — hosts record clean automation
+
+// Since 0.0.28 the handle also carries the natural range, straight from the
+// C++ NormalisableRange — never mirror an APVTS range in TS again:
+gain.min; gain.max; gain.interval; gain.skew
+
+import { normalizedToNatural, naturalToNormalized } from "@vsreact/core";
+normalizedToNatural(delay.value, delay)  // 0.346 → 347 (ms), honoring skew
+naturalToNormalized(500, delay)          // 500 ms → 0.4995`}</Code>
       <p>
         Always bracket drags with <code>begin()</code>/<code>end()</code> — that is what
         makes host automation recording and touch/latch modes behave. The built-in controls

@@ -67,6 +67,19 @@ export default function Page() {
         fills the image&apos;s alpha with a solid colour — one white icon PNG, any accent.
       </p>
       <Code title="TSX">{`<Image src={logoDataUri} className="w-24 h-24 rounded-full" />`}</Code>
+      <p>
+        For large assets — a full-panel reference-art plate is easily a multi-megabyte
+        data URI — intern the image once with <code>registerImage(src)</code> (since
+        0.0.28). It decodes natively, keeps the bitmap on the C++ side, and returns a
+        short <code>&quot;img:N&quot;</code> handle to use as the <code>src</code>, so the
+        bridge never carries the pixels again. Idempotent per source string, same shape
+        as <code>registerFont</code>, and it degrades to returning the raw src on an
+        older native side.
+      </p>
+      <Code title="TSX">{`import { registerImage } from "@vsreact/core";
+
+const plate = registerImage(assets["plate.webp"]); // once, at module scope
+// then: <Image src={plate} style={{ objectFit: "fill" }} />`}</Code>
 
       <h2 id="svg">&lt;Svg&gt; + &lt;SvgPath&gt; (since 0.0.24)</h2>
       <p>

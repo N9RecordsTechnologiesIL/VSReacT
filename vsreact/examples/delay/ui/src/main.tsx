@@ -5,14 +5,15 @@
 // moves we cover the baked pixels with resampled plate and draw the live part
 // over it. Everything binds to the APVTS through useParameter.
 
-import { render, View, Image, useParameter, useParamGestures, FilmStripKnob } from "@vsreact/core";
+import { render, View, Image, useParameter, useParamGestures, FilmStripKnob, registerImage, normalizedToNatural } from "@vsreact/core";
 import type { StyleValue } from "@vsreact/core";
 import { assets, knobStrip } from "./_assets";
-import { toValue, knobRotationFromNorm, formatDelayTime, type ParamId } from "./parameters";
+import { knobRotationFromNorm, formatDelayTime, type ParamId } from "./parameters";
 
 const S = 0.5; // 1586×992 plate → 793×496 editor
 const W = 1586 * S, H = 992 * S;
-const plate = assets["plate.webp"];
+// Interned natively: the bridge carries "img:N", never the megabyte URI.
+const plate = registerImage(assets["plate.webp"]);
 const px = (n: number) => n * S; // plate-px → editor-px
 
 // ── plate + patch helpers (as in the gain example) ─────────────────────────
@@ -267,7 +268,9 @@ function App() {
   const time = useParameter("time");
   const bypass = useParameter("bypass");
 
-  const ms = toValue("time", time.value);
+  // The 1..1000 ms range comes from the host's own parameter metadata — the
+  // C++ APVTS layout is the single source of truth, nothing mirrored in TS.
+  const ms = normalizedToNatural(time.value, time);
   const engaged = bypass.value >= 0.5;
 
   return (

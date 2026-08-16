@@ -5,14 +5,15 @@
 // knobs; the visible knob IS the photo.
 
 import { useState } from "react";
-import { render, View, Image, Text, useParameter, useParamGestures } from "@vsreact/core";
+import { render, View, Image, Text, useParameter, useParamGestures, registerImage } from "@vsreact/core";
 import type { StyleValue } from "@vsreact/core";
 import { assets } from "./_assets";
 import { formatGain, gainRotation, knobRotation, normToGain } from "./parameters";
 
 const S = 0.5;                 // 1536×1024 plate → 768×512 editor
 const W = 1536 * S, H = 1024 * S;
-const plate = assets["plate.webp"];
+// Interned natively: the bridge carries "img:N", never the megabyte URI.
+const plate = registerImage(assets["plate.webp"]);
 const px = (n: number) => n * S;
 
 // The reference indicator's 5-stop metallic gold. Annotated StyleValue so the

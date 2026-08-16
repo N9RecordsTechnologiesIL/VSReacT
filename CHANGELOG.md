@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.0.28 — unreleased
+
+The foundations round: correct with two instances in one DAW, fast by
+default on the bridge, and one source of truth for parameter ranges.
+
+### Multi-instance correctness (`vsreact` module)
+
+- **All per-editor state now lives per instance.** Registered fonts resolved
+  through a mutable file-static that `RootView::paint` set each frame — two
+  editors in one process got whichever registry painted last, and layout-time
+  text measurement never saw it at all. The painter's glyph-outline and
+  resampled-plate caches were process-global function statics, so instances
+  thrashed each other's eviction. A `RenderResources` (fonts, images, paint
+  caches) is now owned by each ShadowTree and threaded through nodes;
+  `Style::font(registry)` takes the registry explicitly and the global setter
+  is gone. Covered by new `MultiInstanceTests` (two trees: registries and
+  caches provably isolated) and validated with **pluginval** in CI.
+
+### Bridge scalability
+
+- **Key-granular prop updates.** The reconciler used to re-send a node's full
+  props on every re-render (`prepareUpdate` always true, no diffing) — a
+  one-number style change on a reference-art `<Image>` re-shipped its
+  multi-megabyte base64 `src` through `JSON.stringify` in QuickJS and a C++
+  JSON re-parse. Re-renders now emit a `patchProps` op carrying only the
+  top-level keys that changed (`null` removes a key); an unchanged re-render
+  sends nothing. First props still arrive whole via `setProps`, so old
+  bundles keep working. Native scroll state is only touched by payloads that
+  carry it, so a patch can never stomp user scrolling.
+- **`registerImage(src)`** — interns a data URI or file path natively and
+  returns a short `"img:N"` handle to use as an `<Image src>`; the decoded
+  bitmap lives in the instance's registry and the bridge only ever carries
+  the handle. Same shape as `registerFont`; idempotent per source; degrades
+  to the raw src on an older native side. `FilmStripKnob` and all four
+  reference-art examples intern their plates and strips.
+- **Per-node decode memo.** Raw-URI images are memoised on the node keyed by
+  the src string's data address — the old lookup hashed the multi-megabyte
+  URI per image node per *frame*; it now hashes at most once per prop change,
+  and the shared decode cache still dedupes across nodes.
+
+### Parameter metadata
+
+- **`param:list` / `param:get` carry the natural range** (`min`, `max`,
+  `interval`, `skew`, `symmetricSkew`) straight from the C++
+  `NormalisableRange`, and `useParameter` / `useParameterList` expose it.
+  New `normalizedToNatural` / `naturalToNormalized` are TS twins of JUCE's
+  `convertFrom0to1` / `convertTo0to1` (standard skew; symmetric skew degrades
+  to linear). The delay and drums examples deleted their mirrored range
+  tables — the drift that class of mirror causes is exactly what put a wrong
+  reset value in delay once already. Old native sides degrade to the
+  identity range (normalized = natural), the previous behaviour.
+
 ## 0.0.27 — 2026-07-30
 
 The reference-art round: the features the four example plugins needed to

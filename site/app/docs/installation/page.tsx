@@ -74,7 +74,10 @@ target_link_libraries(MyPlugin PRIVATE vsreact)`}</Code>
           </tr>
           <tr>
             <td>JUCE</td>
-            <td>8 — your plugin already has this</td>
+            <td>
+              8 (8.0.4+ on Windows/macOS; 8.0.14+ on Linux — earlier Linux JUCE
+              segfaults shaping text when a custom font is missing a glyph)
+            </td>
           </tr>
           <tr>
             <td>Bun / Node</td>

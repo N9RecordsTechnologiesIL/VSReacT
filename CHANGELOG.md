@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- **Linux is now built and tested in CI** (advisory while it burns in, the
+  same path macOS took). The module, all six example bundles, and the full
+  C++ suite compile and pass on ubuntu-24.04 — after finding a real one:
+  JUCE 8.0.4's Linux glyph fallback segfaults in `SimpleShapedText::shape`
+  when a custom font lacks a glyph for a non-ASCII character (the channel
+  example's "·" readout), taking the process down. Verified fixed by JUCE
+  8.0.14, so Linux support starts there; Windows/macOS keep validating
+  8.0.4 as the supported minimum. The scaffolder's JUCE pin moves to
+  8.0.14, and a failing CI test run now surfaces its failing test names as
+  public annotations (job logs require auth even on a public repo).
+- The FAQ separates validated platform/format claims (VST3 + Standalone,
+  three OSes in CI, pluginval on Windows) from architectural ones (AU,
+  AAX, LV2).
+
 ## 0.0.30 — 2026-08-16
 
 - **The bundle and the module now agree on a protocol version.** They are

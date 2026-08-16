@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.28 — unreleased
+## 0.0.28 — 2026-08-16
 
 The foundations round: correct with two instances in one DAW, fast by
 default on the bridge, and one source of truth for parameter ranges.

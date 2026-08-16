@@ -14,10 +14,12 @@ export default function Page() {
       <Crumbs slug="reference-art" />
       <h1>Reference-art workflow</h1>
       <p className={styles.lead}>
-        Four of the example plugins don&apos;t draw their panels with components — they{' '}
-        <em>are</em> the designer&apos;s render, shipped pixel-exact, with live parts
-        patched on top. This guide distils that workflow: it&apos;s how you turn a Figma
-        export, a web prototype, or a photograph of real hardware into a working plugin UI.
+        Some panels shouldn&apos;t be built from components — they <em>are</em> the
+        designer&apos;s render, shipped pixel-exact, with live parts patched on top.
+        This guide distils that workflow: it&apos;s how you turn a Figma export, a web
+        prototype, or a photograph of real hardware into a working plugin UI. It&apos;s
+        how <a href="https://github.com/N9RecordsTechnologiesIL/StashTrack">StashTrack</a>{' '}
+        ships in production.
       </p>
 
       <h2 id="idea">The idea</h2>
@@ -164,10 +166,11 @@ const ms = normalizedToNatural(time.value, time);  // 1..1000 from the C++ range
         write — because a reference-art panel can look perfect and be completely dead.
       </p>
       <p>
-        For working code, read the four examples in{' '}
-        <code>vsreact/examples/</code> — gain is the smallest complete instance of
-        everything above; delay adds film strips and a seven-segment readout built from{' '}
-        <code>clipPolygon</code> hexes.
+        For working code at scale, read StashTrack — a production VST whose whole UI is
+        this workflow. The bundled examples were also built this way before 0.0.33
+        (their plate versions live in <code>git log</code>; gain&apos;s was the smallest
+        complete instance of everything above) before moving to the stock-component
+        style most plugins start from.
       </p>
 
       <Pager current="reference-art" />

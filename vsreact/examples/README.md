@@ -1,7 +1,10 @@
 # VSReacT examples
 
 Six complete plugins, each a standalone CMake project whose entire UI
-is React. Build any of them with:
+is React, built from the SDK's stock components — the same families the
+site's [component gallery](https://vsreact.n9records.com/components)
+shows, each panel themed to its own hardware character. Build any of
+them with:
 
 ```sh
 cd <example>/ui && bun install && bun run build   # the UI bundle
@@ -19,54 +22,48 @@ off-screen.
 
 | Example | Shows off | Analytics |
 | --- | --- | --- |
-| **gain** | The five-minute plugin, in the reference-art style: a photoreal plate with two live knob indicators on an APVTS. Start here. | — |
-| **delay** | A film-strip knob (a sprite sheet baked at build time, standing in for a per-pixel shader), and a 7-segment LED display built from hexagonal `clipPolygon` segments with layered `boxShadow` glow. Stereo delay with a one-pole LP in the feedback path. | — |
-| **drums** | A 16×3 pad grid over a baked plate: sprite overrides for changed pads, a live playhead box, and readouts in a registered custom OTF stretched to fixed widths with `textLength`. Native 16-step clock (pattern out over `native.call`, playhead back over native events), synthesized kick/snare/hat. | None — core SDK alone. |
-| **channel** | An `EQCurve` over reference art bound to real APVTS bands — the same RBJ biquad math runs in C++ and in the display — plus gain-reduction and output meters redrawn as overlays, and a registered custom OTF. | Light: sessions + screens. |
+| **gain** | The five-minute plugin: two big `instrument`-faced knobs over amber scale arcs, a boxed readout, a power glyph — one themed panel, ~120 lines of TSX. Start here. | — |
+| **delay** | Vintage in components: four `chickenhead` knobs over printed tick scales, a red LED millisecond display built from `textShadow` glow in a recessed `boxShadow` bezel, and a `Toggle` bypass with a status LED. Stereo delay with a one-pole LP in the feedback path. | — |
+| **drums** | The SDK's `StepSequencer` as a 16×3 pad grid (playhead riding native "step" events, pattern out over `native.call`), a `NumberBox` tempo with nudge `Button`s, RUN/STOP transport, and a readout in a registered custom OTF. Native 16-step clock, synthesized kick/snare/hat. | None — core SDK alone. |
+| **channel** | A live `EQCurve` with draggable band handles bound to real APVTS bands — the same RBJ biquad math runs in C++ and in the display — `steel` knobs, gain-reduction and output `Meter`s on a 30Hz native feed, and a `Disclosure` fold. | Light: sessions + screens. |
 | **synth** | The component showcase: `PianoKeyboard` playing through `native.call`, the `ParamADSREnvelope` editor, both wheels, a `RingMeter` riding native events. 8 sine voices in C++. | Full `@vsreact/posthog`: sessions, parameter analytics, screens, error boundary. |
-| **compressor** | Scaffolded with `create-vsreact` and grown — what the starter becomes. A soft-knee transfer curve drawn with `Svg`/`SvgPath` from the live parameter values, using the same gain-computer formula the audio thread runs; three `Meter`s on a 30Hz native feed. Feed-forward peak compressor in C++. | None — core SDK alone. |
+| **compressor** | Scaffolded with `create-vsreact` and grown — what the starter becomes. A soft-knee transfer curve drawn with `Svg`/`SvgPath` from the live parameter values, using the same gain-computer formula the audio thread runs; `steel` knobs; three `Meter`s on a 30Hz native feed. Feed-forward peak compressor in C++. | None — core SDK alone. |
 
-## Two UI styles
+## One component set, six voices
 
-**synth** and **compressor** are built from the SDK's stock components —
-`ParamKnob`, `Meter`, `StepSequencer`, `Disclosure` and friends — laid
-out with flexbox. They are the fastest way to get a working panel and the
-best place to see what ships in the box. compressor is the one to read
-first if you just ran `create-vsreact`: it is that scaffold, grown, with
-nothing in it you couldn't have typed next.
+Every panel is flexbox + stock components; what changes per plugin is the
+theme (`configureTheme`) and the knob `variant` — `instrument` for
+PlainGain's studio look, `chickenhead` for DirtyDelay's vintage,
+`steel` for CleanStrip and the compressor. That's the intended workflow:
+pick faces from the gallery, set a palette, and the whole panel speaks
+with one voice. Recurring habits worth copying:
 
-The other four are **reference-art** UIs: a designer's rendered panel is
-committed as a WebP plate, drawn full-bleed, and the UI redraws only the
-parts that move on top of it. That architecture is worth understanding
-before you copy it:
-
-- **The plate is the layout.** Every coordinate lives in plate space
-  (gain's 1536×1024, drums' 1672×941) and goes through one `px()` helper
-  that scales it by a single factor `S`, so the panel is
-  resolution-independent and the numbers in the source match what you
-  measure in an image editor.
-- **Overlay, don't rebuild.** A knob is the baked knob plus a rotated
-  indicator; a meter is the baked scale plus a clipped bar. Only the
-  moving pixels are React nodes.
-- **Patch over what you can't reuse.** Where the art bakes in a *state*
-  (drums' active pads, delay's "347" on the LED), a `Cover` view samples
-  clean plate pixels over it, or — for the two cases where covering left
-  seams — `js/src/tools/prepExampleAssets.ts` erased it from the asset
-  once, at prep time.
-- **Hit zones are separate from art.** Transparent views sized in plate
-  space take the drags, so pointer targets can be larger and squarer than
-  what's drawn. Each binds through the SDK's headless `useParamGestures`,
-  which supplies the drag/reset/wheel handlers inside the automation
-  begin/end gesture hosts need.
 - **Math lives in its own module.** `parameters.ts`, `sequencer.ts`,
-  `cleanstrip-model.ts` are pure and portable — the same functions run in
-  the web prototype and in the plugin.
+  `compressor.ts` are pure and portable — unit-testable without a plugin
+  around them.
+- **Native units come from the host.** `normalizedToNatural(p.value, p)`
+  derives dB/Hz/ms from the APVTS range riding on the handle, so nothing
+  in TS restates a min, max or skew.
+- **Meters live in leaves.** The 30Hz native feed subscribes in a leaf
+  component (memoized where it fans out), so a meter tick never
+  re-renders knobs or displays.
+- **Custom fonts are assets.** drums and channel register an OTF with
+  `registerFont` and set readouts in it — inlined as a data URI at build
+  time, since a plugin has no file server to fetch from (each
+  `ui/build.ts` calls the shared `js/src/tools/buildExampleUi.ts`).
 
-Assets are inlined as base64 `data:` URIs at build time (a plugin has no
-file server to fetch from): each `ui/build.ts` calls the shared
-`js/src/tools/buildExampleUi.ts`, which generates an ignored
-`src/_assets.ts` and bundles with Bun.
+## Prefer pixel-exact designer art instead?
+
+That workflow — ship the designer's render as a full-panel plate, lay
+invisible hit zones over it, cover the moving parts — is documented at
+[/docs/reference-art](https://vsreact.n9records.com/docs/reference-art)
+and is how [StashTrack](https://github.com/N9RecordsTechnologiesIL/StashTrack)
+ships in production. These examples were built that way before 0.0.33
+(`git log` has the plate versions) and moved to components so the thing
+most people build first has a copyable starting point.
 
 `tests/ExampleBundleTests.cpp` evaluates the five non-synth bundles
-headlessly — eval, layout, paint into an offscreen image — so a bundle
-that launches but renders nothing fails CI rather than a screenshot.
+headlessly — eval, layout, paint into an offscreen image — and
+`ExampleInteractionTests.cpp` drags each panel's knobs at measured
+coordinates and asserts the APVTS write, so a UI that renders but went
+dead fails CI rather than a screenshot.

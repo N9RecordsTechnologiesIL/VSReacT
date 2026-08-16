@@ -131,8 +131,8 @@ bridge.attach (*root);
 addAndMakeVisible (*root);
 ```
 
-The fastest full tour is the bundled example — a working gain/pan plugin
-whose UI is the fourteen lines above:
+The fastest full tour is the bundled gain example — a working gain/pan
+plugin whose themed panel is ~120 lines of the same TSX:
 
 ```bash
 git clone https://github.com/N9RecordsTechnologiesIL/VSReacT.git && cd VSReacT
@@ -159,10 +159,9 @@ checkout nests inside this repository as `StashTrack/` (its own git repo).
   Yoga adapter, painter, hit-testing, TextInput host, ParameterBridge, RootView.
 - `vsreact/js/` — the `@vsreact/core` package: reconciler host config, primitives,
   tailwind resolver, `useParameter`, `Knob`/`Slider`, `useTween`, runtime shims.
-- `vsreact/examples/` — six example plugins: `gain`, `delay`, `drums` and
-  `channel` render designer-rendered reference art natively; `synth` and
-  `compressor` are built from stock components. See
-  `vsreact/examples/README.md`.
+- `vsreact/examples/` — six example plugins, all built from the SDK's stock
+  components and themed to distinct hardware voices (the gallery's knob
+  variants live here in the wild). See `vsreact/examples/README.md`.
 - `vsreact/third_party/` — vendored quickjs-ng (v0.15.1) and Yoga (v2.0.1).
 - `vsreact/tests/` + `vsreact/js/*.test.*` — C++ (CTest) and TS (`bun test`) suites.
 - `site/` — the framework's website (Next.js).

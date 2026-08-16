@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- **All six example plugins are now built from stock components**, each
+  themed to the hardware character its plate had: PlainGain's amber-scale
+  `instrument` knobs and boxed readout, DirtyDelay's `chickenhead` knobs
+  and glowing LED millisecond display, DrumDeck's `StepSequencer` grid
+  with teal transport and orange pads, CleanStrip's live `EQCurve` with
+  draggable band handles, `steel` knobs and LED meters. Same palettes,
+  same window sizes, same native protocols (drums' pattern/cell calls and
+  step playhead, channel's 30Hz meters) — but every panel is now code you
+  can copy instead of a photograph you can't. Bundle eval dropped up to
+  18x (gain 825→45ms) with the multi-megabyte plates gone. The
+  pixel-exact designer-art workflow remains documented at
+  /docs/reference-art and remains how StashTrack ships; the plate
+  versions of these panels live in git history.
+- The interaction tests drive the new panels at freshly measured
+  coordinates — every knob drag still writes its parameter with the
+  begin/set/end bracket.
+
 ## 0.0.32 — 2026-08-17
 
 - **The component gallery's knob faces are now real.** `<Knob>` (and

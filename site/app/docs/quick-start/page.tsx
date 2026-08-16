@@ -6,7 +6,7 @@ import { Code, Crumbs, Pager } from '../ui'
 export const metadata: Metadata = {
   title: 'Quick start',
   description:
-    'Build and run the gain example: a working gain/pan VST3 whose entire UI is fourteen lines of TSX.',
+    'Build and run the gain example: a working gain/pan VST3 whose whole themed panel is ~120 lines of TSX.',
 }
 
 export default function Page() {
@@ -27,8 +27,8 @@ cmake --build build --target MyPlugin_Standalone --config Release`}</Code>
       <p>
         Add <code>--posthog</code> for analytics wiring, <code>--yes</code> to skip the
         prompts. Prefer reading a finished project instead? The tour below walks{' '}
-        <code>vsreact/examples/gain</code> — a working gain/pan VST3 whose entire UI is
-        fourteen lines of TSX, the exact tree running in the demo on the landing page.
+        <code>vsreact/examples/gain</code> — a working gain/pan VST3 whose whole themed
+        panel (amber scale knobs, boxed readout, power glyph) is ~120 lines of TSX.
       </p>
 
       <h2 id="ui">1. Build the UI bundle</h2>

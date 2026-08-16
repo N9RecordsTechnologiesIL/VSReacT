@@ -1,119 +1,124 @@
-// PlainGain, rendered natively. A full-plate photo of the hardware with the
-// moving parts patched on top: the baked gold indicators sit at their default
-// angle, so when a knob turns we cover the baked mark with resampled plate
-// pixels and draw a live indicator over it. Invisible hit zones sit over the
-// knobs; the visible knob IS the photo.
+// PlainGain, rebuilt from the SDK's stock components in the plate's own
+// style: charcoal panel, amber scale arcs, machined-black caps, the boxed
+// amber readout. The photograph is gone — every pixel here is a themed
+// component — but the palette, layout and window are the hardware's.
 
 import { useState } from "react";
-import { render, View, Image, Text, useParameter, useParamGestures, registerImage } from "@vsreact/core";
-import type { StyleValue } from "@vsreact/core";
-import { assets } from "./_assets";
-import { formatGain, gainRotation, knobRotation, normToGain } from "./parameters";
+import { render, configureTheme, Knob, Text, View, useParameter } from "@vsreact/core";
+import { formatGain, normToGain } from "./parameters";
 
-const S = 0.5;                 // 1536×1024 plate → 768×512 editor
-const W = 1536 * S, H = 1024 * S;
-// Interned natively: the bridge carries "img:N", never the megabyte URI.
-const plate = registerImage(assets["plate.webp"]);
-const px = (n: number) => n * S;
+const AMBER = "#E89A3C";
 
-// The reference indicator's 5-stop metallic gold. Annotated StyleValue so the
-// object-array satisfies the style bag's index signature.
-const GOLD_STOPS: StyleValue = [
-  { offset: 0, color: "#754a1e" }, { offset: 0.28, color: "#e9a348" },
-  { offset: 0.52, color: "#ffd17b" }, { offset: 0.78, color: "#ba6f29" },
-  { offset: 1, color: "#563312" },
-];
+configureTheme({
+  colors: {
+    background: "#0A0A09",
+    panel: "#1D1C1A",
+    head: "#232220",
+    well: "#111110",
+    line: "#33312D",
+    accent: AMBER,
+    text: "#EDE6DA",
+    muted: "#8F887C",
+    faint: "#5C574E",
+  },
+});
 
-// Full plate, and a resampled patch of it clipped to `rect`, shifted by
-// (ox,oy) plate-px so clean panel pixels cover a baked mark underneath.
-function Plate() {
-  return <Image src={plate} style={{ position: "absolute", left: 0, top: 0, width: W, height: H, objectFit: "fill" }} />;
-}
-function Cover({ x, y, w, h, ox = 0, oy = 0 }: { x: number; y: number; w: number; h: number; ox?: number; oy?: number }) {
+/** A big PlainGain knob: instrument face over an amber scale, endpoint
+    legends at the stops, letterspaced label above. */
+function GainKnob({
+  id,
+  label,
+  left,
+  right,
+}: {
+  id: string;
+  label: string;
+  left: string;
+  right: string;
+}) {
+  const p = useParameter(id);
+
   return (
-    <View style={{ position: "absolute", left: px(x), top: px(y), width: px(w), height: px(h), overflow: "hidden" }}>
-      <Image src={plate} style={{ position: "absolute", left: px(-x + ox), top: px(-y + oy), width: W, height: H, objectFit: "fill" }} />
+    <View className="items-center gap-3">
+      <Text className="text-text text-[17] font-bold" style={{ letterSpacing: 4 }}>
+        {label}
+      </Text>
+      <View className="relative">
+        {/* The hardware prints a static amber scale and shows the value with
+            the pointer alone — track and value in near-matching amber gets
+            that look while the swept half stays a shade brighter. */}
+        <Knob
+          variant="instrument"
+          value={p.value}
+          size={168}
+          defaultValue={p.defaultValue}
+          trackColor="#B5762A"
+          valueColor={AMBER}
+          onChange={p.set}
+          onBegin={p.begin}
+          onEnd={p.end}
+        />
+        {/* endpoint legends sit just outside the arc stops */}
+        <Text className="absolute text-muted text-[12]" style={{ left: -18, bottom: 14 }}>
+          {left}
+        </Text>
+        <Text className="absolute text-muted text-[12]" style={{ right: -18, bottom: 14 }}>
+          {right}
+        </Text>
+      </View>
     </View>
   );
 }
 
-// The gold pointer: a thin bar with the reference's 5-stop metallic gradient,
-// rotated about the knob centre (expressed as a percent of the bar's frame).
-function Indicator({ x, y, w, h, cx, cy, angle }: { x: number; y: number; w: number; h: number; cx: number; cy: number; angle: number }) {
+function PowerGlyph({ on, onClick }: { on: boolean; onClick: () => void }) {
+  const color = on ? AMBER : "#6B6B6B";
   return (
-    <View
-      style={{
-        position: "absolute", left: px(x), top: px(y), width: px(w), height: px(h),
-        borderRadius: px(2),
-        gradientType: "linear", gradientAngle: 90,
-        gradientStops: GOLD_STOPS,
-        shadowColor: "#000000e6", shadowRadius: px(2), shadowOffsetX: px(3), shadowOffsetY: px(4),
-        rotate: angle,
-        transformOriginX: `${((cx - x) / w) * 100}%`,
-        transformOriginY: `${((cy - y) / h) * 100}%`,
-      }}
-    />
-  );
-}
-
-// Transparent hit target over a knob. Vertical drag, double-click reset and
-// wheel nudge — with the automation begin/end bracket — come from the SDK's
-// headless useParamGestures.
-function KnobHit({ id, cx, cy, size }: { id: string; cx: number; cy: number; size: number }) {
-  const p = useParameter(id);
-  return (
-    <View
-      style={{ position: "absolute", left: px(cx - size / 2), top: px(cy - size / 2), width: px(size), height: px(size), cursor: "ns-resize" }}
-      {...useParamGestures(p)}
-    />
+    <View className="w-[26] h-[26] items-center justify-center cursor-pointer" onClick={onClick}>
+      <View className="w-[16] h-[16] rounded-full border-2" style={{ borderColor: color }} />
+      <View className="absolute w-[3] h-[8]" style={{ top: 2, backgroundColor: color }} />
+    </View>
   );
 }
 
 function App() {
   const gain = useParameter("gain");
-  const pan = useParameter("pan");
   const [powered, setPowered] = useState(true);
-
   const gainDb = normToGain(gain.value);
-  const panVal = pan.value * 2 - 1; // 0..1 → -1..1
 
   return (
-    <View style={{ width: "100%", height: "100%", backgroundColor: "#050505", alignItems: "center", justifyContent: "center" }}>
-      <View style={{ width: W, height: H, position: "relative" }}>
-        <Plate />
+    <View className="w-full h-full bg-background items-center justify-center">
+      <View
+        className="rounded-2xl border border-line bg-panel overflow-hidden"
+        style={{
+          width: 648,
+          height: 400,
+          boxShadow: [{ color: "#000000B3", radius: 40, offsetY: 16 }],
+        }}
+      >
+        {/* header strip */}
+        <View className="flex-row items-center justify-between px-6 h-[56] bg-head border-b border-line">
+          <Text className="text-text text-[22] font-bold">PlainGain</Text>
+          <View className="flex-row items-center gap-4">
+            <Text className="text-muted text-[11] font-bold" style={{ letterSpacing: 3 }}>
+              GAIN UTILITY
+            </Text>
+            <PowerGlyph on={powered} onClick={() => setPowered((v) => !v)} />
+          </View>
+        </View>
 
-        {/* GAIN: cover the baked pointer, draw the live one, resample readout */}
-        <Cover x={465} y={388} w={20} h={73} ox={25} />
-        <Indicator x={469} y={393} w={10} h={63} cx={474} cy={543} angle={gainRotation(gainDb)} />
+        <View className="flex-1 items-center justify-center gap-2" style={{ opacity: powered ? 1 : 0.35 }}>
+          <View className="flex-row" style={{ columnGap: 120 }}>
+            <GainKnob id="gain" label="GAIN" left="-60" right="+6" />
+            <GainKnob id="pan" label="PAN" left="L" right="R" />
+          </View>
 
-        {/* PAN */}
-        <Cover x={1046} y={395} w={20} h={67} ox={25} />
-        <Indicator x={1050} y={400} w={10} h={58} cx={1055} cy={543} angle={knobRotation(panVal, -1, 1)} />
-
-        {/* Live readout when moved (baked "0.0 dB" shows otherwise) */}
-        {Math.abs(gainDb) >= 0.05 && (
-          <>
-            <Cover x={642} y={762} w={253} h={74} oy={-96} />
-            <Text style={{ position: "absolute", left: px(642), top: px(768), width: px(253), height: px(60), fontSize: px(56), fontWeight: "bold", color: "#e9a348", textAlign: "center" }}>
+          {/* the boxed amber readout */}
+          <View className="rounded-[4] bg-well border border-line px-5 py-1 mt-3">
+            <Text className="text-[22] font-bold" style={{ color: AMBER }}>
               {formatGain(gainDb)}
             </Text>
-          </>
-        )}
-
-        {/* Power glyph: gold when on (baked); dimmed patch + grey glyph when off */}
-        {!powered && (
-          <>
-            <Cover x={1334} y={146} w={46} h={52} ox={-55} />
-            <View style={{ position: "absolute", left: px(1345), top: px(150), width: px(24), height: px(28), borderRadius: px(12), borderWidth: px(3), borderColor: "#6b6b6b" }} />
-          </>
-        )}
-
-        <KnobHit id="gain" cx={474} cy={543} size={300} />
-        <KnobHit id="pan" cx={1055} cy={543} size={300} />
-        <View
-          style={{ position: "absolute", left: px(1330), top: px(140), width: px(60), height: px(60), cursor: "pointer" }}
-          onClick={() => setPowered((v) => !v)}
-        />
+          </View>
+        </View>
       </View>
     </View>
   );

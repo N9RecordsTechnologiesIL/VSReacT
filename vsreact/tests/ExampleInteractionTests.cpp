@@ -35,13 +35,15 @@ public:
     {
         const juce::File examples { juce::String (VSREACT_EXAMPLES_DIR) };
 
-        // Points are the control centres in editor space (plate coords ÷ 2).
+        // Points are the control centres in editor space, measured from
+        // captures of the component-built UIs (pixel-scanned by each knob's
+        // signature colour, then offset by the window chrome).
         const Case cases[] = {
-            { "gain",    768, 512, "GAIN knob",  237.0f, 271.0f, "gain",  -80.0f },
-            { "gain",    768, 512, "PAN knob",   527.0f, 271.0f, "pan",   -80.0f },
-            { "drums",   836, 470, "LEVEL knob", 683.0f, 100.0f, "level", -70.0f },
-            { "channel", 768, 512, "COMP knob",  535.0f, 220.0f, "comp",  -60.0f },
-            { "delay",   793, 496, "TIME knob",  131.0f, 283.0f, "time",  -60.0f },
+            { "gain",    768, 512, "GAIN knob",  240.0f, 255.0f, "gain",  -80.0f },
+            { "gain",    768, 512, "PAN knob",   528.0f, 255.0f, "pan",   -80.0f },
+            { "drums",   836, 470, "LEVEL knob", 621.0f, 161.0f, "level", -70.0f },
+            { "channel", 768, 512, "COMP knob",  528.0f, 137.0f, "comp",  -60.0f },
+            { "delay",   793, 496, "TIME knob",  126.0f, 313.0f, "time",  -60.0f },
             // compressor is stock components, so these are flexbox positions
             // rather than plate coords: the knob row is justify-between, first
             // centre at x=60 and last at x=657, all at y=337.

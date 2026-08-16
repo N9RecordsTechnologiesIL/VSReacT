@@ -110,8 +110,11 @@ jobs:
         working-directory: vsreact/js-posthog
       - run: bun run build
         working-directory: vsreact/examples/gain/ui
+      # No explicit generator: windows-latest moved past VS 2022 (naming the
+      # old generator fails outright); CMake's default picks whatever Visual
+      # Studio the runner actually has.
       - name: Configure
-        run: cmake -S vsreact/examples/gain -B build-gain -G "Visual Studio 17 2022" -A x64 -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE"
+        run: cmake -S vsreact/examples/gain -B build-gain -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE"
       - name: Build VST3
         run: cmake --build build-gain --target GainExample_VST3 --config Release --parallel 4
       - name: Fetch pluginval

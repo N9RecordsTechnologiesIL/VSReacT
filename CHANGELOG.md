@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.29 — unreleased
+## 0.0.29 — 2026-08-16
 
 The painter round: with the bridge fast by default (0.0.28), the painter
 was the next bottleneck — measured, fixed, and now gated by a benchmark.

@@ -87,7 +87,11 @@ jobs:
   # ShadowTree; this is the check that the plugin behaves as a plugin.
   pluginval:
     name: pluginval (VST3, Windows)
-    runs-on: blacksmith-8vcpu-windows-2025
+    # GitHub-hosted, not blacksmith: the editor tests create real HWNDs, and
+    # on the blacksmith image pluginval segfaults the moment the Editor test
+    # starts (no interactive window station). Passes on windows-latest — the
+    # same runner JUCE's own CI validates on — and locally.
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -118,5 +122,5 @@ jobs:
       - name: Validate
         shell: bash
         run: |
-          ./pluginval.exe --strictness-level 5 --validate \
+          ./pluginval.exe --strictness-level 5 --verbose --timeout-ms 120000 --validate \
             "build-gain/GainExample_artefacts/Release/VST3/VSReacT Gain.vst3"

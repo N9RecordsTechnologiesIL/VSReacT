@@ -1,7 +1,8 @@
 // Version handshake between this bundle and the native module it runs inside.
 // The module publishes `__vsreact_protocol` (see the module's Protocol.h)
-// before evaluating the bundle; a module older than the handshake publishes
-// nothing and reads as level 1.
+// before evaluating the bundle; a module older than the handshake (anything
+// before 0.0.30 — including 0.0.28/0.0.29, which do implement the level-2
+// ops but don't say so) publishes nothing and reads as level 1.
 //
 // Why this exists: ShadowTree::applyOp ignores an op it doesn't recognise,
 // and its assertion compiles out in Release. So a UI built against a newer

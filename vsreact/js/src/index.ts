@@ -4,7 +4,7 @@ import "./runtime";
 import "./bridge";
 
 /** The SDK version — stamp it on support dumps and analytics. */
-export const VERSION = "0.0.29";
+export const VERSION = "0.0.30";
 
 export { PROTOCOL_VERSION, nativeProtocol } from "./protocol";
 

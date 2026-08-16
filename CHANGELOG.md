@@ -1,7 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.0.30 — 2026-08-16
 
+- **The bundle and the module now agree on a protocol version.** They are
+  separately versioned halves of one program — `@vsreact/core` from npm,
+  the module from a CMake `GIT_TAG` — and bumping one without the other
+  used to fail invisibly: `applyOp` ignores an op it doesn't know, its
+  assertion compiles out in Release, so a bundle newer than its module
+  painted one frame and then froze with nothing in the log. The module
+  now publishes `__vsreact_protocol` before evaluating the bundle;
+  `patchProps` falls back to a full `setProps` against any module that
+  doesn't report level 2 (everything before this release) and warns once,
+  naming both versions and the fix. Exported as `PROTOCOL_VERSION` and
+  `nativeProtocol()` for support dumps.
 - **A sixth example: `compressor`.** A feed-forward peak compressor whose
   panel is entirely stock components — no reference art — so it's the one
   to read if you want a presentable plugin without a designer. It was
@@ -27,17 +38,11 @@
   examples the same VST3 UID. It's `Vsk1` now.
 - `buildExampleUi` no longer requires a `src/assets/` directory — an
   example with no art is a legitimate example.
-
-- **The bundle and the module now agree on a protocol version.** They are
-  separately versioned halves of one program — `@vsreact/core` from npm,
-  the module from a CMake `GIT_TAG` — and bumping one without the other
-  used to fail invisibly: `applyOp` ignores an op it doesn't know, its
-  assertion compiles out in Release, so a bundle newer than its module
-  painted one frame and then froze with nothing in the log. The module
-  now publishes `__vsreact_protocol` before evaluating the bundle;
-  `patchProps` falls back to a full `setProps` against a pre-0.0.28
-  module and warns once, naming both versions and the fix. Exported as
-  `PROTOCOL_VERSION` and `nativeProtocol()` for support dumps.
+- **`create-vsreact` scaffolds against current versions again** (it pinned
+  0.0.26, three releases behind), sets an explicit `BUNDLE_ID` so a company
+  name with spaces no longer produces an invalid id, and opens at a size
+  that fits its own footer. A test now fails CI when the pins drift from
+  this repo's packages. macOS CI is gating from this release.
 - **The paint benchmark no longer fails a Debug build.** Its ceiling was
   a Release number, so `cmake --build` without `-DCMAKE_BUILD_TYPE=Release`
   reported a phantom regression (77ms against a 60ms budget); Debug now

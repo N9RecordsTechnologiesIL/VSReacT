@@ -57,9 +57,9 @@ jobs:
           - os: blacksmith-8vcpu-windows-2025
             experimental: false
           - os: blacksmith-6vcpu-macos-latest
-            # macOS is compile+test coverage we don't develop on — informative,
-            # not gating, until it has burned in.
-            experimental: true
+            # Gating since 0.0.30: it burned in green across the 0.0.28/0.0.29
+            # cycles, and advisory-only meant a macOS break could land silently.
+            experimental: false
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - uses: actions/checkout@v4

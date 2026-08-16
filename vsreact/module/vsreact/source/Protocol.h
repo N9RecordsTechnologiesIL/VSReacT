@@ -18,11 +18,16 @@ namespace vsreact
 
     History:
       1  create, setProps, appendChild, insertBefore, removeChild, setText,
-         clearContainer. Modules up to 0.0.27 publish no global at all, so JS
-         reads an undefined `__vsreact_protocol` as level 1.
+         clearContainer.
       2  patchProps — key-granular prop updates, where a JSON null removes a
          key. Image interning: an <Image src> may be an "img:N" handle handed
          out by __vsreact_registerImage.
+
+    Publication only started at 0.0.30, so every earlier module — including
+    0.0.28/0.0.29, which already implement the level-2 ops — publishes no
+    global and is read by JS as level 1. That under-reports those two
+    versions on purpose: a newer bundle can't tell them from 0.0.27, and
+    setProps is accepted by all of them. Safe, merely chattier.
 
     Bump this whenever a new op — or a new kind of value an existing prop may
     carry — would be misread by the previous level, and gate the emitting side

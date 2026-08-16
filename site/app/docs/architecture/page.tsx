@@ -116,8 +116,11 @@ export default function Page() {
               <code>1</code>
             </td>
             <td>
-              The op table above minus <code>patchProps</code>. Modules up to 0.0.27
-              publish no level at all and are read as 1.
+              The op table above minus <code>patchProps</code>. Modules before 0.0.30
+              publish no level at all and are read as 1 — including 0.0.28/0.0.29, which
+              implement the level-2 ops but predate the handshake. Under-reporting them is
+              deliberate: a newer bundle can&apos;t tell them from 0.0.27, and{' '}
+              <code>setProps</code> works on all of them.
             </td>
           </tr>
           <tr>
@@ -126,7 +129,7 @@ export default function Page() {
             </td>
             <td>
               <code>patchProps</code>; interned <code>&quot;img:N&quot;</code> handles as an{' '}
-              <code>&lt;Image src&gt;</code>. Modules from 0.0.28.
+              <code>&lt;Image src&gt;</code>. Reported by modules from 0.0.30.
             </td>
           </tr>
         </tbody>

@@ -19,8 +19,8 @@ const TEMPLATES = path.join(path.dirname(fileURLToPath(import.meta.url)), "templ
 // must move together: the module speaks a protocol level the bundle checks at
 // startup. `^0.0.x` is an exact pin under semver, which is what we want here.
 // scaffold.test.ts fails if these drift from the packages in this repo.
-const VSREACT_TAG = "v0.0.29";
-const CORE_RANGE = "^0.0.29";
+const VSREACT_TAG = "v0.0.30";
+const CORE_RANGE = "^0.0.30";
 const POSTHOG_RANGE = "^0.0.6";
 
 const HELP = `create-vsreact — a native JUCE VST whose UI is React.

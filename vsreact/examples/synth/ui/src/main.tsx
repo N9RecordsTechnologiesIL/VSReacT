@@ -94,7 +94,9 @@ function App() {
             onNoteOn={(note) => native.call("synth:noteOn", { note })}
             onNoteOff={(note) => native.call("synth:noteOff", { note })}
           />
-          <ParamKnob paramId="level" size={56} />
+          {/* The landing-page demo knob — arc + pointer cap — so the site's
+              "same tree in your DAW" claim is literally true of this panel. */}
+          <ParamKnob paramId="level" size={56} variant="instrument" />
         </View>
 
         <Text className="text-faint text-[9] tracking-widest">

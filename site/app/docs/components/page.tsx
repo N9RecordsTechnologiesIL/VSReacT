@@ -184,7 +184,11 @@ const plate = registerImage(assets["plate.webp"]); // once, at module scope
             <td>
               Natively painted arc, vertical drag, wheel nudge, double-click reset to{' '}
               <code>defaultValue</code>; <code>bipolar</code> sweeps from 12 o’clock for
-              pan-style params.
+              pan-style params. <code>variant</code> picks a face from the{' '}
+              <a href="/components#knobs">component gallery</a>: <code>arc</code>{' '}
+              (default), <code>instrument</code>, <code>gauge</code>, <code>metal</code>,{' '}
+              <code>steel</code>, <code>glass</code>, <code>chickenhead</code>,{' '}
+              <code>neon</code>, <code>blueprint</code> — same gestures on every face.
             </td>
           </tr>
           <tr>

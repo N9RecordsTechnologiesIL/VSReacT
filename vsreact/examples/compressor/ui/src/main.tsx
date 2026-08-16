@@ -258,7 +258,9 @@ function App() {
 
       <View className="flex-row justify-between rounded-xl border border-line bg-panel px-4 py-3">
         {KNOBS.map((knob) => (
-          <ParamKnob key={knob.id} paramId={knob.id} label={knob.label} size={62} />
+          // The spun-stainless face from the site's component gallery — the
+          // value readout moves under the face on physical variants.
+          <ParamKnob key={knob.id} paramId={knob.id} label={knob.label} size={62} variant="steel" />
         ))}
       </View>
     </View>

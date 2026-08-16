@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "./primitives";
 import { accentColor as themeAccent } from "./theme";
+import { KnobFace, knobTextPlacement, type KnobVariant } from "./knobskins";
 import type { DragEventPayload, KeyEventPayload, WheelEventPayload } from "./primitives";
 import { useParameter, useParameterList } from "./parameters";
 import type { ParameterHandle } from "./parameters";
@@ -102,6 +103,11 @@ export interface KnobProps {
   bipolar?: boolean;
   /** Value change per wheel notch fraction. 0 disables. Default 0.4. */
   wheelSensitivity?: number;
+  /** Which face to paint — the skins from the site's component gallery.
+      "arc" (the default) is the classic flat arc with the value inside;
+      the physical faces put the value under the face. Gestures, reset,
+      wheel and keyboard behave identically on every variant. */
+  variant?: KnobVariant;
   trackColor?: string;
   valueColor?: string;
   onChange: (value: number) => void;
@@ -118,6 +124,7 @@ export function Knob({
   defaultValue,
   bipolar,
   wheelSensitivity = 0.4,
+  variant = "arc",
   trackColor = "#2A2F27",
   valueColor = themeAccent(),
   onChange,
@@ -128,12 +135,27 @@ export function Knob({
   const clamped = clamp01(value);
   const angle = ARC_START + (ARC_END - ARC_START) * clamped;
   const center = (ARC_START + ARC_END) / 2;
+  const textInside = knobTextPlacement(variant) === "inside";
 
   const nudge = (target: number) => {
     onBegin?.();
     onChange(clamp01(target));
     onEnd?.();
   };
+
+  // "arc" keeps its native arc keys; every other face is a KnobFace tree.
+  const arcStyle: Record<string, number | string> =
+    variant === "arc"
+      ? {
+          arcTrackColor: trackColor,
+          arcColor: valueColor,
+          arcStart: ARC_START,
+          arcEnd: ARC_END,
+          arcValueStart: bipolar ? Math.min(center, angle) : ARC_START,
+          arcValueEnd: bipolar ? Math.max(center, angle) : angle,
+          arcThickness: Math.max(3, size * 0.08),
+        }
+      : {};
 
   return (
     <View className="items-center gap-2">
@@ -142,13 +164,7 @@ export function Knob({
         style={{
           width: size,
           height: size,
-          arcTrackColor: trackColor,
-          arcColor: valueColor,
-          arcStart: ARC_START,
-          arcEnd: ARC_END,
-          arcValueStart: bipolar ? Math.min(center, angle) : ARC_START,
-          arcValueEnd: bipolar ? Math.max(center, angle) : angle,
-          arcThickness: Math.max(3, size * 0.08),
+          ...arcStyle,
         }}
         onDragStart={
           disabled
@@ -177,15 +193,38 @@ export function Knob({
               }
         }
       >
-        {text !== undefined ? (
+        {variant !== "arc" ? (
+          <KnobFace
+            variant={variant}
+            value={clamped}
+            size={size}
+            trackColor={trackColor}
+            valueColor={valueColor}
+          />
+        ) : null}
+        {text !== undefined && textInside ? (
           <Text
-            className="text-text font-bold text-center"
-            style={{ fontSize: Math.max(10, size * 0.16) }}
+            className={`font-bold text-center ${variant === "neon" ? "" : "text-text"}`}
+            style={{
+              fontSize: Math.max(10, size * (variant === "gauge" ? 0.2 : 0.16)),
+              // Sit clear of the blueprint dial's hub and pointer.
+              ...(variant === "blueprint"
+                ? { position: "absolute", left: 0, right: 0, top: "57%", fontSize: Math.max(9, size * 0.13) }
+                : {}),
+              ...(variant === "neon"
+                ? { color: valueColor, textShadowColor: valueColor + "AA", textShadowRadius: 10 }
+                : {}),
+            }}
           >
             {text}
           </Text>
         ) : null}
       </View>
+      {text !== undefined && ! textInside ? (
+        <Text className="text-text font-bold text-center" style={{ fontSize: Math.max(10, size * 0.15) }}>
+          {text}
+        </Text>
+      ) : null}
       {label !== undefined ? (
         <Text className="text-faint text-[10] font-bold tracking-widest">{label}</Text>
       ) : null}
@@ -199,6 +238,8 @@ export interface ParamKnobProps {
   size?: number;
   bipolar?: boolean;
   wheelSensitivity?: number;
+  /** Face skin — see KnobProps.variant. */
+  variant?: KnobVariant;
   trackColor?: string;
   valueColor?: string;
 }

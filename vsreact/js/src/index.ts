@@ -49,6 +49,7 @@ export { registerFont, type FontSpec } from "./fonts";
 export { registerImage } from "./images";
 export { Canvas, type CanvasProps } from "./canvas";
 export { FilmStripKnob, frameForRotation } from "./filmstrip";
+export type { KnobVariant } from "./knobskins";
 export type { FilmStripKnobProps, KnobStrip } from "./filmstrip";
 export { cx } from "./cx";
 export type { ClassValue } from "./cx";

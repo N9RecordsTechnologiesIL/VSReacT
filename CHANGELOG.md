@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- **The component gallery's knob faces are now real.** `<Knob>` (and
+  `<ParamKnob>`) take a `variant`: `instrument` (the landing-demo arc +
+  pointer cap), `gauge`, `metal` (knurled, engraved pointer, centre
+  screw), `steel` (spun stainless on a tick ring), `glass` (glossy dome,
+  wedge pointer), `chickenhead`, `neon` (LED segment ring with a glowing
+  readout) and `blueprint` — the same skins the site's /components page
+  draws in CSS, here painted natively from the painter's own vocabulary
+  (tiled conic gradients for knurling and turned metal, boxShadow stacks
+  for depth, clipPolygon for pointer noses, Svg for tick rings). Faces
+  are pure decoration: gestures, reset, wheel and keyboard are identical
+  on every variant, and the default `arc` face is byte-for-byte what it
+  always painted. The compressor example wears `steel`; the synth's
+  level knob wears `instrument`, which makes the landing page's "the
+  same tree in your DAW" literally true of that panel.
+
 ## 0.0.31 — 2026-08-16
 
 - **AU is now a validated format.** The macOS CI job builds the gain

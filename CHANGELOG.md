@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.32 — 2026-08-17
 
 - **The component gallery's knob faces are now real.** `<Knob>` (and
   `<ParamKnob>`) take a `variant`: `instrument` (the landing-demo arc +

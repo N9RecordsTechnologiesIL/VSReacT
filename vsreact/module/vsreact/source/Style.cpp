@@ -4,18 +4,6 @@
 namespace vsreact
 {
 
-namespace
-{
-    // Set by RootView before each paint. Not owned. Style::font() consults it
-    // before falling back to a system font-name lookup.
-    const FontRegistry* activeFontRegistry = nullptr;
-}
-
-void Style::setActiveFontRegistry (const FontRegistry* registry) noexcept
-{
-    activeFontRegistry = registry;
-}
-
 std::optional<juce::Colour> parseCssColor (const juce::String& text)
 {
     if (! text.startsWithChar ('#'))
@@ -229,7 +217,7 @@ bool Style::hasPerSideBorder() const
         || has ("borderBottomWidth") || has ("borderLeftWidth");
 }
 
-juce::Font Style::font() const
+juce::Font Style::font (const FontRegistry* registry) const
 {
     const auto size = getFloat ("fontSize", 14.0f);
 
@@ -248,8 +236,8 @@ juce::Font Style::font() const
     // that's the only way a bundled brand font can render at all.
     juce::Typeface::Ptr registered;
 
-    if (activeFontRegistry != nullptr && fontName.isNotEmpty())
-        registered = activeFontRegistry->find (fontName, weight);
+    if (registry != nullptr && fontName.isNotEmpty())
+        registered = registry->find (fontName, weight);
 
     auto options = registered != nullptr
                      ? juce::FontOptions {}.withTypeface (registered).withHeight (size)

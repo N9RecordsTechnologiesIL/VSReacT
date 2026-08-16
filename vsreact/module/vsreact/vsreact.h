@@ -36,6 +36,8 @@ END_JUCE_MODULE_DECLARATION
 #include "source/JsRuntime.h"
 #include "source/Scheduler.h"
 #include "source/FontRegistry.h"
+#include "source/ImageRegistry.h"
+#include "source/RenderResources.h"
 #include "source/Style.h"
 #include "source/CanvasSurface.h"
 #include "source/ShadowTree.h"

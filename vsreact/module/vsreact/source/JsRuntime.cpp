@@ -126,6 +126,17 @@ struct JsRuntime::Impl
         return JS_UNDEFINED;
     }
 
+    static JSValue jsRegisterImage (JSContext* c, JSValue, int argc, JSValue* argv)
+    {
+        auto& impl = self (c);
+
+        if (argc < 1 || impl.cbs.onRegisterImage == nullptr)
+            return JS_NewString (c, "");
+
+        const auto handle = impl.cbs.onRegisterImage (toString (c, argv[0]));
+        return JS_NewString (c, handle.toRawUTF8());
+    }
+
     static JSValue jsCanvasBuffer (JSContext* c, JSValue, int argc, JSValue* argv)
     {
         auto& impl = self (c);
@@ -212,6 +223,7 @@ struct JsRuntime::Impl
         reg ("__vsreact_flush", jsFlush, 1);
         reg ("__vsreact_nativeCall", jsNativeCall, 2);
         reg ("__vsreact_registerFont", jsRegisterFont, 3);
+        reg ("__vsreact_registerImage", jsRegisterImage, 1);
         reg ("__vsreact_canvasBuffer", jsCanvasBuffer, 3);
         reg ("__vsreact_canvasCommit", jsCanvasCommit, 1);
         reg ("__vsreact_log", jsLog, 2);

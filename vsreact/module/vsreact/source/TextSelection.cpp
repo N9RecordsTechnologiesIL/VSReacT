@@ -44,7 +44,7 @@ std::vector<juce::Rectangle<float>> TextSelection::characterBoxes (const Node& n
     if (text.isEmpty() || node.frame.isEmpty())
         return boxes;
 
-    const auto font = style.font();
+    const auto font = style.font (node.res != nullptr ? &node.res->fonts : nullptr);
 
     juce::AttributedString attributed;
     attributed.setText (text);

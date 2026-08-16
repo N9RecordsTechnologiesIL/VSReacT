@@ -235,3 +235,116 @@ public:
 };
 
 static ShadowTreeTests shadowTreeTests;
+
+//==============================================================================
+// patchProps: the key-granular update the reconciler sends for re-renders —
+// only changed top-level keys cross the bridge, `null` removes a key, and
+// everything untouched (a multi-megabyte image src, native scroll state)
+// stays exactly as it was.
+class PatchPropsTests final : public juce::UnitTest
+{
+public:
+    PatchPropsTests() : juce::UnitTest ("vsreact::ShadowTree patchProps") {}
+
+    void runTest() override
+    {
+        beginTest ("a patch merges into existing props and leaves the rest alone");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "image"],
+                ["setProps", 1, {"src": "keep-me.webp", "cursor": "pointer",
+                                 "style": {"width": 10, "opacity": 0.5}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            tree.applyOpsJson (R"([["patchProps", 1, {"style": {"width": 20, "opacity": 1}}]])");
+
+            auto* node = tree.find (1);
+            expect (node != nullptr);
+            expectEquals (node->props["src"].toString(), juce::String ("keep-me.webp"),
+                          "an untouched key survives the patch");
+            expectEquals (node->props["cursor"].toString(), juce::String ("pointer"));
+            expectWithinAbsoluteError (node->style.getFloat ("width"), 20.0f, 1.0e-6f,
+                                       "the patched style re-derives");
+            expectWithinAbsoluteError (node->style.opacity(), 1.0f, 1.0e-6f);
+        }
+
+        beginTest ("null removes a key; listeners re-derive from the merged props");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"cursor": "pointer", "listeners": ["click", "wheel"],
+                                 "style": {}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            tree.applyOpsJson (R"([["patchProps", 1, {"cursor": null, "listeners": ["click"]}]])");
+
+            auto* node = tree.find (1);
+            expect (! node->props.hasProperty ("cursor"), "null deletes the key");
+            expectEquals (node->listeners.size(), 1);
+            expect (node->listeners.contains ("click"));
+            expect (! node->listeners.contains ("wheel"));
+        }
+
+        beginTest ("a patch that doesn't carry scroll keys never stomps native scrolling");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"scrollTop": 5, "style": {"overflow": "scroll"}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            auto* node = tree.find (1);
+            expectWithinAbsoluteError (node->scrollY, 5.0f, 1.0e-6f);
+
+            // The user wheels natively...
+            node->scrollY = 42.0f;
+
+            // ...and an unrelated patch (style only) must not reset it, even
+            // though scrollTop is still 5 in the merged props.
+            tree.applyOpsJson (R"([["patchProps", 1, {"style": {"overflow": "scroll", "opacity": 0.9}}]])");
+            expectWithinAbsoluteError (node->scrollY, 42.0f, 1.0e-6f,
+                                       "merged-but-not-sent scrollTop stays inert");
+
+            // Sending it explicitly still works.
+            tree.applyOpsJson (R"([["patchProps", 1, {"scrollTop": 7}]])");
+            expectWithinAbsoluteError (node->scrollY, 7.0f, 1.0e-6f);
+        }
+
+        beginTest ("a patch before any setProps degenerates to a plain set");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["patchProps", 1, {"style": {"width": 12}}],
+                ["appendChild", 0, 1]
+            ])");
+
+            expectWithinAbsoluteError (tree.find (1)->style.getFloat ("width"), 12.0f, 1.0e-6f);
+        }
+
+        beginTest ("patching marks layout dirty");
+        {
+            vsreact::ShadowTree tree;
+            tree.applyOpsJson (R"([
+                ["create", 1, "view"],
+                ["setProps", 1, {"style": {"width": 10, "height": 10}}],
+                ["appendChild", 0, 1]
+            ])");
+            tree.computeLayout (100.0f, 100.0f);
+            expect (! tree.layoutDirty);
+
+            tree.applyOpsJson (R"([["patchProps", 1, {"style": {"width": 30, "height": 10}}]])");
+            expect (tree.layoutDirty);
+
+            tree.computeLayout (100.0f, 100.0f);
+            expectWithinAbsoluteError (tree.find (1)->frame.getWidth(), 30.0f, 1.0e-3f);
+        }
+    }
+};
+
+static PatchPropsTests patchPropsTests;

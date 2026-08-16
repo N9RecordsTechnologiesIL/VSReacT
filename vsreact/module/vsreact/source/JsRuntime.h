@@ -34,6 +34,11 @@ public:
             file path or a base64 `data:` URI. */
         std::function<void (const juce::String& family, const juce::String& src, int weight)> onRegisterFont;
 
+        /** JS called __vsreact_registerImage(src) — src is a file path or a
+            base64 `data:` URI. Returns the "img:N" handle JS will use as an
+            <Image src>, or an empty string if the source is undecodable. */
+        std::function<juce::String (const juce::String& src)> onRegisterImage;
+
         /** JS called __vsreact_canvasBuffer(nodeId, w, h) — return the node's
             RGBA buffer for JS to alias as an ArrayBuffer (no copy). */
         std::function<CanvasBuffer (int nodeId, int width, int height)> onCanvasBuffer;

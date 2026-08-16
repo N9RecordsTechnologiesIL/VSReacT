@@ -109,8 +109,18 @@ void RootView::initialiseRuntime()
 
     callbacks.onRegisterFont = [this] (const juce::String& family, const juce::String& src, int weight)
     {
-        if (! fontRegistry.registerFont (family, src, weight))
+        if (! tree.resources().fonts.registerFont (family, src, weight))
             juce::Logger::writeToLog ("[vsreact] registerFont failed for \"" + family + "\"");
+    };
+
+    callbacks.onRegisterImage = [this] (const juce::String& src) -> juce::String
+    {
+        auto handle = tree.resources().images.registerImage (src);
+
+        if (handle.isEmpty())
+            juce::Logger::writeToLog ("[vsreact] registerImage failed (undecodable src)");
+
+        return handle;
     };
 
     callbacks.onCanvasBuffer = [this] (int nodeId, int w, int h) -> JsRuntime::CanvasBuffer
@@ -381,10 +391,6 @@ void RootView::dispatchNodeEvent (int nodeId, const juce::String& type, const ju
 //==============================================================================
 void RootView::paint (juce::Graphics& g)
 {
-    // Fonts registered from JS resolve through this for the duration of the
-    // paint; both the buffered and direct paths below need it.
-    Style::setActiveFontRegistry (&fontRegistry);
-
     // backdrop-filter needs to read back what's painted beneath a node, so
     // trees that use it render into a frame buffer and blit. Everyone else
     // keeps the direct path.

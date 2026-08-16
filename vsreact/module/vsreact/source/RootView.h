@@ -87,10 +87,9 @@ private:
     RootOptions options;
     NativeRegistry registry;
 
-    ShadowTree tree;
+    ShadowTree tree;   // owns the per-instance registries + paint caches too
     Scheduler scheduler;
     ErrorOverlay errorOverlay;
-    FontRegistry fontRegistry;   // typefaces registered from JS (registerFont)
 
     std::map<int, std::unique_ptr<juce::Component>> hostedComponents;
 

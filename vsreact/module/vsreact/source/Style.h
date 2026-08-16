@@ -61,14 +61,13 @@ struct Style
     bool hasPerSideBorder() const;
 
     /** Text font from fontSize / fontWeight / letterSpacing. Resolves
-        fontFamily against the active FontRegistry (registerFont) first, then
-        falls back to a system font-name lookup. */
-    juce::Font font() const;
+        fontFamily against `registry` (the owning instance's registerFont
+        state — reach it through node.res->fonts) first, then falls back to a
+        system font-name lookup. Passed explicitly rather than held in a
+        global: two editors in one process must never resolve through each
+        other's registry. */
+    juce::Font font (const class FontRegistry* registry = nullptr) const;
     juce::Justification textAlign() const;
-
-    /** Set by RootView before painting so font() can resolve registered
-        families. Not owned; pass nullptr to clear. */
-    static void setActiveFontRegistry (const class FontRegistry* registry) noexcept;
 
     /** Applies every supported layout key to a yoga node, resetting the
         supported properties to defaults first so prop updates never leak

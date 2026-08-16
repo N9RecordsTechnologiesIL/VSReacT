@@ -51,11 +51,9 @@ public:
                 expect (registry.find ("Narrow FromUri", 400) != nullptr);
 
                 // And Style::font must actually pick it up.
-                vsreact::Style::setActiveFontRegistry (&registry);
                 const auto style = vsreact::Style::fromVar (
                     juce::JSON::parse (R"({"fontFamily": "Narrow FromUri", "fontSize": 24})"));
-                expectWithinAbsoluteError (style.font().getHeight(), 24.0f, 6.0f);
-                vsreact::Style::setActiveFontRegistry (nullptr);
+                expectWithinAbsoluteError (style.font (&registry).getHeight(), 24.0f, 6.0f);
             }
         }
 
@@ -75,14 +73,12 @@ public:
             expectEquals (seenWeight, 700);
         }
 
-        beginTest ("Style::font falls back to the system name with no registry active");
+        beginTest ("Style::font falls back to the system name with no registry");
         {
-            vsreact::Style::setActiveFontRegistry (nullptr);
-
             const auto style = vsreact::Style::fromVar (
                 juce::JSON::parse (R"({"fontFamily": "Nonexistent Family", "fontSize": 20})"));
 
-            const auto font = style.font();
+            const auto font = style.font (nullptr);
             expectWithinAbsoluteError (font.getHeight(), 20.0f, 6.0f);
         }
 
@@ -91,15 +87,12 @@ public:
             // A registry with nothing registered must not disturb resolution:
             // find() misses, so font() takes the existing system-name path.
             vsreact::FontRegistry registry;
-            vsreact::Style::setActiveFontRegistry (&registry);
 
             const auto style = vsreact::Style::fromVar (
                 juce::JSON::parse (R"({"fontFamily": "Still Nonexistent", "fontSize": 18})"));
 
-            const auto font = style.font();
+            const auto font = style.font (&registry);
             expectWithinAbsoluteError (font.getHeight(), 18.0f, 6.0f);
-
-            vsreact::Style::setActiveFontRegistry (nullptr);
         }
     }
 };

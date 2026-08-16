@@ -80,3 +80,43 @@ jobs:
           done
       - name: Test
         run: ctest --test-dir ci/build -C Release --output-on-failure
+
+  # Host-level validation: build the gain example as a real VST3 and run it
+  # through pluginval at max strictness — editor open/close, state
+  # save/restore, bus layouts, threading. The unit suite drives a synthetic
+  # ShadowTree; this is the check that the plugin behaves as a plugin.
+  pluginval:
+    name: pluginval (VST3, Windows)
+    runs-on: blacksmith-8vcpu-windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: juce-framework/JUCE
+          ref: "8.0.4"
+          path: JUCE
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      # The editor loads the JS bundle from the compiled-in dev path — build
+      # it so pluginval's editor tests exercise the real UI, not the error
+      # overlay. The bundler resolves @vsreact/core through dist/.
+      - run: bun run build:dist
+        working-directory: vsreact/js
+      - run: bun run build:dist
+        working-directory: vsreact/js-posthog
+      - run: bun run build
+        working-directory: vsreact/examples/gain/ui
+      - name: Configure
+        run: cmake -S vsreact/examples/gain -B build-gain -G "Visual Studio 17 2022" -A x64 -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE"
+      - name: Build VST3
+        run: cmake --build build-gain --target GainExample_VST3 --config Release --parallel 4
+      - name: Fetch pluginval
+        shell: bash
+        run: |
+          curl -sL -o pluginval.zip "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip"
+          unzip -o pluginval.zip
+      - name: Validate
+        shell: bash
+        run: |
+          ./pluginval.exe --strictness-level 5 --validate \
+            "build-gain/GainExample_artefacts/Release/VST3/VSReacT Gain.vst3"

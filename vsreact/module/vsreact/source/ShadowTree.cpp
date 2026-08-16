@@ -90,7 +90,7 @@ namespace
 
         juce::AttributedString attributed;
         attributed.setText (text);
-        attributed.setFont (node->style.font());
+        attributed.setFont (node->style.font (node->res != nullptr ? &node->res->fonts : nullptr));
 
         juce::TextLayout layout;
         layout.createLayout (attributed, maxWidth);
@@ -112,6 +112,7 @@ ShadowTree::ShadowTree()
     rootNode.id = 0;
     rootNode.type = "root";
     rootNode.yoga = YGNodeNew();
+    rootNode.res = &renderResources;
 }
 
 ShadowTree::~ShadowTree()
@@ -146,6 +147,7 @@ void ShadowTree::applyOp (const juce::var& op)
 
     if (name == "create")            createNode (intAt (1), parts->getUnchecked (2).toString());
     else if (name == "setProps")     setProps (intAt (1), parts->getUnchecked (2));
+    else if (name == "patchProps")   patchProps (intAt (1), parts->getUnchecked (2));
     else if (name == "appendChild")  appendChild (intAt (1), intAt (2));
     else if (name == "insertBefore") insertBefore (intAt (1), intAt (2), intAt (3));
     else if (name == "removeChild")  removeChild (intAt (1), intAt (2));
@@ -181,6 +183,7 @@ void ShadowTree::createNode (int id, const juce::String& type)
     auto node = std::make_unique<Node>();
     node->id = id;
     node->type = type;
+    node->res = &renderResources;
 
     if (type != "rawtext")
     {
@@ -208,38 +211,93 @@ void ShadowTree::setProps (int id, const juce::var& props)
         return;
 
     node->props = props;
-    node->style = Style::fromVar (props["style"]);
-    node->hoverStyle = Style::fromVar (props["hoverStyle"]);
-    node->activeStyle = Style::fromVar (props["activeStyle"]);
-    node->focusStyle = Style::fromVar (props["focusStyle"]);
+    applyDerivedProps (*node, props);
+}
 
-    node->listeners.clear();
+void ShadowTree::patchProps (int id, const juce::var& patch)
+{
+    auto* node = find (id);
+
+    if (node == nullptr)
+        return;
+
+    auto* incoming = patch.getDynamicObject();
+
+    if (incoming == nullptr)
+        return;
+
+    auto* merged = node->props.getDynamicObject();
+
+    // A patch before any full setProps (shouldn't happen — JS always sends the
+    // node's first props whole) degenerates to a replace.
+    if (merged == nullptr)
+    {
+        setProps (id, patch);
+        return;
+    }
+
+    // Key-granular merge: JSON `null` (a void var) removes the key. This is
+    // what lets a style-only change cross the bridge without re-shipping a
+    // multi-megabyte image src that didn't move.
+    for (const auto& property : incoming->getProperties())
+    {
+        if (property.value.isVoid())
+            merged->removeProperty (property.name);
+        else
+            merged->setProperty (property.name, property.value);
+    }
+
+    applyDerivedProps (*node, patch);
+}
+
+void ShadowTree::applyDerivedProps (Node& node, const juce::var& incoming)
+{
+    const auto& props = node.props;
+
+    node.style = Style::fromVar (props["style"]);
+    node.hoverStyle = Style::fromVar (props["hoverStyle"]);
+    node.activeStyle = Style::fromVar (props["activeStyle"]);
+    node.focusStyle = Style::fromVar (props["focusStyle"]);
+
+    node.listeners.clear();
 
     if (const auto* listeners = props["listeners"].getArray())
         for (const auto& listener : *listeners)
-            node->listeners.add (listener.toString());
+            node.listeners.add (listener.toString());
 
-    if (const auto* object = props.getDynamicObject())
+    // Scroll offsets apply only when THIS payload carries them: the native
+    // side also writes scrollY on wheel events, and a merged prop set would
+    // otherwise stomp user scrolling on every unrelated patch.
+    if (const auto* object = incoming.getDynamicObject())
     {
         if (object->hasProperty ("scrollTop"))
-            node->scrollY = static_cast<float> (static_cast<double> (props["scrollTop"]));
+            node.scrollY = static_cast<float> (static_cast<double> (incoming["scrollTop"]));
 
         if (object->hasProperty ("scrollLeft"))
-            node->scrollX = static_cast<float> (static_cast<double> (props["scrollLeft"]));
+            node.scrollX = static_cast<float> (static_cast<double> (incoming["scrollLeft"]));
+
+        // The paint-time decode memo keys on the src string's data address;
+        // drop it whenever a payload carries src so a reallocation can never
+        // alias a stale bitmap. Patches that don't touch src keep the memo.
+        if (object->hasProperty ("src"))
+        {
+            node.decodedImage = {};
+            node.decodedSrcAddress = nullptr;
+        }
     }
 
-    if (node->yoga != nullptr)
+    if (node.yoga != nullptr)
     {
-        node->style.applyLayout (node->yoga);
+        node.style.applyLayout (node.yoga);
 
-        if (node->type == "text")
-            YGNodeMarkDirty (node->yoga);
+        if (node.type == "text")
+            YGNodeMarkDirty (node.yoga);
     }
 
-    markTextDirty (*node);
+    markTextDirty (node);
 
     if (onNodePropsChanged != nullptr)
-        onNodePropsChanged (*node);
+        onNodePropsChanged (node);
 }
 
 void ShadowTree::appendChild (int parentId, int childId)

@@ -65,16 +65,21 @@ public:
             cbs.onClearTimer = [] (int) {};
             cbs.onNativeCall = [] (const juce::String&, const juce::var&) { return juce::var(); };
 
-            // Register fonts for real and activate the registry, as RootView
-            // does — otherwise custom-typeface text silently falls back to a
-            // system font and this never exercises the real paint path.
-            vsreact::FontRegistry fonts;
+            // Register fonts and images into the tree's own resources, as
+            // RootView does — otherwise custom-typeface text silently falls
+            // back to a system font and registered plates paint nothing, and
+            // this never exercises the real paint path.
             int fontsRegistered = 0, fontsFailed = 0;
 
             cbs.onRegisterFont = [&] (const juce::String& fam, const juce::String& src, int w)
             {
-                if (fonts.registerFont (fam, src, w)) ++fontsRegistered;
+                if (tree.resources().fonts.registerFont (fam, src, w)) ++fontsRegistered;
                 else ++fontsFailed;
+            };
+
+            cbs.onRegisterImage = [&] (const juce::String& src)
+            {
+                return tree.resources().images.registerImage (src);
             };
 
             const auto source = bundle.loadFileAsString();
@@ -93,12 +98,12 @@ public:
 
             const auto paintStart = juce::Time::getMillisecondCounterHiRes();
             {
-                vsreact::Style::setActiveFontRegistry (&fonts);
+                // Fonts/images resolve through the tree's own resources now —
+                // nothing to activate globally.
                 juce::Image target (juce::Image::ARGB, editorW, editorH, true,
                                     juce::SoftwareImageType());
                 juce::Graphics g (target);
                 vsreact::Painter::paint (g, *tree.root(), target);
-                vsreact::Style::setActiveFontRegistry (nullptr);
             }
             const auto paintMs = juce::Time::getMillisecondCounterHiRes() - paintStart;
 

@@ -4,6 +4,7 @@
 #include "Blur.h"
 #include "WebpImage.h"
 #include "CanvasSurface.h"
+#include "ImageRegistry.h" // loadImageSource
 
 #include <juce_gui_basics/juce_gui_basics.h> // Drawable::parseSVGPath
 
@@ -632,7 +633,7 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
     if (text.isEmpty())
         return;
 
-    const auto font = style.font();
+    const auto font = style.font (node.res != nullptr ? &node.res->fonts : nullptr);
     const auto colour = style.getColour ("color").value_or (juce::Colours::white);
     const bool strike = style.getString ("textDecoration") == "line-through";
     const auto maxLines = (int) style.getFloat ("numberOfLines", 0.0f);
@@ -652,33 +653,51 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
         // Extracting glyph outlines is expensive — especially from a registered
         // OTF — and a readout-heavy panel does it for every Text node on every
         // repaint. Cache the untransformed path (baseline at y=0) per
-        // typeface/text/size; only the cheap per-frame transform varies.
-        struct Outline { juce::Path path; juce::Rectangle<float> box; };
-        static std::map<juce::String, Outline> outlineCache;
+        // typeface/text/size in the instance's resources (never a process
+        // global: instances would thrash each other's eviction); only the
+        // cheap per-frame transform varies.
+        RenderResources::Outline built;
+        const RenderResources::Outline* outline = nullptr;
 
-        const auto key = juce::String ((juce::int64) (juce::pointer_sized_int) font.getTypefacePtr().get())
-                       + "|" + juce::String (font.getHeight(), 2) + "|" + text;
-
-        auto cached = outlineCache.find (key);
-
-        if (cached == outlineCache.end())
+        const auto buildOutline = [&font, &text]
         {
             juce::GlyphArrangement glyphs;
             glyphs.addLineOfText (font, text, 0.0f, 0.0f); // baseline at y=0
 
-            Outline built;
-            built.box = glyphs.getBoundingBox (0, -1, true);
-            glyphs.createPath (built.path);
+            RenderResources::Outline result;
+            result.box = glyphs.getBoundingBox (0, -1, true);
+            glyphs.createPath (result.path);
+            return result;
+        };
 
-            // At capacity, evict one entry rather than the whole map: clearing
-            // would re-extract every hot outline on the next frame.
-            if (outlineCache.size() > 512)
-                outlineCache.erase (outlineCache.begin());
+        if (node.res != nullptr)
+        {
+            auto& outlineCache = node.res->glyphOutlines;
 
-            cached = outlineCache.emplace (key, std::move (built)).first;
+            const auto key = juce::String ((juce::int64) (juce::pointer_sized_int) font.getTypefacePtr().get())
+                           + "|" + juce::String (font.getHeight(), 2) + "|" + text;
+
+            auto cached = outlineCache.find (key);
+
+            if (cached == outlineCache.end())
+            {
+                // At capacity, evict one entry rather than the whole map:
+                // clearing would re-extract every hot outline next frame.
+                if (outlineCache.size() > 512)
+                    outlineCache.erase (outlineCache.begin());
+
+                cached = outlineCache.emplace (key, buildOutline()).first;
+            }
+
+            outline = &cached->second;
+        }
+        else
+        {
+            built = buildOutline(); // hand-built test node — no cache to use
+            outline = &built;
         }
 
-        const auto box = cached->second.box;
+        const auto box = outline->box;
         const auto naturalW = box.getWidth();
         const auto scaleX = (textLength > 0.0f && naturalW > 0.0f) ? textLength / naturalW : 1.0f;
         const auto drawnW = naturalW * scaleX;
@@ -698,7 +717,7 @@ void Painter::paintText (juce::Graphics& g, const Node& node, const Style& style
                 .scaled (scaleX, 1.0f)
                 .translated (leftX, node.frame.getCentreY());
 
-        auto glyphPath = cached->second.path;   // copy the cached outline
+        auto glyphPath = outline->path;   // copy the cached outline
         glyphPath.applyTransform (transform);
 
         if (const auto glowColor = style.getColour ("textShadowColor"))
@@ -956,50 +975,50 @@ juce::Image Painter::decodeDataUriImage (const juce::String& source)
 
 void Painter::paintImage (juce::Graphics& g, const Node& node)
 {
-    const auto source = node.props["src"].toString();
+    const auto* sourceVar = node.props.getDynamicObject() != nullptr
+                              ? node.props.getDynamicObject()->getProperties().getVarPointer ("src")
+                              : nullptr;
+    const auto source = sourceVar != nullptr ? sourceVar->toString() : juce::String();
 
     if (source.isEmpty())
         return;
 
     juce::Image image;
 
-    if (source.startsWith ("data:"))
+    // "img:N" — a handle from registerImage(): the decoded bitmap lives in
+    // this instance's registry and the bridge only ever carried the handle.
+    if (source.startsWith ("img:"))
     {
-        // Decoded once, cached under the source string's hash.
-        const auto hash = source.hashCode64();
+        if (node.res != nullptr)
+            image = node.res->images.find (source);
+    }
+    // Raw data URI or file path: memoised on the node, keyed by the string's
+    // character-data address — O(1) per paint. Hashing a multi-megabyte URI
+    // (the old lookup) per node per frame cost more than the decode it saved.
+    else if (node.decodedImage.isValid()
+             && node.decodedSrcAddress == source.getCharPointer().getAddress())
+    {
+        image = node.decodedImage;
+    }
+    else
+    {
+        // Miss (first paint, or the src genuinely changed): the shared
+        // hash-keyed juce::ImageCache still dedupes the decode across nodes
+        // showing the same asset — the hash is now computed once per prop
+        // change instead of once per paint.
+        const auto hash = (source.startsWith ("data:") ? source : "file:" + source).hashCode64();
         image = juce::ImageCache::getFromHashCode (hash);
 
         if (! image.isValid())
         {
-            image = decodeDataUriImage (source);
+            image = loadImageSource (source);
 
             if (image.isValid())
                 juce::ImageCache::addImageToCache (image, hash);
         }
-    }
-    else
-    {
-        // WebP files aren't in juce::ImageFileFormat's registry — decode
-        // manually, cached under the path's hash so it happens once.
-        const juce::File file (source);
-        const auto webpHash = ("webp:" + file.getFullPathName()).hashCode64();
-        image = juce::ImageCache::getFromHashCode (webpHash);
 
-        if (! image.isValid())
-            image = juce::ImageCache::getFromFile (file);
-
-        if (! image.isValid())
-        {
-            juce::MemoryBlock bytes;
-
-            if (file.loadFileAsData (bytes) && looksLikeWebP (bytes.getData(), bytes.getSize()))
-            {
-                image = decodeWebPImage (bytes.getData(), bytes.getSize());
-
-                if (image.isValid())
-                    juce::ImageCache::addImageToCache (image, webpHash);
-            }
-        }
+        node.decodedImage = image;
+        node.decodedSrcAddress = source.getCharPointer().getAddress();
     }
 
     if (! image.isValid())
@@ -1045,18 +1064,19 @@ void Painter::paintImage (juce::Graphics& g, const Node& node)
     // Only for "fill": stretchToFit maps the whole image onto the whole frame,
     // so a frame-sized copy is an exact substitute. contain/cover letterbox or
     // crop, where a pre-scaled copy would change the geometry.
-    if (fit == "fill")
+    if (fit == "fill" && node.res != nullptr)
     {
         const auto target = node.frame.getSmallestIntegerContainer();
 
         if (target.getWidth() > 0 && target.getHeight() > 0
             && (target.getWidth() != image.getWidth() || target.getHeight() != image.getHeight()))
         {
-            // A private cache, not juce::ImageCache: that one evicts on a timer
-            // and by total size, so a full-panel plate alongside dozens of other
-            // image nodes gets dropped and re-rescaled every frame — measurably
-            // worse than no cache at all.
-            static std::map<juce::int64, juce::Image> scaledCache;
+            // The instance's own cache (RenderResources), never a process
+            // global or juce::ImageCache: the global would let one busy
+            // editor thrash another's eviction, and juce::ImageCache evicts
+            // on a timer and by total size, dropping a full-panel plate
+            // between frames — measurably worse than no cache at all.
+            auto& scaledCache = node.res->scaledImages;
 
             // Key on the decoded image's pixel-data identity, not the src
             // string: `source` may be a multi-megabyte base64 data URI, and

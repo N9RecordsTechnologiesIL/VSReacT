@@ -76,6 +76,10 @@ private:
         cbs.onSetTimer = [] (int, int) {};
         cbs.onClearTimer = [] (int) {};
         cbs.onRegisterFont = [] (const juce::String&, const juce::String&, int) {};
+        cbs.onRegisterImage = [&tree] (const juce::String& src)
+        {
+            return tree.resources().images.registerImage (src);
+        };
 
         cbs.onNativeCall = [&] (const juce::String& call, const juce::var& args) -> juce::var
         {

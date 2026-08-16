@@ -1,9 +1,15 @@
 // CSS transitions and keyframe presets, driven from JS. When a commit changes
 // a node whose style carries transitionDuration, the changed animatable keys
 // tween from their *currently displayed* values instead of jumping; animate-*
-// classes run keyframe loops. Every frame re-sends the node's full payload
-// (setProps replaces wholesale) with the animated keys patched — the same
-// traffic a useTween re-render produces, without the component code.
+// classes run keyframe loops.
+//
+// Every payload leaving this module goes through queueProps, which diffs
+// against the node's last-sent props and emits a key-granular ["patchProps"]
+// op — only the top-level keys that actually changed cross the bridge, and a
+// removed key travels as null. A style-only change (one animation frame, one
+// knob turn) therefore never re-ships an unchanged multi-megabyte image src,
+// and a re-render that changed nothing sends nothing at all. The first send
+// for a node is a full ["setProps"] (replace semantics on the C++ side).
 //
 // Honest limit: native-side hover/active/focus style merges don't transition
 // (they never round-trip through JS). Animate those with onMouseEnter state.
@@ -221,6 +227,67 @@ const activeTransitions = new Map<number, ActiveTransition>();
 const activeAnimations = new Map<number, ActiveAnimation>();
 let driver: ReturnType<typeof setInterval> | undefined;
 
+// ── key-granular prop sending ──────────────────────────────────────────
+
+const lastPayloads = new Map<number, Payload>();
+
+/** Value equality for prop payloads: `===` first (module-const strings — the
+    big data URIs — hit this), then structural for the JSON-ish objects and
+    arrays styles are made of. */
+export function payloadValueEquals(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== typeof b || a === null || b === null) return false;
+  if (typeof a !== "object") return false;
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== (b as unknown[]).length) return false;
+    return a.every((item, i) => payloadValueEquals(item, (b as unknown[])[i]));
+  }
+
+  if (Array.isArray(b)) return false;
+
+  const aKeys = Object.keys(a as object);
+  const bKeys = Object.keys(b as object);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) =>
+    payloadValueEquals((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]),
+  );
+}
+
+/** The top-level keys of `next` that differ from `prev`, plus null for keys
+    `prev` had and `next` dropped. Undefined when nothing changed. */
+export function diffPayload(
+  prev: Payload,
+  next: Payload,
+): Record<string, unknown> | undefined {
+  let patch: Record<string, unknown> | undefined;
+
+  for (const key of Object.keys(next)) {
+    if (!payloadValueEquals(prev[key], next[key])) (patch ??= {})[key] = next[key];
+  }
+
+  for (const key of Object.keys(prev)) {
+    if (!(key in next)) (patch ??= {})[key] = null;
+  }
+
+  return patch;
+}
+
+/** Every prop send funnels through here: full setProps the first time a node
+    is seen, a diffed patchProps after — or nothing when nothing changed. */
+function queueProps(nodeId: number, payload: Payload): void {
+  const prev = lastPayloads.get(nodeId);
+  lastPayloads.set(nodeId, payload);
+
+  if (prev === undefined) {
+    queueOp(["setProps", nodeId, payload]);
+    return;
+  }
+
+  const patch = diffPayload(prev, payload);
+  if (patch !== undefined) queueOp(["patchProps", nodeId, patch]);
+}
+
 function ensureDriver(): void {
   if (driver !== undefined) return;
   driver = setInterval(tick, FRAME_MS);
@@ -234,7 +301,9 @@ function stopDriverIfIdle(): void {
 }
 
 function send(nodeId: number, payload: Payload, patch: Style): void {
-  queueOp(["setProps", nodeId, { ...payload, style: { ...payload.style, ...patch } }]);
+  // Through the diffing funnel: a frame whose interpolated values didn't move
+  // (a settled spring, a coarse easing plateau) costs nothing on the bridge.
+  queueProps(nodeId, { ...payload, style: { ...payload.style, ...patch } });
 }
 
 function tick(): void {
@@ -294,7 +363,7 @@ export function commitProps(nodeId: number, payload: Payload): void {
       start: running !== undefined && running.name === name ? running.start : Date.now(),
     });
     ensureDriver();
-    queueOp(["setProps", nodeId, payload]);
+    queueProps(nodeId, payload);
     return;
   }
 
@@ -330,12 +399,13 @@ export function commitProps(nodeId: number, payload: Payload): void {
   }
 
   activeTransitions.delete(nodeId);
-  queueOp(["setProps", nodeId, payload]);
+  queueProps(nodeId, payload);
 }
 
 /** Unmount cleanup — hostConfig.detachDeletedInstance. */
 export function releaseNode(nodeId: number): void {
   lastStyles.delete(nodeId);
+  lastPayloads.delete(nodeId);
   activeTransitions.delete(nodeId);
   activeAnimations.delete(nodeId);
   stopDriverIfIdle();

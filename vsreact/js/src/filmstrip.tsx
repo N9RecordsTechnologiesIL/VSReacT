@@ -8,6 +8,7 @@
 
 import { useMemo } from "react";
 import { View, Image } from "./index";
+import { registerImage } from "./images";
 
 export interface KnobStrip {
   /** Frame width AND height in pixels (frames are square). */
@@ -39,11 +40,12 @@ export function FilmStripKnob({ rotation, strip, displaySize }: FilmStripKnobPro
   const box = displaySize ?? strip.size;
   const scale = box / strip.size;
 
-  // The strip URI is large (hundreds of KB) and setProps re-sends full props.
-  // Keep the <Image> element reference-stable so a rotation change ships only
-  // the wrapper's one-number translate over the bridge, never the src.
+  // The strip is interned natively (registerImage — idempotent, knobs sharing
+  // a strip share the handle) so the bridge only ever carries "img:N", and the
+  // element stays reference-stable so a rotation change ships nothing but the
+  // wrapper's one-number translate.
   const image = useMemo(
-    () => <Image src={strip.dataUri} style={{ width: box, height: box * strip.frames }} />,
+    () => <Image src={registerImage(strip.dataUri)} style={{ width: box, height: box * strip.frames }} />,
     [strip, box],
   );
 

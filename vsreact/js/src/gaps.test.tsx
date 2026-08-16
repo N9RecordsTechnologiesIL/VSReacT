@@ -22,6 +22,9 @@ import {
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
+// A node's first props arrive as setProps; re-renders and animation frames
+// arrive as key-granular patchProps. Update assertions look at both.
+const propsOps = () => allOps().filter((op: any) => op[0] === "setProps" || op[0] === "patchProps");
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 beforeEach(() => {
@@ -159,7 +162,9 @@ describe("transition engine end-to-end", () => {
       return (
         <View
           onClick={() => setOn(true)}
-          style={{ opacity: on ? 1 : 0, transitionDuration: 60, transitionProperty: "all" }}
+          // Long enough that a stalled first tick still lands mid-flight —
+          // a 60ms tween under CPU load can jump straight to t=1.
+          style={{ opacity: on ? 1 : 0, transitionDuration: 250, transitionProperty: "all" }}
         />
       );
     }
@@ -173,15 +178,22 @@ describe("transition engine end-to-end", () => {
       JSON.stringify({ kind: "event", nodeId, type: "click" }),
     );
 
-    await sleep(160);
+    const styleOps = () =>
+      propsOps()
+        .filter((op: any) => op[1] === nodeId && op[2].style !== undefined)
+        .map((op: any) => op[2].style.opacity);
 
-    const styleOps = opsNamed("setProps")
-      .filter((op: any) => op[1] === nodeId)
-      .map((op: any) => op[2].style.opacity);
+    // Wait until the tween has both produced a mid-flight frame and settled.
+    const deadline = Date.now() + 3000;
+    while (
+      Date.now() < deadline &&
+      !(styleOps().at(-1) === 1 && styleOps().some((o: number) => o > 0 && o < 1))
+    )
+      await sleep(20);
 
     // The commit lands at the old value, frames climb, the last hits 1 exactly.
-    expect(styleOps[styleOps.length - 1]).toBe(1);
-    expect(styleOps.some((o: number) => o > 0 && o < 1)).toBe(true);
+    expect(styleOps().at(-1)).toBe(1);
+    expect(styleOps().some((o: number) => o > 0 && o < 1)).toBe(true);
   });
 
   test("animate-spin keeps emitting rotate frames until unmounted", async () => {
@@ -193,17 +205,20 @@ describe("transition engine end-to-end", () => {
     // Wait for the frames rather than a fixed interval — under CPU load a
     // fixed 80ms sleep sometimes saw only 2 timer ticks.
     const rotateFrames = () =>
-      opsNamed("setProps").filter(
-        (op: any) => op[1] === nodeId && typeof op[2].style.rotate === "number",
+      propsOps().filter(
+        (op: any) => op[1] === nodeId && typeof op[2].style?.rotate === "number",
       ).length;
     const deadline = Date.now() + 2000;
     while (rotateFrames() < 3 && Date.now() < deadline) await sleep(20);
     unmount();
     expect(rotateFrames()).toBeGreaterThan(2);
 
+    // The deletion commit can land a microtask after unmount() returns; let it
+    // (and any tick already in flight) drain before asserting silence.
+    await sleep(40);
     batches.length = 0;
     await sleep(60);
     // no frames after unmount
-    expect(opsNamed("setProps").filter((op: any) => op[1] === nodeId).length).toBe(0);
+    expect(propsOps().filter((op: any) => op[1] === nodeId).length).toBe(0);
   });
 });

@@ -19,6 +19,9 @@ import { render, unmount, Knob, Slider, Toggle, XYPad, Segmented, ParamSegmented
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
+// A node's first props arrive as setProps; re-renders and animation frames
+// arrive as key-granular patchProps. Update assertions look at both.
+const propsOps = () => allOps().filter((op: any) => op[0] === "setProps" || op[0] === "patchProps");
 const dispatch = (msg: unknown) =>
   (globalThis as Record<string, any>).__vsreact_dispatch(JSON.stringify(msg));
 
@@ -251,8 +254,10 @@ describe("onLayout + Select", () => {
     dispatch({ kind: "event", nodeId: trigger[1], type: "click" });
     await new Promise((r) => setTimeout(r, 0));
 
-    // menu panel positioned under the trigger, same width
-    const panel: any = opsNamed("setProps").find(
+    // menu panel positioned under the trigger, same width. The position can
+    // arrive with the mount (setProps) or as a later patch when the layout
+    // state committed after the menu opened — accept either.
+    const panel: any = propsOps().find(
       (op: any) => op[2]?.style?.top === 40 + 33 + 4 && op[2]?.style?.left === 20,
     );
     expect(panel).toBeDefined();
@@ -394,11 +399,18 @@ describe("Tooltip + Modal", () => {
       payload: { x: 10, y: 20, width: 100, height: 30 },
     });
     dispatch({ kind: "event", nodeId: anchor, type: "mouseenter" });
-    await new Promise((r) => setTimeout(r, 40));
 
-    const tip: any = opsNamed("setProps").find(
-      (op: any) => op[2]?.style?.top === 20 + 30 + 6 && op[2]?.style?.left === 10,
-    );
+    // Wait for the tooltip rather than a fixed interval — under CPU load the
+    // 15ms show-delay timer can land well past a hardcoded sleep.
+    const findTip = () =>
+      opsNamed("setProps").find(
+        (op: any) => op[2]?.style?.top === 20 + 30 + 6 && op[2]?.style?.left === 10,
+      );
+    const deadline = Date.now() + 2000;
+    while (findTip() === undefined && Date.now() < deadline)
+      await new Promise((r) => setTimeout(r, 10));
+
+    const tip: any = findTip();
     expect(tip).toBeDefined();
     expect(allOps().some((op: any) => op[0] === "setText" && op[2] === "Resets to 0 dB")).toBe(true);
 
@@ -629,7 +641,7 @@ describe("0.0.10 — fields & feedback", () => {
     const first: any = opsNamed("setProps").find((op: any) => op[2]?.style?.arcValueStart !== undefined);
     expect(first).toBeDefined();
     await new Promise((r) => setTimeout(r, 60));
-    const all = opsNamed("setProps").filter((op: any) => op[2]?.style?.arcValueStart !== undefined);
+    const all = propsOps().filter((op: any) => op[2]?.style?.arcValueStart !== undefined);
     const angles = all.map((op: any) => op[2].style.arcValueStart);
     expect(Math.max(...angles)).toBeGreaterThan(angles[0]); // it spins
   });
@@ -744,7 +756,7 @@ describe("0.0.11 — flagship visuals", () => {
     render(<PulseOrb value={0.8} size={100} rings={3} />);
 
     const sizesAt = () =>
-      opsNamed("setProps")
+      propsOps()
         .filter((op: any) => op[2]?.style?.borderColor === "#C6F135")
         .map((op: any) => op[2].style.width);
     const before = sizesAt().length;

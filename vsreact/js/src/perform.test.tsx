@@ -25,6 +25,9 @@ import {
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
+// A node's first props arrive as setProps; re-renders and animation frames
+// arrive as key-granular patchProps. Update assertions look at both.
+const propsOps = () => allOps().filter((op: any) => op[0] === "setProps" || op[0] === "patchProps");
 const dispatch = (msg: unknown) =>
   (globalThis as Record<string, any>).__vsreact_dispatch(JSON.stringify(msg));
 
@@ -181,7 +184,7 @@ describe("ProgressBar indeterminate", () => {
     render(<ProgressBar value={0} indeterminate width={200} />);
 
     const lefts = () =>
-      (opsNamed("setProps") as any[])
+      (propsOps() as any[])
         .map((op) => op[2]?.style?.left)
         .filter((left) => typeof left === "number");
 

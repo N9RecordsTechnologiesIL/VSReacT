@@ -18,6 +18,9 @@ import { render, unmount, View, tw, dragToValue, ParamKnob } from "./index";
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
+// A node's first props arrive as setProps; re-renders and animation frames
+// arrive as key-granular patchProps. Update assertions look at both.
+const propsOps = () => allOps().filter((op: any) => op[0] === "setProps" || op[0] === "patchProps");
 const dispatch = (msg: unknown) =>
   (globalThis as Record<string, any>).__vsreact_dispatch(JSON.stringify(msg));
 
@@ -90,7 +93,7 @@ describe("phase 2", () => {
 
     dispatch({ kind: "native", name: "param", payload: { id: "gain", value: 0.25, text: "-12 dB" } });
 
-    const arcProps: any = opsNamed("setProps").find(
+    const arcProps: any = propsOps().find(
       (op: any) => op[2]?.style?.arcValueEnd !== undefined,
     );
     expect(arcProps).toBeDefined();

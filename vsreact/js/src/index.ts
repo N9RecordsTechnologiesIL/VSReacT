@@ -4,7 +4,7 @@ import "./runtime";
 import "./bridge";
 
 /** The SDK version — stamp it on support dumps and analytics. */
-export const VERSION = "0.0.27";
+export const VERSION = "0.0.28";
 
 export { View, Text, Image, TextInput, NativeView, Svg, SvgPath } from "./primitives";
 export type {
@@ -44,6 +44,7 @@ export { configureTheme, tw } from "./tw";
 export { accentColor } from "./theme";
 export type { Style, StyleValue, ResolvedClasses } from "./tw";
 export { registerFont, type FontSpec } from "./fonts";
+export { registerImage } from "./images";
 export { Canvas, type CanvasProps } from "./canvas";
 export { FilmStripKnob, frameForRotation } from "./filmstrip";
 export type { FilmStripKnobProps, KnobStrip } from "./filmstrip";
@@ -51,8 +52,8 @@ export { cx } from "./cx";
 export type { ClassValue } from "./cx";
 export { useTween, useSpring, springStep, lerp, Easing } from "./animation";
 export type { TweenOptions, SpringOptions, EasingFn } from "./animation";
-export { useParameter, useParameterList } from "./parameters";
-export type { ParameterState, ParameterHandle, ParameterInfo } from "./parameters";
+export { useParameter, useParameterList, normalizedToNatural, naturalToNormalized } from "./parameters";
+export type { ParameterState, ParameterHandle, ParameterInfo, ParameterRange } from "./parameters";
 export {
   Knob,
   Slider,

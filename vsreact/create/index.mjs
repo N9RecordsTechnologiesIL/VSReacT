@@ -14,8 +14,13 @@ import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const TEMPLATES = path.join(path.dirname(fileURLToPath(import.meta.url)), "templates");
-const VSREACT_TAG = "v0.0.26";
-const CORE_RANGE = "^0.0.26";
+
+// The native module tag and the npm range are two halves of one version and
+// must move together: the module speaks a protocol level the bundle checks at
+// startup. `^0.0.x` is an exact pin under semver, which is what we want here.
+// scaffold.test.ts fails if these drift from the packages in this repo.
+const VSREACT_TAG = "v0.0.29";
+const CORE_RANGE = "^0.0.29";
 const POSTHOG_RANGE = "^0.0.6";
 
 const HELP = `create-vsreact — a native JUCE VST whose UI is React.
@@ -53,6 +58,13 @@ const deriveCode = (text) => {
 };
 
 const validCode = (code) => /^[A-Za-z0-9]{4}$/.test(code);
+
+/** One segment of a reverse-DNS bundle id. JUCE's default is built from the
+    raw company and product names, so a company with a space in it ("My
+    Company", our own default) yields an id CMake warns about and macOS
+    rejects. */
+const bundleSegment = (text, fallback) =>
+  text.replace(/[^A-Za-z0-9]/g, "").toLowerCase() || fallback;
 
 function parseArgs(argv) {
   const options = { posthog: false, yes: false, help: false };
@@ -138,6 +150,7 @@ async function main() {
     TARGET: targetName,
     TARGET_UPPER: targetName.toUpperCase(),
     SLUG: slug,
+    BUNDLE_ID: `com.${bundleSegment(company, "company")}.${bundleSegment(productName, "plugin")}`,
     VSREACT_TAG,
     CORE_RANGE,
     POSTHOG_RANGE,

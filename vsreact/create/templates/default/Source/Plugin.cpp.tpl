@@ -144,7 +144,10 @@ public:
         root = std::make_unique<vsreact::RootView> (std::move (options));
         bridge.attach (*root);
         addAndMakeVisible (*root);
-        setSize (420, 290);
+        // Wide enough for the footer strapline to stay on one line at the
+        // default theme's tracking — a wrapped, clipped first impression is a
+        // bad one. Resize freely; the UI is flexbox and follows.
+        setSize (480, 300);
     }
 
     void resized() override

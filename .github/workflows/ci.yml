@@ -24,6 +24,10 @@ jobs:
         working-directory: vsreact/js-posthog
       - run: bun test
         working-directory: vsreact/js-posthog
+      # The scaffolder pins a module tag and an npm range that must track the
+      # packages above — nothing else in CI touches it.
+      - run: bun test
+        working-directory: vsreact/create
       # synth imports @vsreact/posthog, which also resolves through dist/.
       - run: bun run build:dist
         working-directory: vsreact/js-posthog

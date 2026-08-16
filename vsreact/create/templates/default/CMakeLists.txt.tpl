@@ -42,6 +42,9 @@ option({{TARGET_UPPER}}_DEV "Load the UI bundle from disk and watch it (hot relo
 juce_add_plugin({{TARGET}}
     COMPANY_NAME "{{COMPANY}}"
     PRODUCT_NAME "{{PRODUCT_NAME}}"
+    # Set explicitly: JUCE derives this from the company and product names,
+    # which may contain spaces — invalid in a bundle id, and fatal on macOS.
+    BUNDLE_ID "{{BUNDLE_ID}}"
     PLUGIN_MANUFACTURER_CODE {{MFR_CODE}}
     PLUGIN_CODE {{PLUGIN_CODE}}
     FORMATS VST3 Standalone

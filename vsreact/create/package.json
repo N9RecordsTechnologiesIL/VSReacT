@@ -26,6 +26,9 @@
   "bin": {
     "create-vsreact": "./index.mjs"
   },
+  "scripts": {
+    "test": "bun test"
+  },
   "files": [
     "index.mjs",
     "templates"

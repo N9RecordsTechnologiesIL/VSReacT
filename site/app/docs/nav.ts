@@ -145,6 +145,22 @@ export const DOCS: DocPage[] = [
       'useeditorsize userootsize resize editor size usetoggle useprevious usedebounced usethrottled useinterval usehover usenativevalue userollingbuffer pushrolling usepeakhold utilities toolbox debounce throttle interval toggle previous hover rolling buffer formatdb formathz formatms formatpercent formatsemitones midinotename midinotetohz hztomidinote frequency tuning maprange db hz khz decibel readout format',
   },
   {
+    slug: 'reference-art',
+    title: 'Reference-art workflow',
+    group: 'UI REFERENCE',
+    headings: [
+      ['idea', 'The idea'],
+      ['plate', 'Ship the plate'],
+      ['hits', 'Invisible hit zones'],
+      ['covers', 'Cover the moving parts'],
+      ['knobs', 'Film-strip knobs'],
+      ['fonts', 'Readouts & fonts'],
+      ['verify', 'Verify it moves'],
+    ],
+    keywords:
+      'reference art plate panel photo design port figma export webp intern registerimage cover patch hit zone invisible useparamgestures film strip filmstrip bakeknobstrip knob sprite readout textlength seven segment neutralise workflow guide tutorial pixel exact hardware skeuomorphic',
+  },
+  {
     slug: 'parameters',
     title: 'Audio parameters',
     group: 'AUDIO & NATIVE',

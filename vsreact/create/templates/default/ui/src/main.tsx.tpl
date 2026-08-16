@@ -6,6 +6,8 @@ import { render, configureTheme, View, Text, ParamKnob } from "@vsreact/core";
 import { posthog, useEditorSession, PostHogErrorBoundary } from "@vsreact/posthog";
 {{/IF_POSTHOG}}
 
+// One palette for the whole UI. `accent` is special: every built-in control
+// (knob arcs, slider fills, meters, keyboards) paints its value with it.
 configureTheme({
   colors: {
     background: "#060806",
@@ -53,6 +55,15 @@ function App() {
     </View>
   );
 }
+
+// Reaching past the built-ins? The three APIs custom UIs lean on:
+//  - useParamGestures(handle)  — drag/reset/wheel handlers (with the
+//    automation begin/end bracket) for invisible hit zones over your art
+//  - registerImage(src)        — intern a big image natively; the bridge
+//    carries a short handle instead of megabytes of base64
+//  - normalizedToNatural(v, p) — real units from the handle's host range,
+//    so nothing mirrors the APVTS in TS
+// Guide: https://vsreact.n9records.com/docs/reference-art
 
 {{#IF_POSTHOG}}
 render(

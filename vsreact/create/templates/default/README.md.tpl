@@ -48,3 +48,5 @@ committing a real one to a public repo.
 - Quick start: <https://vsreact.n9records.com/docs/quick-start>
 - Components: <https://vsreact.n9records.com/components>
 - Parameters & gestures: <https://vsreact.n9records.com/docs/parameters>
+- Ship your own panel art (plates, hit zones, film-strip knobs):
+  <https://vsreact.n9records.com/docs/reference-art>

@@ -27,9 +27,12 @@ const context = browser.contexts()[0];
 const page = context.pages()[0] ?? (await context.newPage());
 await page.bringToFront();
 await page.setViewportSize({ width: 1280, height: 800 });
-await page.goto(base + "/", { waitUntil: "networkidle", timeout: 60000 });
+// Accept a route with or without the leading slash: Git Bash rewrites a
+// leading-slash argv into a Windows path before node sees it.
+const route = process.argv[3] ? (process.argv[3].startsWith("/") ? process.argv[3] : "/" + process.argv[3]) : "/";
+await page.goto(base + route, { waitUntil: "networkidle", timeout: 60000 });
 await page.waitForTimeout(1600); // entrance animations + first beam sweep
-await page.screenshot({ path: ".shots/hero-animated.png", timeout: 20000 });
-console.log("shot -> .shots/hero-animated.png");
+await page.screenshot({ path: process.argv[4] ?? ".shots/hero-animated.png", timeout: 20000 });
+console.log("shot -> " + (process.argv[4] ?? ".shots/hero-animated.png"));
 await browser.close();
 child.kill();

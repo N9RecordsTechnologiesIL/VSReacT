@@ -216,11 +216,13 @@ export const DOCS: DocPage[] = [
     group: 'INTERNALS',
     headings: [
       ['ops', 'The mutation protocol'],
+      ['handshake', 'Version handshake'],
       ['engine', 'The engine'],
       ['layout', 'Layout & painting'],
       ['bridge', 'The C bridge'],
     ],
-    keywords: 'internals how it works reconciler mutation ops shadow tree quickjs yoga painter flush dispatch protocol',
+    keywords:
+      'internals how it works reconciler mutation ops shadow tree quickjs yoga painter flush dispatch protocol version handshake mismatch nativeprotocol protocol_version frozen freeze stuck not updating git_tag fetchcontent upgrade compatibility',
   },
   {
     slug: 'testing',

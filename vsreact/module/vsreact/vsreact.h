@@ -33,6 +33,7 @@ END_JUCE_MODULE_DECLARATION
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 
+#include "source/Protocol.h"
 #include "source/JsRuntime.h"
 #include "source/Scheduler.h"
 #include "source/FontRegistry.h"

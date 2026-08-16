@@ -11,8 +11,10 @@ const handles = new Map<string, string>();
  * repeat calls (including from several components sharing one asset) return
  * the same handle without crossing the bridge again.
  *
- * On a native side too old to have the binding, this returns the source
- * unchanged: the raw data URI still paints, just without the interning win.
+ * On a native side too old to have the binding (below protocol 2), this
+ * returns the source unchanged: the raw data URI still paints, just without
+ * the interning win. The presence of the function is the check here rather
+ * than the protocol level — it's the more direct test of the same thing.
  */
 export function registerImage(src: string): string {
   if (typeof src !== "string" || src.length === 0)

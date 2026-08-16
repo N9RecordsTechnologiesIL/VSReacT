@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- **The bundle and the module now agree on a protocol version.** They are
+  separately versioned halves of one program — `@vsreact/core` from npm,
+  the module from a CMake `GIT_TAG` — and bumping one without the other
+  used to fail invisibly: `applyOp` ignores an op it doesn't know, its
+  assertion compiles out in Release, so a bundle newer than its module
+  painted one frame and then froze with nothing in the log. The module
+  now publishes `__vsreact_protocol` before evaluating the bundle;
+  `patchProps` falls back to a full `setProps` against a pre-0.0.28
+  module and warns once, naming both versions and the fix. Exported as
+  `PROTOCOL_VERSION` and `nativeProtocol()` for support dumps.
+- **The paint benchmark no longer fails a Debug build.** Its ceiling was
+  a Release number, so `cmake --build` without `-DCMAKE_BUILD_TYPE=Release`
+  reported a phantom regression (77ms against a 60ms budget); Debug now
+  has its own ceiling.
+- The Select overlay test polls for the commit it asserts on instead of
+  assuming one macrotask tick, which it isn't under load.
+
 ## 0.0.29 — 2026-08-16
 
 The painter round: with the bridge fast by default (0.0.28), the painter

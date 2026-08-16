@@ -9,12 +9,14 @@
 // removed key travels as null. A style-only change (one animation frame, one
 // knob turn) therefore never re-ships an unchanged multi-megabyte image src,
 // and a re-render that changed nothing sends nothing at all. The first send
-// for a node is a full ["setProps"] (replace semantics on the C++ side).
+// for a node is a full ["setProps"] (replace semantics on the C++ side), as
+// is every send when the native module predates protocol 2 — see protocol.ts.
 //
 // Honest limit: native-side hover/active/focus style merges don't transition
 // (they never round-trip through JS). Animate those with onMouseEnter state.
 
 import { queueOp, flushOps } from "./bridge";
+import { requireProtocol } from "./protocol";
 import { Easing, type EasingFn } from "./animation";
 import type { Style, StyleValue } from "./tw";
 
@@ -285,7 +287,14 @@ function queueProps(nodeId: number, payload: Payload): void {
   }
 
   const patch = diffPayload(prev, payload);
-  if (patch !== undefined) queueOp(["patchProps", nodeId, patch]);
+  if (patch === undefined) return;
+
+  // A module below protocol 2 drops patchProps on the floor — silently, in
+  // Release — which would freeze the UI after its first frame. setProps is a
+  // strict superset, so fall back to replacing the payload wholesale. Skipping
+  // the send when nothing changed is safe at either level.
+  if (requireProtocol(2, "prop diffing (patchProps)")) queueOp(["patchProps", nodeId, patch]);
+  else queueOp(["setProps", nodeId, payload]);
 }
 
 function ensureDriver(): void {

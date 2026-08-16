@@ -1,4 +1,5 @@
 #include "JsRuntime.h"
+#include "Protocol.h"
 
 #include <quickjs.h>
 
@@ -229,6 +230,10 @@ struct JsRuntime::Impl
         reg ("__vsreact_log", jsLog, 2);
         reg ("__vsreact_setTimer", jsSetTimer, 2);
         reg ("__vsreact_clearTimer", jsClearTimer, 1);
+
+        // Published before the bundle is evaluated so a newer bundle can
+        // degrade to ops this module understands (see Protocol.h).
+        JS_SetPropertyStr (ctx, global, "__vsreact_protocol", JS_NewInt32 (ctx, protocolVersion));
 
         JS_FreeValue (ctx, global);
     }

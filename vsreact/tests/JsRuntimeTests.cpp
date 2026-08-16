@@ -65,6 +65,16 @@ public:
             expectEquals (capture.logs.joinIntoString (";"), juce::String ("warn:hello"));
         }
 
+        beginTest ("__vsreact_protocol is published before any script runs");
+        {
+            // A bundle newer than this module degrades by reading this global.
+            // Drop it and the mismatch goes back to being an invisible freeze.
+            Capture capture;
+            vsreact::JsRuntime js { capture.callbacks() };
+            expect (js.evaluate ("__vsreact_flush(String(__vsreact_protocol));", "test.js"));
+            expectEquals (capture.flushes.joinIntoString (";"), juce::String (vsreact::protocolVersion));
+        }
+
         beginTest ("__vsreact_flush reaches onFlush");
         {
             Capture capture;

@@ -87,6 +87,56 @@ export default function Page() {
         UI is a single bridge crossing, not hundreds.
       </p>
 
+      <h3 id="handshake">Version handshake</h3>
+      <p>
+        Your UI bundle and the native module are two separately versioned halves of one
+        program: <code>@vsreact/core</code> comes from npm, the module from the{' '}
+        <code>GIT_TAG</code> in your <code>FetchContent</code> block. Bumping one and
+        forgetting the other is a one-line mistake, so the module publishes the protocol
+        level it speaks as <code>__vsreact_protocol</code> before your bundle is evaluated,
+        and features that need a newer level fall back instead.
+      </p>
+      <p>
+        Without it the mismatch is invisible: a module that doesn&apos;t know an op ignores
+        it, and the assertion that catches this compiles out in Release — so a bundle newer
+        than its module would paint its first frame and then freeze, with no error, no
+        overlay and nothing in the log. Instead, <code>patchProps</code> degrades to a full{' '}
+        <code>setProps</code> (a strict superset) and one warning names both versions.
+      </p>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>LEVEL</th>
+            <th>ADDED</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <code>1</code>
+            </td>
+            <td>
+              The op table above minus <code>patchProps</code>. Modules up to 0.0.27
+              publish no level at all and are read as 1.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>2</code>
+            </td>
+            <td>
+              <code>patchProps</code>; interned <code>&quot;img:N&quot;</code> handles as an{' '}
+              <code>&lt;Image src&gt;</code>. Modules from 0.0.28.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Read the module&apos;s level at runtime with <code>nativeProtocol()</code> and your
+        bundle&apos;s with <code>PROTOCOL_VERSION</code> — both worth putting in a support
+        dump alongside <code>VERSION</code>.
+      </p>
+
       <h2 id="engine">The engine</h2>
       <p>
         The engine is QuickJS-ng — a complete ES2023 interpreter around one megabyte, running

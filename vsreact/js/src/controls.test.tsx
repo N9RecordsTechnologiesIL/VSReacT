@@ -22,6 +22,18 @@ const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
 // A node's first props arrive as setProps; re-renders and animation frames
 // arrive as key-granular patchProps. Update assertions look at both.
 const propsOps = () => allOps().filter((op: any) => op[0] === "setProps" || op[0] === "patchProps");
+
+/** Poll until `probe` finds something, instead of assuming one macrotask tick
+    is enough for a commit — on a loaded machine it sometimes isn't, and the
+    failure looks like a logic bug rather than the timing artefact it is. */
+async function until<T>(probe: () => T | undefined, label: string, tries = 60): Promise<T> {
+  for (let i = 0; i < tries; i++) {
+    const found = probe();
+    if (found !== undefined) return found;
+    await new Promise((r) => setTimeout(r, 2));
+  }
+  throw new Error(`timed out waiting for ${label}`);
+}
 const dispatch = (msg: unknown) =>
   (globalThis as Record<string, any>).__vsreact_dispatch(JSON.stringify(msg));
 
@@ -238,10 +250,13 @@ describe("onLayout + Select", () => {
     await new Promise((r) => setTimeout(r, 0)); // let effects flush
 
     // trigger has both layout + click listeners
-    const trigger: any = opsNamed("setProps").find(
-      (op: any) => op[2]?.listeners?.includes("layout") && op[2]?.listeners?.includes("click"),
+    const trigger: any = await until(
+      () =>
+        opsNamed("setProps").find(
+          (op: any) => op[2]?.listeners?.includes("layout") && op[2]?.listeners?.includes("click"),
+        ),
+      "the Select trigger",
     );
-    expect(trigger).toBeDefined();
 
     // layout arrives, then the click opens the menu
     dispatch({
@@ -257,24 +272,30 @@ describe("onLayout + Select", () => {
     // menu panel positioned under the trigger, same width. The position can
     // arrive with the mount (setProps) or as a later patch when the layout
     // state committed after the menu opened — accept either.
-    const panel: any = propsOps().find(
-      (op: any) => op[2]?.style?.top === 40 + 33 + 4 && op[2]?.style?.left === 20,
+    const panel: any = await until(
+      () =>
+        propsOps().find((op: any) => op[2]?.style?.top === 40 + 33 + 4 && op[2]?.style?.left === 20),
+      "the overlay menu panel",
     );
-    expect(panel).toBeDefined();
     expect(panel[2].style.width).toBe(160);
 
     // find the "SAW" row: rawtext -> Text -> row
-    const sawText: any = allOps().find((op: any) => op[0] === "setText" && op[2] === "SAW");
-    expect(sawText).toBeDefined();
+    const sawText: any = await until(
+      () => allOps().find((op: any) => op[0] === "setText" && op[2] === "SAW"),
+      "the SAW row",
+    );
     const parents = parentMap();
     const rowId = parents.get(parents.get(sawText[1])!)!;
 
     dispatch({ kind: "event", nodeId: rowId, type: "click" });
-    await new Promise((r) => setTimeout(r, 0));
 
+    await until(() => (seen.length > 0 ? seen : undefined), "the onChange callback");
     expect(seen).toEqual([1]);
     // menu removed after selection
-    expect(allOps().some((op: any) => op[0] === "removeChild")).toBe(true);
+    await until(
+      () => allOps().find((op: any) => op[0] === "removeChild"),
+      "the menu to be removed",
+    );
   });
 
   test("ParamSelect writes a begin/set/end gesture with the index mapping", async () => {

@@ -14,6 +14,7 @@ const batches: unknown[][][] = [];
 
 import { render, unmount, View, Image } from "./index";
 import { diffPayload, payloadValueEquals } from "./transitions";
+import { resetProtocolWarnings } from "./protocol";
 
 const allOps = () => batches.flat();
 const opsNamed = (name: string) => allOps().filter((op: any) => op[0] === name);
@@ -130,5 +131,48 @@ describe("bridge sends", () => {
 
     const fresh: any = opsNamed("setProps").find((op: any) => op[2]?.src === BIG_SRC);
     expect(fresh).toBeDefined(); // full props, not a patch against a dead node
+  });
+
+  test("against a pre-2 module, updates fall back to complete setProps", () => {
+    // A module that predates patchProps drops it silently in Release, which
+    // would freeze the UI after frame one. The fallback costs bandwidth (the
+    // big src rides along again) and keeps the UI live — the right trade.
+    const g = globalThis as Record<string, any>;
+    g.__vsreact_protocol = 1;
+    resetProtocolWarnings();
+    const realWarn = console.warn;
+    console.warn = () => {};
+
+    try {
+      function Panel() {
+        const [w, setW] = useState(100);
+        return (
+          <View onClick={() => setW(120)}>
+            <Image src={BIG_SRC} style={{ width: w, height: 50 }} />
+          </View>
+        );
+      }
+
+      render(<Panel />);
+      const initial: any = opsNamed("setProps").find((op: any) => op[2]?.src === BIG_SRC);
+      const clickable: any = opsNamed("setProps").find((op: any) =>
+        op[2]?.listeners?.includes("click"),
+      );
+      batches.length = 0;
+
+      g.__vsreact_dispatch(JSON.stringify({ kind: "event", nodeId: clickable[1], type: "click" }));
+
+      expect(opsNamed("patchProps")).toHaveLength(0);
+
+      const replaced: any = opsNamed("setProps").find((op: any) => op[1] === initial[1]);
+      expect(replaced).toBeDefined();
+      expect(replaced[2].style.width).toBe(120);
+      // Complete, because setProps replaces rather than merges on the C++ side.
+      expect(replaced[2].src).toBe(BIG_SRC);
+    } finally {
+      console.warn = realWarn;
+      delete g.__vsreact_protocol;
+      resetProtocolWarnings();
+    }
   });
 });

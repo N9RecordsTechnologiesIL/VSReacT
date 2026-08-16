@@ -113,10 +113,19 @@ public:
 
         expect (inkCount (target) > 0, "the bench scene actually painted");
 
-        // Post shadow/gradient caching this measures ~8ms on a dev machine
-        // (from 153ms before). The ceiling leaves CI headroom while still
-        // catching a regression back to per-frame blurs.
-        expect (perFrameMs < 60.0, "paint regressed toward per-frame blur costs");
+        // Post shadow/gradient caching this measures ~8ms Release on a dev
+        // machine (from 153ms before). The ceiling leaves CI headroom while
+        // still catching a regression back to per-frame blurs. Debug runs the
+        // same scene about ten times slower — unoptimised JUCE graphics, no
+        // inlining — so it gets its own ceiling rather than failing the suite
+        // for everyone who builds the tests without -DCMAKE_BUILD_TYPE=Release.
+       #if JUCE_DEBUG
+        const auto ceilingMs = 400.0;
+       #else
+        const auto ceilingMs = 60.0;
+       #endif
+
+        expect (perFrameMs < ceilingMs, "paint regressed toward per-frame blur costs");
     }
 };
 

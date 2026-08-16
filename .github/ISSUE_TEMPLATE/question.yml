@@ -1,0 +1,25 @@
+name: Question / support
+description: How do I do X? Is Y supported? Why does Z work this way?
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: The question
+      description: >
+        Worth 30 seconds first: the docs search at vsreact.n9records.com/docs
+        indexes every guide and component, and the FAQ covers the common ones
+        (webview? performance? which formats? licensing?).
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What you're building (optional)
+      description: >
+        A sentence of context often changes the answer — a compressor UI from
+        stock components and a pixel-exact port of designer art get different
+        advice.
+    validations:
+      required: false

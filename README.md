@@ -84,7 +84,10 @@ audio software: the framework owns every pixel, so beautiful is the default.
 
 ## Install
 
-Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framework/JUCE), and [Bun](https://bun.sh) (or any Node package manager).
+Requires CMake 3.22+, a C++17 toolchain, [JUCE 8](https://github.com/juce-framework/JUCE)
+(8.0.4+ on Windows/macOS; 8.0.14+ on Linux — earlier Linux JUCE segfaults shaping
+text when a custom font is missing a glyph), and [Bun](https://bun.sh) (or any
+Node package manager).
 
 **The UI package:**
 
@@ -98,12 +101,16 @@ bun add @vsreact/core    # or: npm install @vsreact/core / yarn add @vsreact/cor
 include(FetchContent)
 FetchContent_Declare(vsreact
     GIT_REPOSITORY https://github.com/N9RecordsTechnologiesIL/VSReacT.git
-    GIT_TAG        v0.0.1
+    GIT_TAG        v0.0.31   # keep in step with your @vsreact/core version
     SOURCE_SUBDIR  vsreact)
 FetchContent_MakeAvailable(vsreact)
 
 target_link_libraries(MyPlugin PRIVATE vsreact)
 ```
+
+The tag and the npm version are two halves of one program — move them
+together. If they ever drift, the runtime notices (they handshake a protocol
+version at startup) and degrades with a console warning instead of breaking.
 
 ## Quick start
 
@@ -160,7 +167,8 @@ checkout nests inside this repository as `StashTrack/` (its own git repo).
 - `vsreact/tests/` + `vsreact/js/*.test.*` — C++ (CTest) and TS (`bun test`) suites.
 - `site/` — the framework's website (Next.js).
 - `ci/` — CI entry point building the module + tests against a JUCE checkout
-  (Windows + macOS on every push).
+  (Windows, macOS, and Linux on every push, plus pluginval on the VST3 and
+  auval on the AU).
 
 ## Testing
 

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://vsreact.n9records.com/docs
+    about: Guides, the component reference, and an FAQ that answers the webview/performance/licensing questions.

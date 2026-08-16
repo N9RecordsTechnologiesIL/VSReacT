@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.0.31 — 2026-08-16
 
+- **AU is now a validated format.** The macOS CI job builds the gain
+  example as an Audio Unit and gates on `auval` — Apple's own validator —
+  the AU twin of the Windows pluginval job. All six examples and the
+  scaffolder template declare `FORMATS VST3 AU Standalone` (AU is ignored
+  off-macOS), and every example gets an explicit `BUNDLE_ID`: five had
+  product names with spaces, which JUCE turns into bundle ids macOS
+  rejects — fatal for AU registration specifically.
 - **Linux is now built and tested in CI** (advisory while it burns in, the
   same path macOS took). The module, all six example bundles, and the full
   C++ suite compile and pass on ubuntu-24.04 — after finding a real one:
@@ -12,9 +19,14 @@
   8.0.4 as the supported minimum. The scaffolder's JUCE pin moves to
   8.0.14, and a failing CI test run now surfaces its failing test names as
   public annotations (job logs require auth even on a public repo).
-- The FAQ separates validated platform/format claims (VST3 + Standalone,
-  three OSes in CI, pluginval on Windows) from architectural ones (AU,
-  AAX, LV2).
+- The FAQ separates validated platform/format claims (VST3, AU and
+  Standalone; three OSes in CI; pluginval and auval per commit) from
+  architectural ones (AAX, LV2).
+- For the people a launch brings: CONTRIBUTING.md, bug/question issue
+  templates that ask for `VERSION` + `nativeProtocol()` (the two halves
+  most confusing reports turn out to be), and the README's install
+  snippet — which had pinned `v0.0.1` for five releases — is now held to
+  the current tag by the same CI test that guards the scaffolder pins.
 
 ## 0.0.30 — 2026-08-16
 

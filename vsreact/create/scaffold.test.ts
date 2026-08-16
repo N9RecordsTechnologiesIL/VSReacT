@@ -53,6 +53,15 @@ describe("pinned versions track this repo", () => {
   test("the posthog range matches @vsreact/posthog", () => {
     expect(constant("POSTHOG_RANGE")).toBe(`^${packageVersion("js-posthog")}`);
   });
+
+  test("the README's install snippet pins the current tag", () => {
+    // Same drift class as the scaffolder pins: the README sat at v0.0.1 for
+    // five releases because nothing compared it to anything.
+    const readme = readFileSync(path.join(here, "..", "..", "README.md"), "utf8");
+    const pins = [...readme.matchAll(/GIT_TAG\s+(v[\d.]+)/g)].map((m) => m[1]);
+    expect(pins.length).toBeGreaterThan(0);
+    for (const pin of pins) expect(pin).toBe(`v${core}`);
+  });
 });
 
 describe("rendering a project", () => {

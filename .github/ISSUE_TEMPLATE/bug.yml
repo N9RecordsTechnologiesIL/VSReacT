@@ -1,0 +1,53 @@
+name: Bug report
+description: Something renders wrong, crashes, or doesn't behave as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got. A screenshot helps enormously for rendering bugs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: >
+        The two halves of VSReacT version independently, and most confusing bugs
+        are a mismatch. From your UI code, log `VERSION` and `nativeProtocol()`
+        (both exported by @vsreact/core); the module tag is the GIT_TAG in your
+        FetchContent block.
+      placeholder: |
+        @vsreact/core VERSION: 0.0.30
+        nativeProtocol(): 2
+        module GIT_TAG: v0.0.30
+        JUCE: 8.0.14
+        OS: Windows 11 / macOS 15 / Ubuntu 24.04
+        Host: Standalone / FL Studio 2025 / Ableton 12 / ...
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Smallest reproduction
+      description: >
+        Ideally: a TSX snippet that shows it inside the scaffold
+        (`bun create vsreact repro`), or which example plugin shows it.
+        "Drag the delay example's TIME knob while X" beats a description.
+    validations:
+      required: false
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Console / error overlay output
+      description: >
+        JS errors land in the in-plugin error overlay and on the __vsreact_log
+        callback. Paste anything either produced.
+      render: text
+    validations:
+      required: false

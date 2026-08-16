@@ -26,12 +26,12 @@ export default function Page() {
       <p>
         Architecturally, anything JUCE targets — VSReacT is a JUCE module and never
         touches format-specific code, so it goes wherever your JUCE plugin goes. What
-        that means in practice, honestly: <strong>validated</strong> is VST3 and
-        Standalone, with the C++ suite in CI on Windows, macOS, and Linux and
-        pluginval (strictness 5) gating every commit on Windows.{' '}
-        <strong>Expected to work, not yet validated</strong> is AU, AAX, and LV2 —
-        nothing in the renderer knows the format exists, but we don&apos;t claim what
-        CI doesn&apos;t check.
+        that means in practice, honestly: <strong>validated</strong> is VST3, AU, and
+        Standalone, with the C++ suite in CI on Windows, macOS, and Linux, pluginval
+        (strictness 5) gating every commit&apos;s VST3 on Windows, and auval gating its
+        AU on macOS. <strong>Expected to work, not yet validated</strong> is AAX and
+        LV2 — nothing in the renderer knows the format exists, but we don&apos;t claim
+        what CI doesn&apos;t check.
       </p>
 
       <h2 id="performance">What about performance?</h2>

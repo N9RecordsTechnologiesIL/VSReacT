@@ -20,9 +20,10 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.." vsreact-build)
 juce_add_plugin(SynthExample
     COMPANY_NAME "VSReacT"
     PRODUCT_NAME "VSReacT Synth"
+    BUNDLE_ID "com.vsreact.synth"
     PLUGIN_MANUFACTURER_CODE Vsrt
     PLUGIN_CODE Vss1
-    FORMATS VST3 Standalone
+    FORMATS VST3 AU Standalone
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT FALSE

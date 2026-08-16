@@ -22,9 +22,10 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.." vsreact-build)
 juce_add_plugin(DelayExample
     COMPANY_NAME "VSReacT"
     PRODUCT_NAME "VSReacT Delay"
+    BUNDLE_ID "com.vsreact.delay"
     PLUGIN_MANUFACTURER_CODE Vsrt
     PLUGIN_CODE Vsd1
-    FORMATS VST3 Standalone
+    FORMATS VST3 AU Standalone
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE

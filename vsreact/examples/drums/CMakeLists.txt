@@ -19,12 +19,13 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.." vsreact-build)
 juce_add_plugin(DrumsExample
     COMPANY_NAME "VSReacT"
     PRODUCT_NAME "VSReacT Drums"
+    BUNDLE_ID "com.vsreact.drums"
     PLUGIN_MANUFACTURER_CODE Vsrt
     # Vsk1, not Vsd1: delay already uses that, and a VST3's UID is derived
     # from the manufacturer and plugin codes — two examples sharing one is two
     # plugins a host can't tell apart.
     PLUGIN_CODE Vsk1
-    FORMATS VST3 Standalone
+    FORMATS VST3 AU Standalone
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE

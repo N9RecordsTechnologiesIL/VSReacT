@@ -174,3 +174,41 @@ jobs:
         run: |
           ./pluginval.exe --strictness-level 5 --verbose --timeout-ms 120000 --validate \
             "build-gain/GainExample_artefacts/Release/VST3/VSReacT Gain.vst3"
+
+  # The AU twin of the pluginval job: build the gain example as an Audio Unit
+  # and run it through auval, Apple's own validator (open/render/state/
+  # properties). This is what makes "AU" a tested claim rather than "JUCE
+  # supports it, so probably".
+  auval:
+    name: auval (AU, macOS)
+    runs-on: blacksmith-6vcpu-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: juce-framework/JUCE
+          ref: "8.0.4"
+          path: JUCE
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      # The editor loads the JS bundle from the compiled-in dev path — build
+      # it so auval's open/initialize passes exercise the real UI.
+      - run: bun run build:dist
+        working-directory: vsreact/js
+      - run: bun run build:dist
+        working-directory: vsreact/js-posthog
+      - run: bun run build
+        working-directory: vsreact/examples/gain/ui
+      - name: Configure
+        run: cmake -S vsreact/examples/gain -B build-gain -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE" -DCMAKE_BUILD_TYPE=Release
+      - name: Build AU
+        run: cmake --build build-gain --target GainExample_AU --config Release --parallel 4
+      - name: Validate
+        run: |
+          # auval only sees installed components, and the registrar caches —
+          # install to the user domain and force a rescan before validating.
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "build-gain/GainExample_artefacts/Release/AU/VSReacT Gain.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          # type aufx (effect), subtype = PLUGIN_CODE, manufacturer = PLUGIN_MANUFACTURER_CODE
+          auval -v aufx Vsg1 Vsrt

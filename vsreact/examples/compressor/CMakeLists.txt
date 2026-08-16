@@ -23,7 +23,7 @@ juce_add_plugin(CompressorExample
     BUNDLE_ID "com.vsreact.compressor"
     PLUGIN_MANUFACTURER_CODE Vsrt
     PLUGIN_CODE Vsc2
-    FORMATS VST3 Standalone
+    FORMATS VST3 AU Standalone
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE

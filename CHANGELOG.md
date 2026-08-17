@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.34 — 2026-08-17
 
 - **Fixed: PostHogBridge could hang the DAW's exit.** Its destructor ran
   a final network drain (10s connect timeout, unbounded response read)

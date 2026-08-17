@@ -164,6 +164,16 @@ jobs:
         run: cmake -S vsreact/examples/gain -B build-gain -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE"
       - name: Build VST3
         run: cmake --build build-gain --target GainExample_VST3 --config Release --parallel 4
+      # The compressor too: it's the busiest editor (30Hz meter stream,
+      # constant repaints, presets, resizable) — the local soak found that
+      # exactly that class of UI can hang a validator's exit, so a clean
+      # runner arbitrates whether that's the product or the machine.
+      - run: bun run build
+        working-directory: vsreact/examples/compressor/ui
+      - name: Configure compressor
+        run: cmake -S vsreact/examples/compressor -B build-comp -DJUCE_SOURCE_DIR="${{ github.workspace }}/JUCE"
+      - name: Build compressor VST3
+        run: cmake --build build-comp --target CompressorExample_VST3 --config Release --parallel 4
       - name: Fetch pluginval
         shell: bash
         run: |
@@ -171,9 +181,12 @@ jobs:
           unzip -o pluginval.zip
       - name: Validate
         shell: bash
+        timeout-minutes: 20
         run: |
           ./pluginval.exe --strictness-level 5 --verbose --timeout-ms 120000 --validate \
             "build-gain/GainExample_artefacts/Release/VST3/VSReacT Gain.vst3"
+          ./pluginval.exe --strictness-level 5 --verbose --timeout-ms 120000 --validate \
+            "build-comp/CompressorExample_artefacts/Release/VST3/VSReacT Compressor.vst3"
 
   # The AU twin of the pluginval job: build the gain example as an Audio Unit
   # and run it through auval, Apple's own validator (open/render/state/

@@ -2,6 +2,7 @@
 
 #include <juce_core/juce_core.h>
 
+#include <atomic>
 #include <functional>
 #include <optional>
 
@@ -70,6 +71,7 @@ private:
 
     juce::CriticalSection queueLock;
     juce::Array<juce::var> queuedEvents;
+    std::atomic<bool> shuttingDown { false };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PostHogBridge)
 };

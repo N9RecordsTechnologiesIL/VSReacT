@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Fixed: PostHogBridge could hang the DAW's exit.** Its destructor ran
+  a final network drain (10s connect timeout, unbounded response read)
+  and then `stopThread(4000)` force-killed the thread mid-network-call —
+  which on Windows can corrupt process state so the host never
+  terminates. Found by running pluginval locally against all six
+  examples: the channel plugin validated clean and then the validator
+  process lived forever. Shutdown now drops queued events (logging the
+  count) instead of networking — analytics never holds a DAW's exit
+  hostage — and the thread gets a bound generous enough that an
+  in-flight POST finishes rather than being killed. Verified: the same
+  validation now exits by itself.
+- **All six examples pass pluginval at strictness 5 locally** (CI gates
+  gain; this sweep covered the other five, and caught the hang above).
 - **Error stacks name your source lines.** The build prepends the
   bundle's source map as a one-line global (`sources` + `mappings` only —
   no doubled bundle), the runtime installs a VLQ-decoding

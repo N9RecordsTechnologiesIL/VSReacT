@@ -30,9 +30,15 @@ PostHogBridge::PostHogBridge (Options optionsIn)
 
 PostHogBridge::~PostHogBridge()
 {
+    // Order matters: shuttingDown first, so a drain that's about to start
+    // sees it and skips the network. The generous stopThread bound is for a
+    // POST already in flight — killing a thread inside a network call can
+    // corrupt process state and hang the HOST's exit (found by pluginval:
+    // validation succeeded, the process never terminated).
+    shuttingDown = true;
     signalThreadShouldExit();
     notify();
-    stopThread (4000);
+    stopThread (10000);
 }
 
 juce::String PostHogBridge::loadOrCreateDistinctId() const
@@ -106,7 +112,7 @@ bool PostHogBridge::postBatches()
         batch.swapWith (queuedEvents);
     }
 
-    if (batch.isEmpty() || options.apiKey.isEmpty())
+    if (batch.isEmpty() || options.apiKey.isEmpty() || shuttingDown)
         return true;
 
     auto* payload = new juce::DynamicObject();
@@ -135,7 +141,14 @@ void PostHogBridge::run()
         postBatches();
     }
 
-    postBatches(); // final drain on shutdown
+    // No final network drain: analytics events queued at close are dropped
+    // (and say so), because a plugin must never hold the DAW's exit hostage
+    // on a connect timeout to a telemetry host.
+    const juce::ScopedLock lock (queueLock);
+
+    if (! queuedEvents.isEmpty())
+        juce::Logger::writeToLog ("[vsreact] posthog: dropped " + juce::String (queuedEvents.size())
+                                  + " queued event(s) at shutdown");
 }
 
 } // namespace vsreact

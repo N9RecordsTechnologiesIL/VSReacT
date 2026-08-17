@@ -101,7 +101,7 @@ bun add @vsreact/core    # or: npm install @vsreact/core / yarn add @vsreact/cor
 include(FetchContent)
 FetchContent_Declare(vsreact
     GIT_REPOSITORY https://github.com/N9RecordsTechnologiesIL/VSReacT.git
-    GIT_TAG        v0.0.32   # keep in step with your @vsreact/core version
+    GIT_TAG        v0.0.33   # keep in step with your @vsreact/core version
     SOURCE_SUBDIR  vsreact)
 FetchContent_MakeAvailable(vsreact)
 

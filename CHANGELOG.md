@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.0.33 — 2026-08-17
 
+- **Fixed: the `glass` and `chickenhead` knob faces clipped nothing.** The
+  painter's `clipPolygon` takes a flat numeric `[x,y,…]` array (percent of
+  the frame); those two faces passed a CSS `polygon()` string, which the
+  native side silently ignores — so their pointers painted as plain
+  rectangles hanging off the knob. Both send the array form now, the
+  chicken-head nose uses the gallery's real geometry (tip past the body
+  edge, cream spine line drawn over the base), and the skins test enforces
+  the painter's wire contract instead of "a string crossed the bridge".
 - **All six example plugins are now built from stock components**, each
   themed to the hardware character its plate had: PlainGain's amber-scale
   `instrument` knobs and boxed readout, DirtyDelay's `chickenhead` knobs

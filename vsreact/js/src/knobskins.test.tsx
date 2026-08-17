@@ -27,6 +27,11 @@ beforeEach(() => {
 /** True when any committed payload (or its style) satisfies the probe. */
 const anyPayload = (probe: (payload: any) => boolean) => propsPayloads().some(probe);
 
+/** The C++ painter's clipPolygon contract: a flat, even-length numeric array
+    of at least three x,y pairs (Painter.cpp requires size >= 6). */
+const isPainterPolygon = (v: unknown): v is number[] =>
+  Array.isArray(v) && v.length >= 6 && v.length % 2 === 0 && v.every((n) => typeof n === "number");
+
 describe("knob variants paint their signature geometry", () => {
   const signatures: Array<[KnobVariant, string, (p: any) => boolean]> = [
     [
@@ -53,15 +58,19 @@ describe("knob variants paint their signature geometry", () => {
           (l: any) => l.gradientType === "conic" && l.gradientStops?.length === 15,
         ),
     ],
+    // clipPolygon must be the painter's wire format — a flat numeric [x,y,…]
+    // array with ≥3 points — NOT a CSS string, which the C++ side silently
+    // ignores (this test originally accepted the string and passed while the
+    // nose painted as an unclipped rectangle).
     [
       "glass",
       "a clipped wedge pointer",
-      (p) => typeof p?.style?.clipPolygon === "string" && p.style.clipPolygon.includes("50% 100%"),
+      (p) => isPainterPolygon(p?.style?.clipPolygon),
     ],
     [
       "chickenhead",
       "the pointer nose polygon",
-      (p) => typeof p?.style?.clipPolygon === "string" && p.style.clipPolygon.includes("82%"),
+      (p) => isPainterPolygon(p?.style?.clipPolygon) && p.style.clipPolygon.length === 10,
     ],
     [
       "neon",

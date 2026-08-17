@@ -280,14 +280,15 @@ function GlassFace({ value, size }: KnobFaceProps) {
         />
       </View>
       <Pointer angle={angle}>
-        {/* wedge pointer: a clipped triangle */}
+        {/* wedge pointer: a clipped triangle, tip toward the centre.
+            clipPolygon is a flat [x,y,…] array in percent of the frame. */}
         <View
           style={{
             marginTop: size * 0.14,
             width: wedge,
             height: wedge * 1.1,
             backgroundColor: "#FFFFFF",
-            clipPolygon: "50% 0%, 100% 0%, 50% 100%, 0% 0%",
+            clipPolygon: [0, 0, 100, 0, 50, 100],
             boxShadow: [{ color: "#00000066", radius: 1, offsetY: 1 }],
           }}
         />
@@ -321,20 +322,36 @@ function ChickenheadFace({ value, size }: KnobFaceProps) {
         }}
       />
       <Pointer angle={angle}>
-        {/* the chicken-head nose, tip line on top */}
+        {/* the chicken-head nose: tip pokes past the body edge toward the
+            tick ring, wide base buried in the cap. clipPolygon is a flat
+            [x,y,…] array in percent of the frame. The cream line is a
+            sibling ON TOP of the nose base (children of a clipped node
+            paint unclipped, so it must not live inside the pentagon). */}
         <View
-          className="items-center"
           style={{
-            marginTop: size * 0.06,
+            position: "absolute",
+            left: "50%",
+            translateX: -nose / 2,
+            top: size * 0.06,
             width: nose,
-            height: size * 0.36,
+            height: size * 0.41,
             gradientType: "linear",
-            gradientStops: [{ offset: 0, color: "#38291C" }, { offset: 1, color: "#1D140D" }],
-            clipPolygon: "50% 0%, 100% 82%, 78% 100%, 22% 100%, 0% 82%",
+            gradientStops: [{ offset: 0, color: "#3E2E1F" }, { offset: 1, color: "#1D140D" }],
+            clipPolygon: [50, 0, 100, 82, 78, 100, 22, 100, 0, 82],
           }}
-        >
-          <View style={{ marginTop: size * 0.05, width: 3, height: size * 0.16, backgroundColor: "#F4E9D4" }} />
-        </View>
+        />
+        <View
+          className="rounded-[1]"
+          style={{
+            position: "absolute",
+            left: "50%",
+            translateX: -1.5,
+            top: size * 0.23,
+            width: 3,
+            height: size * 0.17,
+            backgroundColor: "#F4E9D4",
+          }}
+        />
       </Pointer>
     </>
   );

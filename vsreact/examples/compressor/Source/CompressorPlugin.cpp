@@ -258,6 +258,8 @@ public:
         // saved size with the clamped construction-time bounds.
         const int savedW = (int) processor.state.state.getProperty ("uiWidth", 720);
         const int savedH = (int) processor.state.state.getProperty ("uiHeight", 420);
+        setResizable (true, true);
+        setResizeLimits (600, 360, 1280, 800);
         setSize (savedW, savedH);
         constructed = true;
         startTimerHz (30);

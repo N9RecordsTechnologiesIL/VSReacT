@@ -31,8 +31,10 @@ public:
 
         g.setColour (juce::Colour (0xffff5f6d));
         g.setFont (juce::FontOptions { 20.0f, juce::Font::bold });
-        g.drawText ("VSReacT — JavaScript error", area.removeFromTop (32),
-                    juce::Justification::centredLeft);
+        // fromUTF8, not a bare literal: a char* constructor treats the bytes
+        // as Latin-1 and the em dash renders as mojibake.
+        g.drawText (juce::String::fromUTF8 ("VSReacT \xe2\x80\x94 JavaScript error"),
+                    area.removeFromTop (32), juce::Justification::centredLeft);
 
         area.removeFromTop (8);
 

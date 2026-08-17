@@ -3,6 +3,8 @@
 // expect. The __vsreact_* natives are registered by the C++ host; when absent
 // (e.g. under `bun test`) the shims fall back to the platform implementations.
 
+import { mapStackTrace, type RawSourceMap } from "./sourcemap";
+
 export type NativeFns = {
   __vsreact_flush(json: string): void;
   __vsreact_nativeCall(name: string, argsJson: string): string;
@@ -83,6 +85,23 @@ if (isHosted) {
   };
 
   g.performance ??= { now: () => Date.now() } as Performance;
+
+  // Stack-trace translation. The build can prepend the bundle's source map
+  // as `__vsreact_sourcemap = {file, lineOffset, map}` (one line, so the
+  // offset is knowable); the native side calls this with a raw QuickJS stack
+  // before showing the error overlay. Decoding is lazy and any failure
+  // returns the stack untouched — the mapper must never make an error worse.
+  g.__vsreact_mapStack = (stack: string): string => {
+    try {
+      const holder = g.__vsreact_sourcemap as
+        | { file: string; lineOffset: number; map: RawSourceMap }
+        | undefined;
+      if (!holder || typeof stack !== "string") return stack;
+      return mapStackTrace(stack, holder.map, holder.file, holder.lineOffset);
+    } catch {
+      return stack;
+    }
+  };
   // Typed loosely on purpose: the dist build has no Node/Bun types, and the
   // shim only exists for libraries that probe NODE_ENV.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -87,8 +87,12 @@ render(<App />);`}</Code>
       <p>
         If your bundle throws — at load or later inside an effect — the plugin does not die
         silently: VSReacT renders a red <strong>error overlay</strong> with the message and
-        stack trace right inside the plugin window. <code>console.log</code> routes to the
-        native logger, so your debugger’s output window shows JS logs alongside C++ ones.
+        stack trace right inside the plugin window. And the stack names <em>your</em> lines:
+        the build prepends the bundle&apos;s source map, so frames read{' '}
+        <code>src/main.tsx:47</code> instead of <code>main.js:3021</code> (the scaffold and
+        the shared example builder both do this; any frame the map can&apos;t resolve passes
+        through untouched). <code>console.log</code> routes to the native logger, so your
+        debugger&apos;s output window shows JS logs alongside C++ ones.
       </p>
 
       <Pager current="integration" />

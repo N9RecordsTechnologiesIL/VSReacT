@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **Error stacks name your source lines.** The build prepends the
+  bundle's source map as a one-line global (`sources` + `mappings` only —
+  no doubled bundle), the runtime installs a VLQ-decoding
+  `__vsreact_mapStack`, and the native error path translates stacks
+  through it before the overlay — so a throw shows
+  `src/main.tsx:131`, not `main.js:7858`. Verified live by planting a
+  throw and photographing the overlay. Line-only QuickJS frames resolve
+  by the generated line's majority source line; anything unmappable
+  passes through untouched, and a mapper failure can never make error
+  reporting worse (reentrancy-guarded, exception-swallowing, C++-tested).
+  Also fixed while in there: the overlay title's em dash rendered as
+  mojibake (bare UTF-8 literal in a char* constructor).
 - **Presets, done once.** `vsreact::PresetManager` (factory presets as
   natural-unit parameter values; user presets as APVTS snapshots in the
   per-user app-data directory; automatic dirty tracking from parameter

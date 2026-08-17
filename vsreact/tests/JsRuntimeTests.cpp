@@ -106,6 +106,32 @@ public:
             expect (capture.errors[0].containsIgnoreCase ("stack"));
         }
 
+        beginTest ("stacks route through __vsreact_mapStack when the bundle installs one");
+        {
+            // The runtime installs a real source-map translator; here a stub
+            // proves the native plumbing: whatever the bundle's mapper
+            // returns is what the error overlay gets.
+            Capture capture;
+            vsreact::JsRuntime js { capture.callbacks() };
+            expect (! js.evaluate ("globalThis.__vsreact_mapStack = (s) => 'MAPPED\\n' + s;\n"
+                                   "function boom() { throw new Error('kaboom'); } boom();",
+                                   "main.js"));
+            expect (capture.errors.size() == 1);
+            expect (capture.errors[0].contains ("MAPPED"));
+            expect (capture.errors[0].contains ("boom"));
+        }
+
+        beginTest ("a mapper that itself throws must not lose the raw stack");
+        {
+            Capture capture;
+            vsreact::JsRuntime js { capture.callbacks() };
+            expect (! js.evaluate ("globalThis.__vsreact_mapStack = () => { throw new Error('mapper broke'); };\n"
+                                   "function boom() { throw new Error('kaboom'); } boom();",
+                                   "main.js"));
+            expect (capture.errors.size() == 1);
+            expect (capture.errors[0].contains ("boom")); // the raw stack survived
+        }
+
         beginTest ("thrown errors reach onError with a stack");
         {
             Capture capture;

@@ -84,8 +84,45 @@ struct JsRuntime::Impl
     void reportError (const juce::String& message, const juce::String& stack)
     {
         if (cbs.onError != nullptr)
-            cbs.onError (message, stack);
+            cbs.onError (message, mapStack (stack));
     }
+
+    /** Translate a raw QuickJS stack through the bundle's source map (the
+        runtime installs __vsreact_mapStack; the build prepends the map), so
+        the error overlay names src/main.tsx:47 instead of main.js:3021.
+        Guarded against reentrancy and any failure: mapping an error must
+        never be able to make reporting it worse. */
+    juce::String mapStack (const juce::String& stack)
+    {
+        if (stack.isEmpty() || mappingStack)
+            return stack;
+
+        const juce::ScopedValueSetter<bool> guard (mappingStack, true);
+
+        JSValue global = JS_GetGlobalObject (ctx);
+        JSValue fn = JS_GetPropertyStr (ctx, global, "__vsreact_mapStack");
+        juce::String result = stack;
+
+        if (JS_IsFunction (ctx, fn))
+        {
+            JSValue arg = JS_NewString (ctx, stack.toRawUTF8());
+            JSValue mapped = JS_Call (ctx, fn, JS_UNDEFINED, 1, &arg);
+
+            if (JS_IsString (mapped))
+                result = toString (ctx, mapped);
+            else if (JS_IsException (mapped))
+                JS_FreeValue (ctx, JS_GetException (ctx)); // swallow — raw stack wins
+
+            JS_FreeValue (ctx, mapped);
+            JS_FreeValue (ctx, arg);
+        }
+
+        JS_FreeValue (ctx, fn);
+        JS_FreeValue (ctx, global);
+        return result;
+    }
+
+    bool mappingStack = false;
 
     void reportPendingException()
     {

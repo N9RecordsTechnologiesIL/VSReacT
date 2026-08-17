@@ -57,6 +57,7 @@ export async function buildExampleUi(uiDir: string, opts: BuildExampleUiOptions 
     target: "browser",
     format: "iife",
     minify: false,
+    sourcemap: "external",
     define: {
       "process.env.NODE_ENV": '"production"',
     },
@@ -67,6 +68,23 @@ export async function buildExampleUi(uiDir: string, opts: BuildExampleUiOptions 
     process.exit(1);
   }
 
-  await Bun.write(join(uiDir, "build/main.js"), await result.outputs[0].text());
-  console.log("built src/main.tsx -> build/main.js");
+  const bundle = result.outputs.find((o) => o.kind === "entry-point") ?? result.outputs[0];
+  const mapArtifact = result.outputs.find((o) => o.kind === "sourcemap");
+  let text = await bundle.text();
+
+  // Prepend the source map as ONE line so error stacks translate back to
+  // src/*.tsx (see runtime's __vsreact_mapStack). Prepended — not appended —
+  // because an error thrown during initial evaluation must already have it;
+  // being exactly one line makes the line offset a constant 1.
+  if (mapArtifact !== undefined) {
+    const full = JSON.parse(await mapArtifact.text());
+    // Line mapping needs sources + mappings only; sourcesContent embeds every
+    // original file and would double the bundle.
+    const map = { version: full.version, sources: full.sources, mappings: full.mappings };
+    const holder = JSON.stringify({ file: "main.js", lineOffset: 1, map });
+    text = `globalThis.__vsreact_sourcemap = ${holder};\n${text}`;
+  }
+
+  await Bun.write(join(uiDir, "build/main.js"), text);
+  console.log(`built src/main.tsx -> build/main.js${mapArtifact !== undefined ? " (+sourcemap)" : ""}`);
 }

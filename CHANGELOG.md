@@ -13,8 +13,16 @@
   hostage — and the thread gets a bound generous enough that an
   in-flight POST finishes rather than being killed. Verified: the same
   validation now exits by itself.
-- **All six examples pass pluginval at strictness 5 locally** (CI gates
-  gain; this sweep covered the other five, and caught the hang above).
+- **All six examples now pass pluginval at strictness 5**, and CI gates
+  the two ends of the spectrum on every commit: gain (simplest) and the
+  compressor (busiest — 30Hz meters, presets, resizable). The local sweep
+  that covered the other four also caught the PostHog hang above, plus a
+  machine-local curiosity worth recording: on the dev box, the busiest
+  editor can leave the validator process parked (~30 idle threads) after
+  a clean SUCCESS — bisected past PresetManager, resizability and the
+  bundle (a minimal UI exits clean; the standalone always exits clean),
+  and it does not reproduce on CI's clean runner, pointing at the local
+  graphics stack rather than the product.
 - **Error stacks name your source lines.** The build prepends the
   bundle's source map as a one-line global (`sources` + `mappings` only —
   no doubled bundle), the runtime installs a VLQ-decoding

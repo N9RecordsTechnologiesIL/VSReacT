@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- **Presets, done once.** `vsreact::PresetManager` (factory presets as
+  natural-unit parameter values; user presets as APVTS snapshots in the
+  per-user app-data directory; automatic dirty tracking from parameter
+  listeners) paired with `usePresets()` and `<PresetBrowser>` — the
+  prev/next/name/save strip every plugin header has, with a grouped menu
+  and a save dialog. Factory names are reserved, file names sanitised,
+  the wire protocol documented at /docs/presets. The compressor example
+  wears it with four factory sounds.
+- **Resizable editors, the recipe.** Panels are flexbox, so a resizable
+  editor reflows instead of scaling; the compressor example is now
+  resizable (600×360–1280×800) with its size persisted through the APVTS
+  state tree — verified by resizing, relaunching, and capturing. The
+  docs cover the one trap: install the constrainer *after* reading the
+  saved size, because setResizeLimits fires resized().
+
 ## 0.0.33 — 2026-08-17
 
 - **Fixed: the `glass` and `chickenhead` knob faces clipped nothing.** The

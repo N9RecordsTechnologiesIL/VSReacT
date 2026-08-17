@@ -230,13 +230,16 @@ class CompressorEditor final : public juce::AudioProcessorEditor,
 {
 public:
     explicit CompressorEditor (CompressorProcessor& p)
-        : AudioProcessorEditor (&p), processor (p), bridge (p.state)
+        : AudioProcessorEditor (&p), processor (p), bridge (p.state),
+          presets (p.state, presetOptions())
     {
         vsreact::RootOptions options;
         options.bundleFile = juce::File (juce::String (COMPRESSOR_EXAMPLE_BUNDLE_PATH));
         options.watchForChanges = true;
         options.onNativeCall = [this] (const juce::String& name, const juce::var& args) -> juce::var
         {
+            if (auto handled = presets.handleNativeCall (name, args))
+                return *handled;
             if (auto handled = bridge.handleNativeCall (name, args))
                 return *handled;
 
@@ -245,14 +248,63 @@ public:
 
         root = std::make_unique<vsreact::RootView> (std::move (options));
         bridge.attach (*root);
+        presets.attach (*root);
         addAndMakeVisible (*root);
-        setSize (720, 420);
+
+        // Resizable, with the size surviving the session: the whole panel is
+        // flexbox, so any size in the limits reflows instead of scaling.
+        // Read the saved size BEFORE installing the constrainer — its limits
+        // fire resized(), and persisting from that call would overwrite the
+        // saved size with the clamped construction-time bounds.
+        const int savedW = (int) processor.state.state.getProperty ("uiWidth", 720);
+        const int savedH = (int) processor.state.state.getProperty ("uiHeight", 420);
+        setResizable (true, true);
+        setResizeLimits (600, 360, 1280, 800);
+        setSize (savedW, savedH);
+        constructed = true;
         startTimerHz (30);
     }
 
-    void resized() override { root->setBounds (getLocalBounds()); }
+    void resized() override
+    {
+        if (root != nullptr)
+            root->setBounds (getLocalBounds());
+
+        // Persist through the APVTS state tree — rides along with
+        // get/setStateInformation for free, so reopening a project reopens
+        // the editor at the size you left it.
+        if (constructed)
+        {
+            processor.state.state.setProperty ("uiWidth", getWidth(), nullptr);
+            processor.state.state.setProperty ("uiHeight", getHeight(), nullptr);
+        }
+    }
 
 private:
+    static vsreact::PresetManager::Options presetOptions()
+    {
+        // Factory presets are parameter values in natural units — the same
+        // numbers you'd dial in by hand. User presets save alongside them as
+        // files under the per-user app-data directory.
+        vsreact::PresetManager::Options options;
+        options.appName = "VSReacT Compressor";
+        options.factoryPresets = {
+            { "Default",
+              { { "threshold", -18.0f }, { "ratio", 4.0f }, { "attack", 8.0f },
+                { "release", 140.0f }, { "knee", 6.0f }, { "makeup", 0.0f }, { "mix", 100.0f } } },
+            { "Gentle Bus",
+              { { "threshold", -12.0f }, { "ratio", 2.0f }, { "attack", 30.0f },
+                { "release", 250.0f }, { "knee", 12.0f }, { "makeup", 1.5f }, { "mix", 100.0f } } },
+            { "Drum Smash",
+              { { "threshold", -30.0f }, { "ratio", 10.0f }, { "attack", 1.0f },
+                { "release", 60.0f }, { "knee", 3.0f }, { "makeup", 6.0f }, { "mix", 80.0f } } },
+            { "Vocal Leveler",
+              { { "threshold", -22.0f }, { "ratio", 3.0f }, { "attack", 15.0f },
+                { "release", 180.0f }, { "knee", 9.0f }, { "makeup", 3.0f }, { "mix", 100.0f } } },
+        };
+        return options;
+    }
+
     void timerCallback() override
     {
         // Three numbers, thirty times a second. The curve the UI draws around
@@ -266,7 +318,9 @@ private:
 
     CompressorProcessor& processor;
     vsreact::ParameterBridge bridge;
+    vsreact::PresetManager presets;
     std::unique_ptr<vsreact::RootView> root;
+    bool constructed = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CompressorEditor)
 };

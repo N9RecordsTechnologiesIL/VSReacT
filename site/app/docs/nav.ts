@@ -174,6 +174,19 @@ export const DOCS: DocPage[] = [
     keywords: 'apvts parameter automation gesture begin end paramknob paramslider paramtoggle generic editor useparameterlist param:list host daw useparamgestures headless hit zone drag reset wheel min max skew interval range metadata normalizedtonatural naturaltonormalized normalisablerange',
   },
   {
+    slug: 'presets',
+    title: 'Presets',
+    group: 'AUDIO & NATIVE',
+    headings: [
+      ['cpp', 'The C++ side'],
+      ['react', 'The React side'],
+      ['protocol', 'The wire protocol'],
+      ['resize', 'Resizable editors'],
+    ],
+    keywords:
+      'preset presets presetmanager presetbrowser usepresets factory user save load next prev dirty asterisk bank patch program resizable resize setresizable setresizelimits uiwidth uiheight persist size scale editor corner grip',
+  },
+  {
     slug: 'native-messaging',
     title: 'Native messaging',
     group: 'AUDIO & NATIVE',

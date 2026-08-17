@@ -19,6 +19,7 @@ import {
   Bars,
   Meter,
   ParamKnob,
+  PresetBrowser,
   useRollingBuffer,
   Svg,
   SvgPath,
@@ -223,6 +224,10 @@ function App() {
       <View className="flex-row items-center gap-2">
         <View className="w-[8] h-[8] rounded-full bg-accent" />
         <Text className="text-text text-[14] font-bold tracking-widest">VSREACT COMPRESSOR</Text>
+        <View className="flex-1" />
+        {/* the strip every plugin header has — factory + user presets, dirty
+            asterisk, save. State lives in vsreact::PresetManager. */}
+        <PresetBrowser width={180} />
         <View className="flex-1" />
         <Text className="text-faint text-[9] tracking-widest">
           {meters.gr > 0.1 ? `-${meters.gr.toFixed(1)} dB GR` : "IDLE"}

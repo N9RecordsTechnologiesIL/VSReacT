@@ -50,6 +50,8 @@ export { registerImage } from "./images";
 export { Canvas, type CanvasProps } from "./canvas";
 export { FilmStripKnob, frameForRotation } from "./filmstrip";
 export type { KnobVariant } from "./knobskins";
+export { usePresets, PresetBrowser } from "./presets";
+export type { PresetInfo, PresetState, PresetBrowserProps } from "./presets";
 export type { FilmStripKnobProps, KnobStrip } from "./filmstrip";
 export { cx } from "./cx";
 export type { ClassValue } from "./cx";

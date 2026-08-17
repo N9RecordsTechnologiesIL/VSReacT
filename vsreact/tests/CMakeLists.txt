@@ -13,6 +13,7 @@ target_sources(VSReacTTests
         GapsTests.cpp
         FontRegistryTests.cpp
         MultiInstanceTests.cpp
+        PresetManagerTests.cpp
         CanvasTests.cpp
         KnobShaderBench.cpp
         PaintBench.cpp

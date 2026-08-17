@@ -28,3 +28,4 @@ vsreact/examples/*/ui/shot*.png
 
 # site screenshots from tools/capture-site.mjs
 .shots/
+dist-plugins/
